@@ -8,7 +8,7 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from .models import User
-from .permissions import IsAdminUser
+from .permissions import IsPublisherOrReadOnly
 from .serializers import (
     ChangePasswordSerializer,
     LoginSerializer,
@@ -156,7 +156,11 @@ def _user_admin_qs():
 
 
 class UserListView(generics.ListAPIView):
-    permission_classes = [IsAdminUser]
+    """Listagem de usuários — admin E editor podem ler.
+    Editor precisa pra escolher alvo de BanRequest. Métodos de escrita
+    continuam só admin (não tem write neste endpoint hoje, mas o readonly
+    cobre semantics futuras)."""
+    permission_classes = [IsPublisherOrReadOnly]
     serializer_class   = UserAdminSerializer
     queryset           = _user_admin_qs()
     search_fields      = ['email', 'username', 'first_name', 'last_name']
@@ -164,7 +168,7 @@ class UserListView(generics.ListAPIView):
 
 
 class UserDetailView(generics.RetrieveAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsPublisherOrReadOnly]
     serializer_class   = UserAdminSerializer
     queryset           = _user_admin_qs()
     lookup_field       = 'pk'

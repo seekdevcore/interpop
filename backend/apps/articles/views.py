@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.permissions import IsAdminOrReadOnly
+from apps.users.permissions import IsPublisherOrReadOnly
 from .models import Article, Category
 from .serializers import (
     ArticleDetailSerializer,
@@ -22,8 +22,10 @@ class CategoryListView(generics.ListAPIView):
 
 
 class ArticleListView(generics.ListCreateAPIView):
-    permission_classes = [IsAdminOrReadOnly]
-    search_fields      = ['title', 'excerpt', 'author__first_name', 'author__last_name']
+    permission_classes = [IsPublisherOrReadOnly]
+    # Busca full-text simples (icontains) em title, excerpt, body e autor.
+    # SQLite + Postgres ambos suportam — sem dep extra.
+    search_fields      = ['title', 'excerpt', 'body', 'author__first_name', 'author__last_name']
     filterset_fields   = ['category__slug', 'status', 'is_featured']
     ordering_fields    = ['published_at', 'view_count', 'created_at']
 
@@ -31,7 +33,12 @@ class ArticleListView(generics.ListCreateAPIView):
         qs = Article.objects.select_related('author', 'category').annotate(
             comment_count=Count('comments', filter=Q(comments__is_deleted=False))
         )
-        if not (self.request.user.is_authenticated and self.request.user.is_admin):
+        # Editorial team (admin + editor) enxerga drafts — convenção CMS
+        # (WordPress/Ghost): toda equipe vê o estado editorial. Edição/exclusão
+        # continua restrita ao próprio autor ou admin (regra no frontend +
+        # IsPublisherOrReadOnly no detail view).
+        user = self.request.user
+        if not (user.is_authenticated and user.can_publish):
             qs = qs.filter(status='published')
         return qs
 
@@ -48,7 +55,7 @@ class ArticleListView(generics.ListCreateAPIView):
 
 
 class ArticleDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsPublisherOrReadOnly]
     lookup_field       = 'slug'
     queryset           = Article.objects.select_related('author', 'category')
 

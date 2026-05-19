@@ -16,7 +16,7 @@ import './Navbar.css';
  */
 export function Navbar() {
   const navigate = useNavigate();
-  const { currentUser, isAdmin, logout } = useAuth();
+  const { currentUser, canPublish, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   async function handleLogout() {
@@ -42,7 +42,7 @@ export function Navbar() {
           <NavLink to="/noticias" className={linkClass}>Notícias</NavLink>
           <NavLink to="/newsletter" className={linkClass}>Newsletter</NavLink>
           <NavLink to="/sobre" className={linkClass}>Sobre</NavLink>
-          {isAdmin && (
+          {canPublish && (
             <NavLink
               to="/admin"
               className={({ isActive }) =>
@@ -95,7 +95,7 @@ export function Navbar() {
           <NavLink to="/noticias" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Notícias</NavLink>
           <NavLink to="/newsletter" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Newsletter</NavLink>
           <NavLink to="/sobre" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Sobre</NavLink>
-          {isAdmin && (
+          {canPublish && (
             <NavLink to="/admin" onClick={() => setMenuOpen(false)} className="navbar__mobile-link navbar__mobile-link--admin">
               Painel Admin
             </NavLink>

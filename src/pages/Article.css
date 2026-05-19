@@ -148,6 +148,70 @@
   color: var(--clr-primary);
 }
 
+/* Ações administrativas (Editar/Excluir) — visíveis só p/ autor ou admin.
+   Estilo discreto: separadas do share por uma borda fina, mesma tipografia,
+   variante destrutiva em vermelho editorial (não saturado). */
+.article-admin-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-1);
+  border-top: 1px dashed var(--clr-border);
+}
+
+.article-admin-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--clr-border);
+  color: var(--clr-muted);
+  background: var(--clr-white);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--t-fast);
+}
+
+.article-admin-actions__btn:hover:not(:disabled) {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+
+.article-admin-actions__btn--danger {
+  color: #B91C1C;
+  border-color: #FCA5A5;
+}
+
+.article-admin-actions__btn--danger:hover:not(:disabled) {
+  color: #FFFFFF;
+  background: #B91C1C;
+  border-color: #B91C1C;
+}
+
+.article-admin-actions__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.article-admin-actions__confirm {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--clr-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.article-admin-actions__error {
+  flex-basis: 100%;
+  margin: var(--sp-1) 0 0;
+  font-size: var(--text-sm);
+  color: #991B1B;
+}
+
 /* ─── Cover image ───
    Padrão editorial brasileiro (G1 / Folha / Estadão): hero image
    máx ~960×540, aspect 16:9, sem upscaling de imagens pequenas.

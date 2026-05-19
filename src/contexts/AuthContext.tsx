@@ -21,6 +21,8 @@ import { authService, type ApiUser } from '../services/authService';
 interface AuthContextValue {
   currentUser: ApiUser | null;
   isAdmin: boolean;
+  /** Admin OU editor — pode publicar artigos e acessar /admin (UI adapta). */
+  canPublish: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -57,10 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentUser(null);
   }, []);
 
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin    = currentUser?.role === 'admin';
+  const canPublish = isAdmin || currentUser?.role === 'editor';
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAdmin, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ currentUser, isAdmin, canPublish, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

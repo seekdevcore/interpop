@@ -45,6 +45,20 @@ export interface ArticleWritePayload {
   cover_caption?: string;
 }
 
+// ── Cache de categorias ───────────────────────────────────────────────
+// Categorias mudam muito raramente (admin Django). Em vez de cada página
+// (News, CreatePost) refazer GET /api/categories/ a cada montagem, mantemos
+// um cache in-module simples. Primeira chamada → request real; chamadas
+// subsequentes → resolvem com o array em memória.
+let _categoriesCache: ApiCategory[] | null = null;
+let _categoriesPromise: Promise<ApiCategory[]> | null = null;
+
+/** Limpa o cache (use após criar/editar categoria — não temos UI pra isso ainda). */
+export function invalidateCategoriesCache(): void {
+  _categoriesCache = null;
+  _categoriesPromise = null;
+}
+
 const articleService = {
   list: (params?: Record<string, string>) =>
     api.get<{ results: ApiArticle[]; count: number }>('/api/articles/', { params }),
@@ -80,6 +94,19 @@ const articleService = {
 
   listCategories: () =>
     api.get<{ results: ApiCategory[]; count: number }>('/api/categories/'),
+
+  /** Versão cacheada — usar nas páginas que só precisam do array de categorias.
+   *  Primeira chamada faz request, subsequentes resolvem com o cache em memória.
+   *  Requests paralelos compartilham a mesma Promise (sem N requests simultâneos). */
+  getCachedCategories(): Promise<ApiCategory[]> {
+    if (_categoriesCache) return Promise.resolve(_categoriesCache);
+    if (_categoriesPromise) return _categoriesPromise;
+    _categoriesPromise = api
+      .get<{ results: ApiCategory[]; count: number }>('/api/categories/')
+      .then(r => { _categoriesCache = r.data.results; return _categoriesCache; })
+      .catch(err => { _categoriesPromise = null; throw err; });
+    return _categoriesPromise;
+  },
 };
 
 export default articleService;

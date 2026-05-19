@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
-import moderationService, { type ApiBan } from '../../services/moderationService';
+import moderationService, { type ApiBan, type ApiBanRequest } from '../../services/moderationService';
 import metricsService, {
   type AdminMetricsResponse,
   type MetricsPeriod,
 } from '../../services/metricsService';
 import { MetricsDashboard } from './MetricsDashboard';
+import { AdminPosts } from './AdminPosts';
 import type { ApiUser as ModerationUser } from '../../services/authService';
 import interpopLogo from '../../assets/interpop-logo.svg';
 import './Admin.css';
 
-type Tab = 'usuarios' | 'banimentos' | 'metricas';
+type Tab = 'usuarios' | 'publicacoes' | 'banimentos' | 'metricas';
 type BanSubTab = 'ativos' | 'solicitacoes';
 type MetricsView = 'simples' | 'dashboard';
 
@@ -45,11 +46,19 @@ export function Admin() {
 
   const [users, setUsers]   = useState<ModerationUser[]>([]);
   const [bans, setBans]     = useState<ApiBan[]>([]);
+  const [banRequests, setBanRequests] = useState<ApiBanRequest[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingBans,  setLoadingBans]  = useState(true);
+  const [loadingBanReqs, setLoadingBanReqs] = useState(true);
+
+  const isAdmin = currentUser?.role === 'admin';
 
   // ── Banimentos sub-tabs ──
-  const [banTab, setBanTab] = useState<BanSubTab>('ativos');
+  // Editor não vê sub-tab "Usuários banidos" (admin-only endpoint), então
+  // inicia direto em 'solicitacoes' — única que ele consegue ver.
+  const [banTab, setBanTab] = useState<BanSubTab>(
+    currentUser?.role === 'admin' ? 'ativos' : 'solicitacoes'
+  );
 
   // ── Métricas ──
   const [metricsPeriod, setMetricsPeriod] = useState<MetricsPeriod>('week');
@@ -89,6 +98,14 @@ export function Admin() {
       .finally(() => setLoadingBans(false));
   }, []);
 
+  const fetchBanRequests = useCallback(() => {
+    setLoadingBanReqs(true);
+    moderationService.listBanRequests({ status: 'pending' })
+      .then(r => setBanRequests(r.data.results))
+      .catch(() => setApiError('Erro ao carregar solicitações de banimento.'))
+      .finally(() => setLoadingBanReqs(false));
+  }, []);
+
   const loadMetrics = useCallback((period: MetricsPeriod) => {
     setLoadingMetrics(true);
     metricsService.get(period)
@@ -107,13 +124,24 @@ export function Admin() {
       .catch(() => { if (!cancelled) setApiError('Erro ao carregar usuários.'); })
       .finally(() => { if (!cancelled) setLoadingUsers(false); });
 
-    moderationService.listBans()
-      .then(r => { if (!cancelled) setBans(r.data.results); })
-      .catch(() => { if (!cancelled) setApiError('Erro ao carregar banimentos.'); })
-      .finally(() => { if (!cancelled) setLoadingBans(false); });
+    // Bans (lista de banidos atuais) é admin-only no backend (IsAdminUser).
+    // Editor não precisa ver — pula o fetch pra evitar 403 ruidoso no console.
+    if (isAdmin) {
+      moderationService.listBans()
+        .then(r => { if (!cancelled) setBans(r.data.results); })
+        .catch(() => { if (!cancelled) setApiError('Erro ao carregar banimentos.'); })
+        .finally(() => { if (!cancelled) setLoadingBans(false); });
+    } else {
+      setLoadingBans(false);
+    }
+
+    moderationService.listBanRequests({ status: 'pending' })
+      .then(r => { if (!cancelled) setBanRequests(r.data.results); })
+      .catch(() => { if (!cancelled) setApiError('Erro ao carregar solicitações.'); })
+      .finally(() => { if (!cancelled) setLoadingBanReqs(false); });
 
     return () => { cancelled = true; };
-  }, []);
+  }, [isAdmin]);
 
   // ── Derived state ────────────────────────────────────────────────────────
 
@@ -142,16 +170,65 @@ export function Admin() {
     setSubmitting(true);
     setApiError('');
     try {
-      await moderationService.ban({
-        user_id: banModal.user.id,
-        reason:  banModal.reason.trim(),
-        trigger_message: banModal.triggerMessage.trim(),
-      });
+      if (isAdmin) {
+        // Admin bana direto
+        await moderationService.ban({
+          user_id: banModal.user.id,
+          reason:  banModal.reason.trim(),
+          trigger_message: banModal.triggerMessage.trim(),
+        });
+        fetchBans();
+      } else {
+        // Redator: só consegue solicitar (admin aprova depois)
+        await moderationService.createBanRequest({
+          target_id: banModal.user.id,
+          reason:    banModal.reason.trim(),
+          trigger_message: banModal.triggerMessage.trim(),
+        });
+        fetchBanRequests();
+      }
       setBanModal({ open: false, user: null, reason: '', triggerMessage: '' });
       fetchUsers();
-      fetchBans();
+    } catch (err: unknown) {
+      // Surfa QUALQUER erro do backend: detail global, ou primeiro field-error
+      // (user_id pra ban direto, target_id pra solicitação, ou outros campos).
+      // Antes só checávamos detail+target_id → erros de user_id apareciam como
+      // o fallback genérico, escondendo a causa real (ex: "Usuário já está banido").
+      const data = (err as { response?: { data?: Record<string, unknown> | string } })
+        ?.response?.data;
+      let msg = isAdmin ? 'Erro ao banir usuário.' : 'Erro ao enviar solicitação.';
+      if (typeof data === 'string') {
+        msg = data;
+      } else if (data && typeof data === 'object') {
+        const detail = (data as { detail?: string }).detail;
+        if (detail) {
+          msg = detail;
+        } else {
+          const firstField = Object.entries(data)[0];
+          if (firstField) {
+            const [, v] = firstField;
+            msg = Array.isArray(v) ? String(v[0]) : String(v);
+          }
+        }
+      }
+      setApiError(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function decideBanRequest(req: ApiBanRequest, action: 'approve' | 'reject') {
+    setSubmitting(true);
+    setApiError('');
+    try {
+      await moderationService.decideBanRequest(req.id, { action });
+      fetchBanRequests();
+      if (action === 'approve') {
+        fetchUsers();
+        fetchBans();
+      }
     } catch {
-      setApiError('Erro ao banir usuário. Tente novamente.');
+      setApiError('Erro ao decidir solicitação.');
     } finally {
       setSubmitting(false);
     }
@@ -204,6 +281,19 @@ export function Admin() {
           </button>
 
           <button
+            className={`admin__nav-item ${tab === 'publicacoes' ? 'admin__nav-item--active' : ''}`}
+            onClick={() => setTab('publicacoes')}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" strokeLinejoin="round" />
+              <polyline points="14 2 14 8 20 8" strokeLinejoin="round" />
+              <line x1="8"  y1="13" x2="16" y2="13" strokeLinecap="round" />
+              <line x1="8"  y1="17" x2="13" y2="17" strokeLinecap="round" />
+            </svg>
+            Publicações
+          </button>
+
+          <button
             className={`admin__nav-item ${tab === 'banimentos' ? 'admin__nav-item--active' : ''}`}
             onClick={() => setTab('banimentos')}
           >
@@ -217,17 +307,21 @@ export function Admin() {
             )}
           </button>
 
-          <button
-            className={`admin__nav-item ${tab === 'metricas' ? 'admin__nav-item--active' : ''}`}
-            onClick={() => { setTab('metricas'); loadMetrics(metricsPeriod); }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <line x1="18" y1="20" x2="18" y2="10" strokeLinecap="round" />
-              <line x1="12" y1="20" x2="12" y2="4"  strokeLinecap="round" />
-              <line x1="6"  y1="20" x2="6"  y2="14" strokeLinecap="round" />
-            </svg>
-            Métricas
-          </button>
+          {/* Métricas — admin only (endpoint backend IsAdminUser).
+              Editor não vê o link nem consegue carregar (skip fetch). */}
+          {isAdmin && (
+            <button
+              className={`admin__nav-item ${tab === 'metricas' ? 'admin__nav-item--active' : ''}`}
+              onClick={() => { setTab('metricas'); loadMetrics(metricsPeriod); }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <line x1="18" y1="20" x2="18" y2="10" strokeLinecap="round" />
+                <line x1="12" y1="20" x2="12" y2="4"  strokeLinecap="round" />
+                <line x1="6"  y1="20" x2="6"  y2="14" strokeLinecap="round" />
+              </svg>
+              Métricas
+            </button>
+          )}
         </nav>
 
         <div className="admin__sidebar-footer">
@@ -265,8 +359,9 @@ export function Admin() {
 
         {apiError && <p className="admin__api-error" role="alert">{apiError}</p>}
 
-        {/* Stats — hidden on the dedicated Métricas tab to avoid duplication */}
-        {tab !== 'metricas' && (
+        {/* Stats — escondido em Métricas (duplicaria KPIs) e em Publicações
+            (a aba tem seu próprio bloco de stats com semântica diferente). */}
+        {tab !== 'metricas' && tab !== 'publicacoes' && (
         <div className="admin__stats">
           {stats.map(s => (
             <div key={s.label} className={`admin__stat-card ${s.highlight ? 'admin__stat-card--danger' : ''}`}>
@@ -280,8 +375,9 @@ export function Admin() {
         </div>
         )}
 
-        {/* Search — only relevant on user/ban tabs */}
-        {tab !== 'metricas' && (
+        {/* Search — só nas abas de usuários/banimentos (Publicações e Métricas
+            têm seus próprios filtros, com semântica diferente). */}
+        {tab !== 'metricas' && tab !== 'publicacoes' && (
         <div className="admin__search">
           <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" width="16" height="16">
             <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.8" />
@@ -335,7 +431,11 @@ export function Admin() {
                         </td>
                         <td>
                           <span className={`admin__role-badge admin__role-badge--${user.role}`}>
-                            {user.role === 'admin' ? '🛡️ Admin' : '👤 Usuário'}
+                            {user.role === 'admin'
+                              ? '🛡️ Admin'
+                              : user.role === 'editor'
+                                ? '✍️ Redator'
+                                : '📖 Leitor'}
                           </span>
                         </td>
                         <td className="admin__cell-muted">
@@ -350,7 +450,7 @@ export function Admin() {
                               className="admin__ban-btn"
                               onClick={() => setBanModal({ open: true, user, reason: '', triggerMessage: '' })}
                             >
-                              Banir
+                              {isAdmin ? 'Banir' : 'Solicitar banimento'}
                             </Button>
                           )}
                         </td>
@@ -363,6 +463,11 @@ export function Admin() {
           </section>
         )}
 
+        {/* ── Tab: Publicações ── */}
+        {tab === 'publicacoes' && (
+          <AdminPosts currentUser={currentUser} isAdmin={isAdmin} />
+        )}
+
         {/* ── Tab: Banimentos ── */}
         {tab === 'banimentos' && (
           <section className="admin__section" aria-labelledby="bans-heading">
@@ -370,17 +475,20 @@ export function Admin() {
               <span>Banimentos</span>
             </h2>
 
-            {/* Sub-tabs — banidos atuais vs solicitações pendentes */}
+            {/* Sub-tabs — "Usuários banidos" só pra admin (endpoint /bans/
+                é IsAdminUser). Editor vê só Solicitações. */}
             <div className="admin__subtabs" role="tablist" aria-label="Visão de banimentos">
-              <button
-                role="tab"
-                aria-selected={banTab === 'ativos'}
-                className={`admin__subtab ${banTab === 'ativos' ? 'admin__subtab--active' : ''}`}
-                onClick={() => setBanTab('ativos')}
-              >
-                Usuários banidos
-                <span className="admin__subtab-count">{filteredBans.length}</span>
-              </button>
+              {isAdmin && (
+                <button
+                  role="tab"
+                  aria-selected={banTab === 'ativos'}
+                  className={`admin__subtab ${banTab === 'ativos' ? 'admin__subtab--active' : ''}`}
+                  onClick={() => setBanTab('ativos')}
+                >
+                  Usuários banidos
+                  <span className="admin__subtab-count">{filteredBans.length}</span>
+                </button>
+              )}
               <button
                 role="tab"
                 aria-selected={banTab === 'solicitacoes'}
@@ -388,20 +496,89 @@ export function Admin() {
                 onClick={() => setBanTab('solicitacoes')}
               >
                 Solicitações de banimento
-                <span className="admin__subtab-count">0</span>
+                <span className="admin__subtab-count">{banRequests.length}</span>
               </button>
             </div>
 
             {banTab === 'solicitacoes' && (
-              <div className="admin__empty">
-                <p style={{ fontWeight: 600, marginBottom: 'var(--sp-2)' }}>
-                  Nenhuma solicitação pendente
-                </p>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--clr-muted)' }}>
-                  Em breve — o fluxo de solicitação de banimento (denúncias de
-                  usuários e perfis especiais) será habilitado aqui.
-                </p>
-              </div>
+              loadingBanReqs ? (
+                <div className="admin__empty">Carregando…</div>
+              ) : banRequests.length === 0 ? (
+                <div className="admin__empty">
+                  <p style={{ fontWeight: 600, marginBottom: 'var(--sp-2)' }}>
+                    Nenhuma solicitação pendente
+                  </p>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--clr-muted)' }}>
+                    Redatores podem solicitar banimentos de usuários — aparecem aqui
+                    para sua aprovação.
+                  </p>
+                </div>
+              ) : (
+                <div className="admin__bans-list">
+                  {banRequests.map(r => (
+                    <div key={r.id} className="admin__ban-card">
+                      <div className="admin__ban-card-header">
+                        <div className="admin__user-cell">
+                          <div className="admin__avatar admin__avatar--sm">
+                            {r.target.avatar_initial}
+                          </div>
+                          <div>
+                            <p className="admin__user-cell-name">{r.target.full_name}</p>
+                            <p className="admin__user-cell-email">{r.target.email}</p>
+                          </div>
+                        </div>
+                        <div className="admin__ban-card-meta">
+                          <p className="admin__cell-muted admin__cell-nowrap">
+                            Solicitada em {new Date(r.created_at).toLocaleString('pt-BR')}
+                          </p>
+                          <p className="admin__cell-muted">
+                            por <strong>{r.requested_by?.full_name ?? '—'}</strong>
+                          </p>
+                        </div>
+                        {isAdmin && (
+                          <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => decideBanRequest(r, 'approve')}
+                              disabled={submitting}
+                            >
+                              Aprovar
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => decideBanRequest(r, 'reject')}
+                              disabled={submitting}
+                            >
+                              Rejeitar
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="admin__ban-card-body">
+                        <p className="admin__ban-label">Motivo da solicitação</p>
+                        <p className="admin__reason">{r.reason}</p>
+
+                        {r.trigger_message && (
+                          <div className="admin__trigger-message" role="note">
+                            <p className="admin__trigger-message-label">
+                              <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14" aria-hidden="true">
+                                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM7.5 4.5a.5.5 0 1 1 1 0v3a.5.5 0 0 1-1 0v-3zm.5 6a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z"/>
+                              </svg>
+                              Mensagem que originou
+                            </p>
+                            <blockquote className="admin__trigger-message-text">
+                              {r.trigger_message}
+                            </blockquote>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
 
             {banTab === 'ativos' && (
@@ -618,7 +795,7 @@ export function Admin() {
       <Modal
         open={banModal.open}
         onClose={() => setBanModal({ open: false, user: null, reason: '', triggerMessage: '' })}
-        title={`Banir ${banModal.user?.full_name ?? ''}`}
+        title={`${isAdmin ? 'Banir' : 'Solicitar banimento de'} ${banModal.user?.full_name ?? ''}`}
         size="sm"
         footer={
           <>
@@ -631,7 +808,9 @@ export function Admin() {
               disabled={!banModal.reason.trim() || submitting}
               className="admin__confirm-ban"
             >
-              {submitting ? 'Processando…' : 'Confirmar banimento'}
+              {submitting
+                ? 'Processando…'
+                : isAdmin ? 'Confirmar banimento' : 'Enviar solicitação'}
             </Button>
           </>
         }

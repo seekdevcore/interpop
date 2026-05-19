@@ -41,8 +41,9 @@ export function News() {
   }, [urlSearch]);
 
   useEffect(() => {
-    articleService.listCategories()
-      .then(r => setCategories(r.data.results))
+    // Cache em memória — primeira página/montagem busca; demais reusam.
+    articleService.getCachedCategories()
+      .then(setCategories)
       .catch(() => {});
   }, []);
 

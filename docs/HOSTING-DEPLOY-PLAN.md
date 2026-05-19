@@ -1,73 +1,141 @@
 # Hospedagem & Deploy — Interpop
 
-> Documento de decisão e roadmap. Atualizado em 2026-05-17.
-> Decisões aqui afetam OAuth (Google/Facebook precisam de HTTPS público
-> de callback), entrega de imagens (uploads de capa), envio de e-mail e
-> performance do signal `post_save` que dispara newsletter.
+> Documento de decisão e roadmap. Atualizado em 2026-05-19.
+> Hospedagem definida: **Hostinger KVM 1** (VPS, não PaaS).
 
-## Stack recomendada (free tier honesto, 2026)
+## Stack definida
 
-| Camada | Provider | Free tier | Por quê |
-|---|---|---|---|
-| **Frontend (Vite build)** | **Vercel** | 100 GB bandwidth/mês, builds ilimitados, custom domain HTTPS | Deploy automático do GitHub, zero config pra Vite, instant rollback, padrão da indústria pra React |
-| **Backend Django** | **Fly.io** (1ª escolha) ou **Render** | Fly: $5 credit/mo (~3 VMs sempre on); Render: 750h/mês mas **spin-down 15min idle** (cold start ~30s) | Fly **não dorme** — crítico pro signal síncrono de email no `post_save`. Render dormindo = timeout. Ambos dão HTTPS automático |
-| **Postgres** | **Neon** | 3 GB grátis, serverless (escala a zero), branching tipo git | Setup em 30s. Supabase (500MB) é menor. Render/Railway Postgres custam $7/mês após teste |
-| **Media (capas)** | **Cloudflare R2** | 10 GB grátis, **zero egress fees** | S3-compatible. AWS S3 cobra egress. **Sem isso, `runserver` perde uploads a cada deploy** |
-| **SMTP** | **Gmail** (já configurado) → **Resend** quando crescer | Gmail: 500/dia; Resend: 3.000/mês free | Gmail está OK por enquanto. Resend dev-friendly quando passar |
+**Tudo num único VPS Hostinger KVM 1** (~R$ 40/mês, 1 vCPU, 4 GB RAM, 50 GB SSD, IPv4 dedicado).
 
-**Custo total enquanto pequeno: R$ 0/mês**
-**Quando crescer (~1k leitores/dia): ~$50/mês** (Vercel Pro $20 + Fly ~$10 + Neon $19 + R2 < $5 + SMTP grátis)
+| Camada | Como roda no VPS |
+|---|---|
+| **Frontend** (Vite build) | Build estático servido pelo Nginx |
+| **Backend** Django + DRF | Gunicorn como WSGI atrás do Nginx (reverse proxy) |
+| **Banco** | PostgreSQL local na mesma máquina |
+| **Media** (capas) | `/var/www/interpop/media/` servido pelo Nginx |
+| **SMTP** | Gmail (já configurado, 500/dia free) |
+| **HTTPS** | Let's Encrypt via certbot (`certbot --nginx`) |
+| **Process manager** | systemd unit pro gunicorn + reverse proxy Nginx |
+| **Backups** | `pg_dump` diário via cron + rsync de `/media/` |
+
+**Custo total**: ~R$ 40/mês (só Hostinger). Sem dependências externas pagas.
+
+## Vantagem do VPS
+
+- **Controle total**: SSH, instala o que quiser, escolhe versão Python/Node
+- **Tudo num lugar só**: sem CORS entre domínios diferentes (frontend e backend mesma origem)
+- **OAuth simples**: callback `https://interpop.cc/api/auth/google/callback/` funciona sem hack
+- **Cookies sem dor**: `SameSite=Lax` puro (mesma origem) — sem `SameSite=None; Secure` cross-domain
+
+## Desvantagem (a saber)
+
+- **Você é o sysadmin**: atualizar SO, monitorar disco, configurar firewall (ufw), proteger SSH
+- **Sem escala horizontal automática** (se viralizar uma matéria, vai engasgar — mas isso é problema bom de ter)
+- **Backups são responsabilidade sua** (sem snapshots auto como Neon/Fly)
 
 ## Pré-requisitos antes do primeiro deploy
 
-Ajustes obrigatórios no backend Django:
+Ajustes obrigatórios no Django:
 
-1. **`SECRET_KEY`** — via env var, nunca commitado
+1. **`SECRET_KEY`** via env (no `.env` no servidor, fora do git)
 2. **`DEBUG=False`** em produção
-3. **`ALLOWED_HOSTS`** — domínio Fly/Render + custom domain
-4. **`CORS_ALLOWED_ORIGINS`** — URL do Vercel + custom domain
-5. **`CSRF_TRUSTED_ORIGINS`** — idem
-6. **WhiteNoise** instalado e configurado pra servir static do Django admin
-7. **`django-storages` + `boto3`** pra apontar `MEDIA_ROOT` para R2 (S3-compatible)
-8. **`DATABASE_URL`** env var via `dj-database-url`
-9. **Cookies `SameSite=None; Secure`** em produção (front/back em domínios diferentes)
-10. **Build pipeline**: `pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput`
+3. **`ALLOWED_HOSTS`** = `['interpop.cc', 'www.interpop.cc']` (após registrar domínio)
+4. **`CSRF_TRUSTED_ORIGINS`** = `['https://interpop.cc', 'https://www.interpop.cc']`
+5. **WhiteNoise** OU servir `/static/` direto pelo Nginx (mais performante)
+6. **`MEDIA_ROOT = '/var/www/interpop/media/'`** apontando pra disco do VPS
+7. **PostgreSQL** local: criar role + db, `DATABASES` via `dj-database-url`
+8. **`SECURE_*` settings**: `SECURE_SSL_REDIRECT=True`, `SECURE_HSTS_SECONDS=31536000`, `SESSION_COOKIE_SECURE=True`, `CSRF_COOKIE_SECURE=True`
+9. **`SIMPLE_JWT['AUTH_COOKIE_SECURE'] = True`** em produção
 
-## Por que isso bloqueia OAuth (Google/Facebook)
+Frontend:
 
-OAuth requer **HTTPS público** para callback URL. Google permite `localhost` apenas em modo dev, Facebook bloqueia totalmente. Sem hospedar:
-- Não consegue cadastrar OAuth app com callback `https://interpop.app/api/auth/google/callback/`
-- Em dev funciona com tunelamento (ngrok/cloudflared) mas é frágil
-- Produção quebra sem domínio próprio
+10. **`vite build`** gera `/dist/` — serve com Nginx `try_files`
+11. **`VITE_API_URL`** = string vazia (mesma origem)
 
-## Caminho mais curto até OAuth funcionar
+## Arquitetura no VPS
 
 ```
-Dia 1: Vercel (front) + Fly (back) + Neon (db) + R2 (media)
-       → site rodando em HTTPS público
-Dia 2: Cadastrar OAuth apps Google Cloud Console + Facebook Developers
-       → obter CLIENT_ID + CLIENT_SECRET pra ambos
-Dia 3: Implementar django-allauth + wire dos botões de login social
-       → fluxo completo: clique → redirect → callback → cookie JWT
+                    ┌─────────────────────────────────┐
+   internet ────────│  Nginx (porta 443)              │
+                    │   ├─ /          → /dist/ static │
+                    │   ├─ /api/      → :8000 gunicorn│
+                    │   ├─ /media/    → /var/www/...  │
+                    │   ├─ /static/   → /var/www/...  │
+                    │   └─ /django-admin/ → :8000     │
+                    └─────────────────────────────────┘
+                                  ↓ proxy_pass
+                    ┌─────────────────────────────────┐
+                    │  gunicorn (systemd, :8000)      │
+                    │   workers=2-4                   │
+                    │   ├─ Django (config.wsgi)       │
+                    │   └─ PostgreSQL (unix socket)   │
+                    └─────────────────────────────────┘
 ```
 
-## Status atual (2026-05-17)
+## Passo a passo do primeiro deploy
 
-- **Backend pronto pra deploy**: ❌ Falta ajustar settings/production.py (DEBUG, ALLOWED_HOSTS, CSRF, cookies), instalar django-storages + WhiteNoise
-- **Frontend pronto pra deploy**: ⚠️ Provavelmente OK (Vite + React). Falta `VITE_API_URL` env apontando pro backend prod
-- **OAuth**: ❌ Botões existem mas são placeholders sem onClick — implementação completa pendente até ter URLs públicas
-- **Contas de provider**: ❌ Nenhuma criada ainda
+1. **Comprar Hostinger KVM 1** + registrar domínio (`interpop.cc` ou similar)
+2. **SSH inicial**: `ssh root@<IP>`, criar user `interpop`, configurar SSH key, desabilitar root login + senha, instalar ufw, abrir só 22/80/443
+3. **Stack base**: `apt install postgresql nginx git certbot python3-certbot-nginx nodejs npm` — Python NÃO precisa: o `uv` instala a versão exata (3.12) pinada no `pyproject.toml`.
+4. **Instalar uv** (toolchain Python oficial do projeto): `curl -LsSf https://astral.sh/uv/install.sh | sh`
+5. **PostgreSQL**: criar role `interpop` + db `interpop_db`, ajustar `pg_hba.conf`
+6. **Clonar repo**: `git clone git@github.com:GabeMarques-Intetsu/interpop.git /var/www/interpop`
+7. **Backend setup**: `cd backend && uv sync --frozen` (cria `.venv` com Python 3.12 + todas as deps do `uv.lock` em ~3s) + `cp .env.example .env` (editar SECRETs)
+8. **Migrate + createsuperuser** + collectstatic (via `uv run python manage.py …`)
+9. **systemd unit** `/etc/systemd/system/gunicorn-interpop.service`
+10. **Frontend build**: `npm install && npm run build` → `/var/www/interpop/dist/`
+11. **Nginx config** `/etc/nginx/sites-available/interpop` + symlink em `sites-enabled` + reload
+12. **HTTPS**: `certbot --nginx -d interpop.cc -d www.interpop.cc`
+13. **DNS no Hostinger**: A record apontando pro IP do VPS
+14. **Cron de backup**: `0 3 * * * pg_dump interpop_db | gzip > /backups/$(date +%F).sql.gz`
+15. **Testar OAuth callback** (após cadastrar apps Google + Facebook com URLs reais)
 
-## Decisão pendente
+## Workflow de deploy contínuo
 
-Qual provider de backend? **Fly.io** (recomendado por não-dormir) ou **Render** (mais simples mas dorme em free tier).
+Script `scripts/deploy.sh` no servidor:
 
-## Próximos passos (quando for hora)
+```bash
+#!/bin/bash
+set -e
+cd /var/www/interpop
+git pull origin main
+cd backend
+# uv sync --frozen instala exatamente o que está no uv.lock (reproduzível)
+# em ~1-3s, contra ~30-60s do pip. Substitui venv + pip install.
+uv sync --frozen
+uv run python manage.py migrate --noinput
+uv run python manage.py collectstatic --noinput
+cd ..
+npm ci --silent
+npm run build
+sudo systemctl restart gunicorn-interpop
+echo "Deploy OK em $(date)"
+```
 
-1. Decidir Fly vs Render
-2. Pedir pra preparar config files: `requirements.txt` + `settings/production.py` + `fly.toml`/`render.yaml` + `vercel.json` + `.env.production.example`
-3. Criar contas Vercel + Fly/Render + Neon + Cloudflare (R2)
-4. Deploy inicial
-5. Configurar custom domain (opcional mas recomendado)
-6. Cadastrar OAuth apps Google + Facebook usando as URLs reais
-7. Implementar django-allauth no backend e wirear os botões no Login.tsx
+Trigger: `ssh interpop@server "/var/www/interpop/scripts/deploy.sh"` após `git push` no main.
+Pode evoluir pra GitHub Actions com SSH deploy depois.
+
+## Status atual (2026-05-19)
+
+- **Plataforma escolhida**: ✅ Hostinger KVM 1
+- **Domínio**: ❌ a registrar
+- **Settings/production.py production-ready**: ❌ falta `SECURE_*`, ajustar `ALLOWED_HOSTS`, WhiteNoise, `dj-database-url`
+- **PostgreSQL na app**: ❌ ainda SQLite — migrar `DATABASES`
+- **OAuth Google/Facebook**: ❌ a cadastrar (depende de domínio real)
+- **Contas iniciais criadas localmente**: ✅ ver `seed_users.py`
+
+## Pré-deploy checklist (quando for hora)
+
+- [ ] Comprar Hostinger KVM 1
+- [ ] Registrar domínio + apontar DNS
+- [ ] Hardening SSH (key only, fail2ban)
+- [ ] Firewall ufw
+- [ ] PostgreSQL local + role + db
+- [ ] Settings production tunings (SECURE_*, ALLOWED_HOSTS, CSRF_TRUSTED)
+- [ ] Migration de SQLite pra Postgres (`dumpdata` + `loaddata`)
+- [ ] Nginx config + systemd gunicorn
+- [ ] Let's Encrypt SSL
+- [ ] Backup cron (`pg_dump` + rsync media)
+- [ ] Smoke test: login, criar artigo, comentar
+- [ ] Cadastrar OAuth Google + Facebook com callback real
+- [ ] Implementar django-allauth + wire frontend

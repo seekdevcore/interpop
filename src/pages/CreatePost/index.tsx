@@ -1,11 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import articleService, { type ApiCategory } from '../../services/articleService';
 import { renderArticleBody } from '../../utils/renderArticleBody';
 import './CreatePost.css';
+
+interface CreatePostProps {
+  /** Quando passado, vira modo "Editar publicação" (carrega artigo, PATCH em vez de POST). */
+  editingSlug?: string;
+}
+
+/** Wrapper de rota /editar-publicacao/:slug — extrai slug e delega ao CreatePost. */
+export function EditPost() {
+  const { slug } = useParams<{ slug: string }>();
+  return <CreatePost editingSlug={slug} />;
+}
 
 interface FormState {
   title: string;
@@ -17,9 +28,10 @@ interface FormState {
 
 const EMPTY: FormState = { title: '', excerpt: '', body: '', category: '', cover_caption: '' };
 
-export function CreatePost() {
+export function CreatePost({ editingSlug }: CreatePostProps = {}) {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const isEditing = !!editingSlug;
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [coverFile, setCoverFile]       = useState<File | null>(null);
@@ -31,6 +43,26 @@ export function CreatePost() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [apiError, setApiError]         = useState('');
 
+  // Modo edição: carrega artigo existente e popula form. O cover_image é
+  // OPCIONAL na PATCH — só envia se o usuário trocar (coverFile != null).
+  useEffect(() => {
+    if (!editingSlug) return;
+    articleService.get(editingSlug)
+      .then(r => {
+        const a = r.data;
+        setForm({
+          title:         a.title,
+          excerpt:       a.excerpt,
+          body:          a.body ?? '',
+          category:      a.category ? String(a.category.id) : '',
+          cover_caption: a.cover_caption ?? '',
+        });
+        // Preview da capa atual (URL absoluta vinda do backend).
+        if (a.cover_image) setCoverPreview(a.cover_image);
+      })
+      .catch(() => setApiError('Não foi possível carregar a publicação para edição.'));
+  }, [editingSlug]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Revoke object URL when it changes or component unmounts
@@ -41,8 +73,9 @@ export function CreatePost() {
   // Load categories from the API so the dropdown is always in sync with what
   // the backend will accept as category_id.
   useEffect(() => {
-    articleService.listCategories()
-      .then(r => setCategories(r.data.results))
+    // Cache em memória — reusa o array carregado pela primeira página.
+    articleService.getCachedCategories()
+      .then(setCategories)
       .catch(() => setApiError('Não foi possível carregar as categorias.'));
   }, []);
 
@@ -82,16 +115,26 @@ export function CreatePost() {
     setIsPublishing(true);
     setApiError('');
     try {
-      await articleService.create({
+      // Payload base — em modo edit não enviamos cover_image se o usuário
+      // não trocou (coverFile=null) pra não apagar a capa atual.
+      const payload = {
         title:         form.title.trim(),
         excerpt:       form.excerpt.trim(),
         body:          form.body.trim(),
         category_id:   Number(form.category),
-        status:        'published',
-        is_featured:   false,
-        cover_image:   coverFile,
         cover_caption: form.cover_caption.trim(),
-      });
+        ...(coverFile ? { cover_image: coverFile } : {}),
+      };
+
+      if (isEditing && editingSlug) {
+        await articleService.update(editingSlug, payload);
+      } else {
+        await articleService.create({
+          ...payload,
+          status: 'published',
+          is_featured: false,
+        });
+      }
       setPublished(true);
     } catch (err: unknown) {
       const e2 = err as {
@@ -162,8 +205,11 @@ export function CreatePost() {
             ← Painel Admin
           </button>
           <div>
-            <h1>Nova Publicação</h1>
-            <p>Criando como <strong>{currentUser?.full_name}</strong></p>
+            <h1>{isEditing ? 'Editar publicação' : 'Nova publicação'}</h1>
+            <p>
+              {isEditing ? 'Editando como ' : 'Criando como '}
+              <strong>{currentUser?.full_name}</strong>
+            </p>
           </div>
         </div>
         <div className="create-post__header-actions">
@@ -177,7 +223,9 @@ export function CreatePost() {
             form="create-post-form"
             disabled={!isValid || isPublishing}
           >
-            {isPublishing ? 'Publicando…' : 'Publicar'}
+            {isPublishing
+              ? (isEditing ? 'Salvando…' : 'Publicando…')
+              : (isEditing ? 'Salvar alterações' : 'Publicar')}
           </Button>
         </div>
       </div>
@@ -269,7 +317,12 @@ export function CreatePost() {
 
             {/* ── Image upload ── */}
             <div className="input-field">
-              <label className="input-label">Imagem de capa</label>
+              <label className="input-label">
+                Imagem de capa
+                <span className="admin__label-optional">
+                  {' '}(recomendado: 1920 × 1080 px · 16:9 — também é o máximo)
+                </span>
+              </label>
 
               {coverPreview ? (
                 <div className="create-post__img-preview">
@@ -309,7 +362,10 @@ export function CreatePost() {
                   <p className="create-post__dropzone-text">
                     Clique para selecionar ou arraste uma imagem aqui
                   </p>
-                  <p className="create-post__dropzone-hint">PNG, JPG, WEBP — até 10 MB</p>
+                  <p className="create-post__dropzone-hint">PNG, JPG, WEBP · até 10 MB</p>
+                  <p className="create-post__dropzone-hint">
+                    Dimensão ideal (e máxima): <strong>1920 × 1080 px</strong> · proporção 16:9
+                  </p>
                 </div>
               )}
 

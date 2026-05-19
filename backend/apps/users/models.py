@@ -11,8 +11,9 @@ from .managers import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
-        ADMIN = 'admin', 'Administrador'
-        USER  = 'user',  'Usuário'
+        ADMIN  = 'admin',  'Administrador'   # poder total — incluindo banir
+        EDITOR = 'editor', 'Redator'          # publica artigos + solicita ban
+        USER   = 'user',   'Leitor'           # cadastro público; só lê/comenta/curte
 
     id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email      = models.EmailField(unique=True, db_index=True)
@@ -56,6 +57,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_admin(self) -> bool:
         return self.role == self.Role.ADMIN
+
+    @property
+    def is_editor(self) -> bool:
+        return self.role == self.Role.EDITOR
+
+    @property
+    def can_publish(self) -> bool:
+        """Admin e editor podem publicar artigos. Usuário leitor não."""
+        return self.role in (self.Role.ADMIN, self.Role.EDITOR)
 
 
 class PasswordResetToken(models.Model):

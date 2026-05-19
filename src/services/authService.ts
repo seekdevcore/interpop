@@ -7,7 +7,8 @@ export interface ApiUser {
   first_name: string;
   last_name: string;
   email?: string;
-  role: 'admin' | 'user';
+  /** admin = poder total · editor = publica + solicita ban · user = leitor */
+  role: 'admin' | 'editor' | 'user';
   bio: string;
   avatar: string | null;
   avatar_initial: string;

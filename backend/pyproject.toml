@@ -1,0 +1,19 @@
+[project]
+name = "interpop-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "argon2-cffi==23.1.0",
+    "django==5.1.4",
+    "django-axes==7.0.1",
+    "django-cors-headers==4.6.0",
+    "django-filter==24.3",
+    "djangorestframework==3.15.2",
+    "djangorestframework-simplejwt==5.3.1",
+    "gunicorn==23.0.0",
+    "pillow==11.1.0",
+    "psycopg2-binary==2.9.10",
+    "python-decouple==3.8",
+    "python-slugify==8.0.4",
+    "whitenoise==6.8.2",
+]

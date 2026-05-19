@@ -22,7 +22,11 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
 ]
+
+SITE_ID = 1
 
 THIRD_PARTY_APPS = [
     'rest_framework',
@@ -58,6 +62,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.audit.middleware.AuditLogMiddleware',
+    # Intercepta crawlers sociais (WhatsApp/Twitter/Facebook) em /noticia/<slug>
+    # e devolve HTML com meta tags OG ricas. Outras requests passam intactas.
+    'apps.articles.og_middleware.SocialOGMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
