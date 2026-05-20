@@ -162,9 +162,15 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         return value
 
     def save(self):
-        user = self._token_obj.user
-        user.set_password(self.validated_data['new_password'])
-        user.save(update_fields=['password', 'updated_at'])
-        self._token_obj.is_used = True
-        self._token_obj.save(update_fields=['is_used'])
-        return user
+        # @transaction.atomic: dois writes (user.password + token.is_used) que
+        # precisam comitar juntos. Sem isso, crash entre as duas linhas deixava
+        # token consumido mas senha não trocada — usuário ficava sem acesso.
+        # ADR-012 / item C3 do Improvement-system.md §11.1.
+        from django.db import transaction
+        with transaction.atomic():
+            user = self._token_obj.user
+            user.set_password(self.validated_data['new_password'])
+            user.save(update_fields=['password', 'updated_at'])
+            self._token_obj.is_used = True
+            self._token_obj.save(update_fields=['is_used'])
+            return user

@@ -1,9 +1,22 @@
-"""Ban / unban business logic, isolated from views."""
+"""Ban / unban business logic, isolated from views.
+
+Política de integridade transacional (ADR-012):
+Todos os services abaixo que escrevem ≥2 rows são decorados com
+`@transaction.atomic`. Sem isso, um crash entre a primeira e a
+segunda escrita deixava estado inconsistente (ex.: Ban gravado mas
+User.is_banned ainda False, ou vice-versa). Item C3 do
+Improvement-system.md §11.1.
+
+`approve_ban_request` chama `ban_user` internamente — atomic aninhado
+é seguro no Django (usa savepoints automaticamente).
+"""
+from django.db import transaction
 from django.utils import timezone
 from apps.users.models import User
 from .models import Ban, BanRequest
 
 
+@transaction.atomic
 def ban_user(target: User, admin: User, reason: str, trigger_message: str = '') -> Ban:
     """Bane o usuário. Idempotente quanto a histórico: como `Ban.user` é
     OneToOne (1 registro por usuário no banco), re-banir alguém que já
@@ -30,6 +43,7 @@ def ban_user(target: User, admin: User, reason: str, trigger_message: str = '') 
     return ban
 
 
+@transaction.atomic
 def unban_user(ban: Ban, admin: User) -> Ban:
     ban.is_active   = False
     ban.unbanned_by = admin
@@ -41,6 +55,7 @@ def unban_user(ban: Ban, admin: User) -> Ban:
 
 # ── BanRequest (solicitação de banimento por redator) ─────────────────────
 
+@transaction.atomic
 def approve_ban_request(request_obj: BanRequest, admin: User, decision_note: str = '') -> Ban:
     """Admin aprova solicitação → cria Ban real + marca como APPROVED.
 
