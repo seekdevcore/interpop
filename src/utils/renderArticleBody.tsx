@@ -18,8 +18,15 @@
  */
 import type { ReactNode } from 'react';
 
-export function renderArticleBody(body: string, authorName?: string): ReactNode[] {
-  const paragraphs = body.trim().split('\n\n').map(p => p.trim()).filter(Boolean);
+export function renderArticleBody(
+  body: string,
+  authorName?: string,
+): ReactNode[] {
+  const paragraphs = body
+    .trim()
+    .split('\n\n')
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   return paragraphs.map((para, i) => {
     // Citação em destaque

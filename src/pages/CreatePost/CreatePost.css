@@ -63,7 +63,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--clr-border);
   padding: var(--sp-4) var(--sp-8);
@@ -91,7 +91,9 @@
   transition: color var(--t-fast);
 }
 
-.create-post__back:hover { color: var(--clr-primary); }
+.create-post__back:hover {
+  color: var(--clr-primary);
+}
 
 .create-post__header-left h1 {
   font-size: var(--text-lg);
@@ -163,7 +165,9 @@
   color: var(--clr-text);
   resize: vertical;
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
   line-height: 1.6;
 }
 
@@ -172,7 +176,10 @@
   box-shadow: 0 0 0 3px var(--clr-primary-100);
 }
 
-.create-post__textarea--lg { font-size: var(--text-base); line-height: 1.8; }
+.create-post__textarea--lg {
+  font-size: var(--text-base);
+  line-height: 1.8;
+}
 
 /* Select */
 .create-post__select {
@@ -186,7 +193,9 @@
   background: var(--clr-white);
   outline: none;
   cursor: pointer;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
 }
 
 .create-post__select:focus {
@@ -232,7 +241,9 @@
   color: var(--clr-text);
   background: var(--clr-white);
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
 }
 
 .create-post__caption-input:focus {
@@ -261,7 +272,9 @@
   border-radius: var(--radius-xl);
   background: var(--clr-bg);
   cursor: pointer;
-  transition: border-color var(--t-fast), background var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    background var(--t-fast);
   text-align: center;
   outline: none;
 }
@@ -277,7 +290,10 @@
   background: var(--clr-primary-50);
 }
 
-.create-post__dropzone-icon { font-size: 2.5rem; line-height: 1; }
+.create-post__dropzone-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
 
 .create-post__dropzone-text {
   font-size: var(--text-sm);
@@ -307,7 +323,7 @@
 .create-post__img-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0);
+  background: rgba(0, 0, 0, 0);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,7 +332,7 @@
 }
 
 .create-post__img-preview:hover .create-post__img-overlay {
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .create-post__img-change {
@@ -329,7 +345,9 @@
   padding: var(--sp-2) var(--sp-4);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: opacity var(--t-fast), background var(--t-fast);
+  transition:
+    opacity var(--t-fast),
+    background var(--t-fast);
 }
 
 .create-post__img-remove {
@@ -337,7 +355,7 @@
   font-size: var(--text-base);
   font-weight: 700;
   color: var(--clr-white);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   border: none;
   width: 32px;
   height: 32px;
@@ -346,7 +364,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity var(--t-fast), background var(--t-fast);
+  transition:
+    opacity var(--t-fast),
+    background var(--t-fast);
   line-height: 1;
 }
 
@@ -355,7 +375,9 @@
   opacity: 1;
 }
 
-.create-post__img-remove:hover { background: #DC2626; }
+.create-post__img-remove:hover {
+  background: #dc2626;
+}
 
 .create-post__img-filename {
   position: absolute;
@@ -363,8 +385,8 @@
   left: 0;
   right: 0;
   font-size: var(--text-xs);
-  color: rgba(255,255,255,0.85);
-  background: rgba(0,0,0,0.4);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.4);
   padding: var(--sp-1) var(--sp-3);
   white-space: nowrap;
   overflow: hidden;
@@ -466,11 +488,21 @@
   gap: var(--sp-4);
 }
 
-.create-post__placeholder { color: var(--clr-subtle); font-style: italic; }
+.create-post__placeholder {
+  color: var(--clr-subtle);
+  font-style: italic;
+}
 
 /* ─── Responsive ─── */
 @media (max-width: 900px) {
-  .create-post__body { padding: var(--sp-4); }
-  .create-post__body:has(.create-post__preview) { grid-template-columns: 1fr; }
-  .create-post__preview { position: static; max-height: none; }
+  .create-post__body {
+    padding: var(--sp-4);
+  }
+  .create-post__body:has(.create-post__preview) {
+    grid-template-columns: 1fr;
+  }
+  .create-post__preview {
+    position: static;
+    max-height: none;
+  }
 }

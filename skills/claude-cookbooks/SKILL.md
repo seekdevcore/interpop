@@ -44,29 +44,29 @@ Reusable agent / workflow patterns (routing, parallel calls, prompt chaining, re
 
 Path: `tool_use/`
 
-| Notebook | Use case |
-|----------|----------|
-| `customer_service_agent.ipynb` | End-to-end tool-using agent |
-| `calculator_tool.ipynb` | Minimal first tool-use example |
-| `extracting_structured_json.ipynb` | Force JSON output via tool schema |
-| `memory_cookbook.ipynb` | Conversation memory pattern |
-| `automatic-context-compaction.ipynb` | Compaction when context grows |
-| `tool_choice.ipynb`, `parallel_tools.ipynb` | Advanced patterns (check folder) |
+| Notebook                                    | Use case                          |
+| ------------------------------------------- | --------------------------------- |
+| `customer_service_agent.ipynb`              | End-to-end tool-using agent       |
+| `calculator_tool.ipynb`                     | Minimal first tool-use example    |
+| `extracting_structured_json.ipynb`          | Force JSON output via tool schema |
+| `memory_cookbook.ipynb`                     | Conversation memory pattern       |
+| `automatic-context-compaction.ipynb`        | Compaction when context grows     |
+| `tool_choice.ipynb`, `parallel_tools.ipynb` | Advanced patterns (check folder)  |
 
 ### 3. Multimodal — vision and PDFs
 
 Path: `multimodal/` and `misc/`
 
-| Notebook | Use case |
-|----------|----------|
-| `getting_started_with_vision.ipynb` | First Claude vision call |
-| `best_practices_for_vision.ipynb` | Tips for accuracy and tokens |
-| `reading_charts_graphs_powerpoints.ipynb` | Chart / slide interpretation |
-| `how_to_transcribe_text.ipynb` | OCR-like form extraction |
-| `crop_tool.ipynb` | Image crop tool |
-| `using_sub_agents.ipynb` | Haiku as sub-agent under Opus |
-| `misc/pdf_upload_summarization.ipynb` | PDF parsing + summary |
-| `misc/illustrated_responses.ipynb` | Generate images with Stable Diffusion |
+| Notebook                                  | Use case                              |
+| ----------------------------------------- | ------------------------------------- |
+| `getting_started_with_vision.ipynb`       | First Claude vision call              |
+| `best_practices_for_vision.ipynb`         | Tips for accuracy and tokens          |
+| `reading_charts_graphs_powerpoints.ipynb` | Chart / slide interpretation          |
+| `how_to_transcribe_text.ipynb`            | OCR-like form extraction              |
+| `crop_tool.ipynb`                         | Image crop tool                       |
+| `using_sub_agents.ipynb`                  | Haiku as sub-agent under Opus         |
+| `misc/pdf_upload_summarization.ipynb`     | PDF parsing + summary                 |
+| `misc/illustrated_responses.ipynb`        | Generate images with Stable Diffusion |
 
 ### 4. Extended thinking
 
@@ -111,14 +111,14 @@ Path: `third_party/`
 
 Path: `misc/` (mixed bag of essential recipes)
 
-| Notebook | Use case |
-|----------|----------|
-| `prompt_caching.ipynb` | **Always consult before adding caching** |
-| `building_evals.ipynb` | Automated eval pipelines |
-| `how_to_enable_json_mode.ipynb` | Consistent JSON output |
-| `building_moderation_filter.ipynb` | Content moderation |
-| `how_to_make_sql_queries.ipynb` | Claude as SQL generator |
-| `read_web_pages_with_haiku.ipynb` | Cheap web-page reading |
+| Notebook                           | Use case                                 |
+| ---------------------------------- | ---------------------------------------- |
+| `prompt_caching.ipynb`             | **Always consult before adding caching** |
+| `building_evals.ipynb`             | Automated eval pipelines                 |
+| `how_to_enable_json_mode.ipynb`    | Consistent JSON output                   |
+| `building_moderation_filter.ipynb` | Content moderation                       |
+| `how_to_make_sql_queries.ipynb`    | Claude as SQL generator                  |
+| `read_web_pages_with_haiku.ipynb`  | Cheap web-page reading                   |
 
 ### 9. Observability and tool evaluation
 

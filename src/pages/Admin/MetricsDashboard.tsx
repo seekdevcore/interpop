@@ -32,9 +32,14 @@
  *     summary so screen readers get the metric, not the SVG.
  */
 import {
-  AreaChart, Area,
-  PieChart, Pie,
-  CartesianGrid, XAxis, YAxis, Tooltip,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
   ResponsiveContainer,
 } from 'recharts';
 import type { AdminMetricsResponse } from '../../services/metricsService';
@@ -46,47 +51,47 @@ interface MetricsDashboardProps {
 // Editorial accent palette — mirrors src/styles/global.css tokens
 // (migrated 2026-05-17 away from loud violet/magenta to editorial earth tones).
 const CATEGORY_COLORS: Record<string, string> = {
-  'música':           '#5E4F3B',  // sépia/earth (was #7C3AED violet)
-  'moda':             '#A8554C',  // terracotta (was #BE185D magenta)
-  'cinema':           '#B45309',
-  'literatura':       '#15803D',
-  'cultura-digital':  '#0E7490',
-  'default':          '#6B7280',
+  música: '#5E4F3B', // sépia/earth (was #7C3AED violet)
+  moda: '#A8554C', // terracotta (was #BE185D magenta)
+  cinema: '#B45309',
+  literatura: '#15803D',
+  'cultura-digital': '#0E7490',
+  default: '#6B7280',
 };
-const NAVY       = '#19144c';
+const NAVY = '#19144c';
 // Secondary series color for area charts — terracotta from the new
 // editorial palette; replaces the previous magenta accent #BE185D.
 const TERRACOTTA = '#A8554C';
-const AXIS       = '#9CA3AF';
-const GRID       = '#EEF0F4';
+const AXIS = '#9CA3AF';
+const GRID = '#EEF0F4';
 
 export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
   const activityData = metrics.time_series.labels.map((label, i) => ({
     label,
-    comments:    metrics.time_series.comments[i]    ?? 0,
-    likes:       metrics.time_series.likes[i]       ?? 0,
+    comments: metrics.time_series.comments[i] ?? 0,
+    likes: metrics.time_series.likes[i] ?? 0,
     subscribers: metrics.time_series.subscribers[i] ?? 0,
   }));
 
   // Recharts 3.x: data items carry `fill`, no Cell wrappers needed.
-  const allCategories = metrics.category_breakdown.map(c => ({
-    name:  c.name,
+  const allCategories = metrics.category_breakdown.map((c) => ({
+    name: c.name,
     value: c.count,
-    fill:  CATEGORY_COLORS[c.slug] ?? CATEGORY_COLORS.default,
+    fill: CATEGORY_COLORS[c.slug] ?? CATEGORY_COLORS.default,
   }));
   // Drop zero-count categories so a single populated editoria doesn't
   // share a donut/legend with 5 empty slots — Linear/Posthog never show
   // empty rows in their composition widgets.
-  const visibleCategories = allCategories.filter(c => c.value > 0);
+  const visibleCategories = allCategories.filter((c) => c.value > 0);
   const totalArticles = allCategories.reduce((sum, c) => sum + c.value, 0);
 
   const topArticles = metrics.per_article.slice(0, 5);
-  const maxTopViews = Math.max(...topArticles.map(a => a.view_count), 1);
+  const maxTopViews = Math.max(...topArticles.map((a) => a.view_count), 1);
 
   // ── Resumos textuais p/ leitores de tela (WCAG 2.2 — 1.1.1) ───────────
   const totalComments = activityData.reduce((s, d) => s + d.comments, 0);
-  const totalLikes    = activityData.reduce((s, d) => s + d.likes, 0);
-  const totalNewSubs  = activityData.reduce((s, d) => s + d.subscribers, 0);
+  const totalLikes = activityData.reduce((s, d) => s + d.likes, 0);
+  const totalNewSubs = activityData.reduce((s, d) => s + d.subscribers, 0);
 
   const activityAria =
     `Série temporal de atividade no período: ${totalComments} comentários e ` +
@@ -96,22 +101,33 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
     `Área de novos assinantes da newsletter: ` +
     `${totalNewSubs} no total ao longo de ${activityData.length} pontos.`;
 
-  const categoryAria = visibleCategories.length === 0
-    ? 'Sem dados de categoria neste período.'
-    : `${totalArticles} publicações distribuídas em ${visibleCategories.length} ` +
-      `editorias: ${visibleCategories.map(c => `${c.name} ${c.value}`).join(', ')}.`;
+  const categoryAria =
+    visibleCategories.length === 0
+      ? 'Sem dados de categoria neste período.'
+      : `${totalArticles} publicações distribuídas em ${visibleCategories.length} ` +
+        `editorias: ${visibleCategories.map((c) => `${c.name} ${c.value}`).join(', ')}.`;
 
-  const topArticlesAria = topArticles.length === 0
-    ? 'Sem publicações para ranquear.'
-    : `Ranking das ${topArticles.length} publicações mais vistas: ` +
-      topArticles.map((a, i) => `${i + 1}. ${a.title} com ${a.view_count} visualizações`).join('; ') + '.';
+  const topArticlesAria =
+    topArticles.length === 0
+      ? 'Sem publicações para ranquear.'
+      : `Ranking das ${topArticles.length} publicações mais vistas: ` +
+        topArticles
+          .map(
+            (a, i) => `${i + 1}. ${a.title} com ${a.view_count} visualizações`,
+          )
+          .join('; ') +
+        '.';
 
   const tooltipStyle = {
-    background: NAVY, border: 'none', borderRadius: 8,
-    color: '#fff', fontSize: 12, padding: '8px 12px',
+    background: NAVY,
+    border: 'none',
+    borderRadius: 8,
+    color: '#fff',
+    fontSize: 12,
+    padding: '8px 12px',
   };
   const tooltipLabel = { color: '#fff', fontWeight: 600 };
-  const tooltipItem  = { color: '#fff' };
+  const tooltipItem = { color: '#fff' };
 
   return (
     <div className="dash">
@@ -120,38 +136,80 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
         <div className="dash__card dash__card--wide">
           <header className="dash__card-head">
             <h3>Atividade por dia</h3>
-            <p>Comentários e curtidas · {totalComments + totalLikes} eventos no período</p>
+            <p>
+              Comentários e curtidas · {totalComments + totalLikes} eventos no
+              período
+            </p>
           </header>
           <div className="dash__chart" role="img" aria-label={activityAria}>
             <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={activityData} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
+              <AreaChart
+                data={activityData}
+                margin={{ top: 8, right: 12, left: -12, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="gradComments" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor={NAVY}    stopOpacity={0.22} />
-                    <stop offset="100%" stopColor={NAVY}    stopOpacity={0} />
+                    <stop offset="0%" stopColor={NAVY} stopOpacity={0.22} />
+                    <stop offset="100%" stopColor={NAVY} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gradLikes" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor={TERRACOTTA} stopOpacity={0.20} />
-                    <stop offset="100%" stopColor={TERRACOTTA} stopOpacity={0} />
+                    <stop
+                      offset="0%"
+                      stopColor={TERRACOTTA}
+                      stopOpacity={0.2}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor={TERRACOTTA}
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="label" stroke={AXIS} fontSize={12} tickMargin={10}
-                       tickLine={false} axisLine={false} />
-                <YAxis stroke={AXIS} fontSize={12} allowDecimals={false}
-                       tickLine={false} axisLine={false} width={28} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={GRID}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke={AXIS}
+                  fontSize={12}
+                  tickMargin={10}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke={AXIS}
+                  fontSize={12}
+                  allowDecimals={false}
+                  tickLine={false}
+                  axisLine={false}
+                  width={28}
+                />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  labelStyle={tooltipLabel}
+                  itemStyle={tooltipItem}
+                />
                 <Area
-                  type="monotone" dataKey="comments" name="Comentários"
-                  stroke={NAVY} strokeWidth={2}
-                  fill="url(#gradComments)" fillOpacity={1}
+                  type="monotone"
+                  dataKey="comments"
+                  name="Comentários"
+                  stroke={NAVY}
+                  strokeWidth={2}
+                  fill="url(#gradComments)"
+                  fillOpacity={1}
                   activeDot={{ r: 4, strokeWidth: 0, fill: NAVY }}
                   isAnimationActive={false}
                 />
                 <Area
-                  type="monotone" dataKey="likes" name="Curtidas"
-                  stroke={TERRACOTTA} strokeWidth={2}
-                  fill="url(#gradLikes)" fillOpacity={1}
+                  type="monotone"
+                  dataKey="likes"
+                  name="Curtidas"
+                  stroke={TERRACOTTA}
+                  strokeWidth={2}
+                  fill="url(#gradLikes)"
+                  fillOpacity={1}
                   activeDot={{ r: 4, strokeWidth: 0, fill: TERRACOTTA }}
                   isAnimationActive={false}
                 />
@@ -180,13 +238,19 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
                 : `${visibleCategories.length} de ${allCategories.length} categorias ativas`}
             </p>
           </header>
-          <div className="dash__chart dash__chart--donut" role="img" aria-label={categoryAria}>
+          <div
+            className="dash__chart dash__chart--donut"
+            role="img"
+            aria-label={categoryAria}
+          >
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
-                  data={visibleCategories.length > 0
-                    ? visibleCategories
-                    : [{ name: '—', value: 1, fill: '#EAEAEA' }]}
+                  data={
+                    visibleCategories.length > 0
+                      ? visibleCategories
+                      : [{ name: '—', value: 1, fill: '#EAEAEA' }]
+                  }
                   dataKey="value"
                   nameKey="name"
                   innerRadius={58}
@@ -199,7 +263,10 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
                   isAnimationActive={false}
                 />
                 {visibleCategories.length > 0 && (
-                  <Tooltip contentStyle={tooltipStyle} itemStyle={tooltipItem} />
+                  <Tooltip
+                    contentStyle={tooltipStyle}
+                    itemStyle={tooltipItem}
+                  />
                 )}
               </PieChart>
             </ResponsiveContainer>
@@ -212,9 +279,12 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
           </div>
           {visibleCategories.length > 0 && (
             <ul className="dash__legend">
-              {visibleCategories.map(c => (
+              {visibleCategories.map((c) => (
                 <li key={c.name}>
-                  <span className="dash__legend-dot" style={{ background: c.fill }} />
+                  <span
+                    className="dash__legend-dot"
+                    style={{ background: c.fill }}
+                  />
                   <span className="dash__legend-name">{c.name}</span>
                   <span className="dash__legend-value">{c.value}</span>
                 </li>
@@ -233,23 +303,50 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
           </header>
           <div className="dash__chart" role="img" aria-label={subscribersAria}>
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={activityData} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
+              <AreaChart
+                data={activityData}
+                margin={{ top: 8, right: 12, left: -12, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="gradSubs" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor={NAVY} stopOpacity={0.30} />
+                    <stop offset="0%" stopColor={NAVY} stopOpacity={0.3} />
                     <stop offset="100%" stopColor={NAVY} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="label" stroke={AXIS} fontSize={12} tickMargin={10}
-                       tickLine={false} axisLine={false} />
-                <YAxis stroke={AXIS} fontSize={12} allowDecimals={false}
-                       tickLine={false} axisLine={false} width={28} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabel} itemStyle={tooltipItem} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={GRID}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke={AXIS}
+                  fontSize={12}
+                  tickMargin={10}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke={AXIS}
+                  fontSize={12}
+                  allowDecimals={false}
+                  tickLine={false}
+                  axisLine={false}
+                  width={28}
+                />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  labelStyle={tooltipLabel}
+                  itemStyle={tooltipItem}
+                />
                 <Area
-                  type="monotone" dataKey="subscribers" name="Novos assinantes"
-                  stroke={NAVY} strokeWidth={2}
-                  fill="url(#gradSubs)" fillOpacity={1}
+                  type="monotone"
+                  dataKey="subscribers"
+                  name="Novos assinantes"
+                  stroke={NAVY}
+                  strokeWidth={2}
+                  fill="url(#gradSubs)"
+                  fillOpacity={1}
                   activeDot={{ r: 4, strokeWidth: 0, fill: NAVY }}
                   isAnimationActive={false}
                 />
@@ -273,13 +370,19 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
                   const pct = Math.max(3, (a.view_count / maxTopViews) * 100);
                   return (
                     <li key={a.slug} className="dash__top-row">
-                      <span className="dash__top-bar" style={{ width: `${pct}%` }} aria-hidden="true" />
+                      <span
+                        className="dash__top-bar"
+                        style={{ width: `${pct}%` }}
+                        aria-hidden="true"
+                      />
                       <span className="dash__top-rank">{i + 1}</span>
                       <div className="dash__top-meta">
                         <p className="dash__top-title">{a.title}</p>
                         {a.published_at && (
                           <time className="dash__top-date">
-                            {new Date(a.published_at).toLocaleDateString('pt-BR')}
+                            {new Date(a.published_at).toLocaleDateString(
+                              'pt-BR',
+                            )}
                           </time>
                         )}
                       </div>

@@ -3,7 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout';
 import { NewsCard } from '../components/ui/NewsCard';
 import { Button } from '../components/ui/Button';
-import articleService, { type ApiArticle, type ApiCategory } from '../services/articleService';
+import articleService, {
+  type ApiArticle,
+  type ApiCategory,
+} from '../services/articleService';
 import './News.css';
 
 /**
@@ -21,20 +24,22 @@ import './News.css';
 export function News() {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get('categoria') ?? '';
-  const urlSearch   = searchParams.get('busca') ?? '';
+  const urlSearch = searchParams.get('busca') ?? '';
 
-  const [articles, setArticles]           = useState<ApiArticle[]>([]);
-  const [categories, setCategories]       = useState<ApiCategory[]>([]);
-  const [loading, setLoading]             = useState(true);
-  const [loadingMore, setLoadingMore]     = useState(false);
-  const [totalCount, setTotalCount]       = useState(0);
-  const [page, setPage]                   = useState(1);
+  const [articles, setArticles] = useState<ApiArticle[]>([]);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
   const [activeCategory, setActiveCategory] = useState(urlCategory);
-  const [search, setSearch]               = useState(urlSearch);
-  const [searchInput, setSearchInput]     = useState(urlSearch);
+  const [search, setSearch] = useState(urlSearch);
+  const [searchInput, setSearchInput] = useState(urlSearch);
 
   // Keep state in sync with URL changes coming from the navbar/footer.
-  useEffect(() => { setActiveCategory(urlCategory); }, [urlCategory]);
+  useEffect(() => {
+    setActiveCategory(urlCategory);
+  }, [urlCategory]);
   useEffect(() => {
     setSearch(urlSearch);
     setSearchInput(urlSearch);
@@ -42,38 +47,44 @@ export function News() {
 
   useEffect(() => {
     // Cache em memória — primeira página/montagem busca; demais reusam.
-    articleService.getCachedCategories()
+    articleService
+      .getCachedCategories()
       .then(setCategories)
       .catch(() => {});
   }, []);
 
-  const fetchArticles = useCallback(async (
-    pageNum: number,
-    searchVal: string,
-    categorySlug: string,
-    append: boolean,
-  ) => {
-    const params: Record<string, string> = {
-      status: 'published',
-      page: String(pageNum),
-    };
-    if (searchVal) params.search = searchVal;
-    if (categorySlug) params.category__slug = categorySlug;
+  const fetchArticles = useCallback(
+    async (
+      pageNum: number,
+      searchVal: string,
+      categorySlug: string,
+      append: boolean,
+    ) => {
+      const params: Record<string, string> = {
+        status: 'published',
+        page: String(pageNum),
+      };
+      if (searchVal) params.search = searchVal;
+      if (categorySlug) params.category__slug = categorySlug;
 
-    try {
-      const { data } = await articleService.list(params);
-      if (append) setArticles(prev => [...prev, ...data.results]);
-      else setArticles(data.results);
-      setTotalCount(data.count);
-    } catch {
-      // silent — keeping existing list is the least-disruptive failure
-    }
-  }, []);
+      try {
+        const { data } = await articleService.list(params);
+        if (append) setArticles((prev) => [...prev, ...data.results]);
+        else setArticles(data.results);
+        setTotalCount(data.count);
+      } catch {
+        // silent — keeping existing list is the least-disruptive failure
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     setLoading(true);
     setPage(1);
-    fetchArticles(1, search, activeCategory, false).finally(() => setLoading(false));
+    fetchArticles(1, search, activeCategory, false).finally(() =>
+      setLoading(false),
+    );
   }, [search, activeCategory, fetchArticles]);
 
   const handleLoadMore = async () => {
@@ -85,12 +96,17 @@ export function News() {
   };
 
   const updateUrl = (cat: string, srch: string) => {
-    setSearchParams(prev => {
-      const next = new URLSearchParams(prev);
-      if (cat) next.set('categoria', cat); else next.delete('categoria');
-      if (srch) next.set('busca', srch); else next.delete('busca');
-      return next;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (cat) next.set('categoria', cat);
+        else next.delete('categoria');
+        if (srch) next.set('busca', srch);
+        else next.delete('busca');
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -107,7 +123,8 @@ export function News() {
   };
 
   const hasMore = articles.length < totalCount;
-  const activeCategoryName = categories.find(c => c.slug === activeCategory)?.name ?? '';
+  const activeCategoryName =
+    categories.find((c) => c.slug === activeCategory)?.name ?? '';
 
   return (
     <PageLayout>
@@ -128,21 +145,44 @@ export function News() {
           </header>
 
           <div className="home-filters" role="search">
-            <form className="home-filters__search" onSubmit={handleSearchSubmit}>
-              <svg className="home-filters__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M13 13l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            <form
+              className="home-filters__search"
+              onSubmit={handleSearchSubmit}
+            >
+              <svg
+                className="home-filters__icon"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="8.5"
+                  cy="8.5"
+                  r="5.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                />
+                <path
+                  d="M13 13l3 3"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
               </svg>
               <input
                 type="search"
                 value={searchInput}
-                onChange={e => setSearchInput(e.target.value)}
+                onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Buscar notícias..."
                 aria-label="Buscar notícias"
               />
             </form>
 
-            <div className="home-filters__categories" role="group" aria-label="Filtrar por categoria">
+            <div
+              className="home-filters__categories"
+              role="group"
+              aria-label="Filtrar por categoria"
+            >
               <button
                 onClick={() => handleCategoryChange('')}
                 className={`home-filters__cat ${activeCategory === '' ? 'home-filters__cat--active' : ''}`}
@@ -150,7 +190,7 @@ export function News() {
               >
                 Todos
               </button>
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <button
                   key={cat.slug}
                   onClick={() => handleCategoryChange(cat.slug)}
@@ -164,31 +204,46 @@ export function News() {
           </div>
 
           {loading ? (
-            <div className="home-loading" role="status" aria-label="Carregando artigos">
+            <div
+              className="home-loading"
+              role="status"
+              aria-label="Carregando artigos"
+            >
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="home-skeleton" />
               ))}
             </div>
           ) : articles.length > 0 ? (
             <div className="home-grid">
-              {articles.map(article => (
+              {articles.map((article) => (
                 <NewsCard key={article.id} article={article} />
               ))}
             </div>
           ) : (
             <div className="home-empty" role="status">
               <p>
-                {search
-                  ? <>Nenhum artigo encontrado para "<strong>{search}</strong>".</>
-                  : activeCategoryName
-                    ? <>Nenhum artigo em <strong>{activeCategoryName}</strong> ainda.</>
-                    : 'Nenhum artigo disponível no momento.'}
+                {search ? (
+                  <>
+                    Nenhum artigo encontrado para "<strong>{search}</strong>".
+                  </>
+                ) : activeCategoryName ? (
+                  <>
+                    Nenhum artigo em <strong>{activeCategoryName}</strong>{' '}
+                    ainda.
+                  </>
+                ) : (
+                  'Nenhum artigo disponível no momento.'
+                )}
               </p>
               {(search || activeCategory) && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => { setSearch(''); setSearchInput(''); handleCategoryChange(''); }}
+                  onClick={() => {
+                    setSearch('');
+                    setSearchInput('');
+                    handleCategoryChange('');
+                  }}
                 >
                   Limpar filtros
                 </Button>
@@ -198,7 +253,12 @@ export function News() {
 
           {!loading && hasMore && (
             <div className="home-load-more">
-              <Button variant="outline" size="lg" onClick={handleLoadMore} disabled={loadingMore}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+              >
                 {loadingMore ? 'Carregando…' : 'Ver mais notícias'}
               </Button>
             </div>

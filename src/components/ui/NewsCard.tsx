@@ -11,13 +11,19 @@ interface NewsCardProps {
 
 function formatDate(iso: string | null): string {
   if (!iso) return '';
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .format(new Date(iso));
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(iso));
 }
 
 export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
-  const PLACEHOLDER = 'https://placehold.co/800x450/1a1a1a/ffffff?text=Interpop';
-  const catVariant = categoryVariant(article.category?.slug ?? article.category?.name);
+  const PLACEHOLDER =
+    'https://placehold.co/800x450/1a1a1a/ffffff?text=Interpop';
+  const catVariant = categoryVariant(
+    article.category?.slug ?? article.category?.name,
+  );
 
   return (
     <Link
@@ -27,11 +33,7 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
       aria-label={article.title}
     >
       <div className="news-card__image">
-        <img
-          src={article.cover_image ?? PLACEHOLDER}
-          alt=""
-          loading="lazy"
-        />
+        <img src={article.cover_image ?? PLACEHOLDER} alt="" loading="lazy" />
         {article.category && (
           <Badge category={catVariant}>{article.category.name}</Badge>
         )}
@@ -43,7 +45,9 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
         )}
         <div className="news-card__meta">
           <div className="news-card__author">
-            <span className="news-card__avatar">{article.author.avatar_initial}</span>
+            <span className="news-card__avatar">
+              {article.author.avatar_initial}
+            </span>
             <span>{article.author.full_name}</span>
           </div>
           <div className="news-card__info">
@@ -51,7 +55,10 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
             {article.comment_count > 0 && (
               <>
                 <span>·</span>
-                <span>{article.comment_count} comentário{article.comment_count !== 1 ? 's' : ''}</span>
+                <span>
+                  {article.comment_count} comentário
+                  {article.comment_count !== 1 ? 's' : ''}
+                </span>
               </>
             )}
           </div>

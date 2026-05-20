@@ -10,10 +10,7 @@ interface BadgeProps {
 
 export function Badge({ children, variant = 'primary', category }: BadgeProps) {
   return (
-    <span
-      className={`badge badge--${variant}`}
-      data-category={category}
-    >
+    <span className={`badge badge--${variant}`} data-category={category}>
       {children}
     </span>
   );

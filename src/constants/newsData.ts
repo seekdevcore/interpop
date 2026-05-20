@@ -1,7 +1,12 @@
 import type { Article, Category, Comment } from '../types';
 
 export const CATEGORIES: Category[] = [
-  'Todos', 'Música', 'Moda', 'Cinema', 'Literatura', 'Cultura Digital',
+  'Todos',
+  'Música',
+  'Moda',
+  'Cinema',
+  'Literatura',
+  'Cultura Digital',
 ];
 
 export const ARTICLES: Article[] = [
@@ -12,8 +17,13 @@ export const ARTICLES: Article[] = [
     title: 'O Equilíbrio de Poder na Era Digital',
     excerpt:
       'Algoritmos, dados e conectividade tornaram-se armas tão potentes quanto qualquer arsenal bélico. Como a tecnologia reconfigurou o poder geopolítico no século XXI.',
-    coverImage: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&q=85',
-    author: { name: 'Maria Silva', role: 'Correspondente Internacional', avatarInitial: 'M' },
+    coverImage:
+      'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&q=85',
+    author: {
+      name: 'Maria Silva',
+      role: 'Correspondente Internacional',
+      avatarInitial: 'M',
+    },
     publishedAt: '27 abr 2026',
     readTime: 8,
     featured: true,
@@ -26,8 +36,13 @@ export const ARTICLES: Article[] = [
     title: 'Competições esportivas no futuro: realidade aumentada e eSports',
     excerpt:
       'A fusão entre esportes tradicionais e tecnologia digital cria uma nova era de entretenimento global com audiências bilionárias.',
-    coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
-    author: { name: 'Carlos Mendes', role: 'Editor de Tecnologia', avatarInitial: 'C' },
+    coverImage:
+      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
+    author: {
+      name: 'Carlos Mendes',
+      role: 'Editor de Tecnologia',
+      avatarInitial: 'C',
+    },
     publishedAt: '26 abr 2026',
     readTime: 5,
   },
@@ -38,8 +53,13 @@ export const ARTICLES: Article[] = [
     title: 'Festas Mundiais: bastidores de uma produção monumental',
     excerpt:
       'Como as maiores celebrações culturais do planeta são organizadas e o impacto econômico e social que geram nas comunidades locais.',
-    coverImage: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&q=80',
-    author: { name: 'Ana Costa', role: 'Editora de Cultura', avatarInitial: 'A' },
+    coverImage:
+      'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&q=80',
+    author: {
+      name: 'Ana Costa',
+      role: 'Editora de Cultura',
+      avatarInitial: 'A',
+    },
     publishedAt: '25 abr 2026',
     readTime: 6,
   },
@@ -50,8 +70,13 @@ export const ARTICLES: Article[] = [
     title: 'Cidades inteligentes: o modelo que redefine o urbanismo global',
     excerpt:
       'Investimentos em infraestrutura conectada transformam metrópoles ao redor do mundo em laboratórios vivos de inovação urbana.',
-    coverImage: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80',
-    author: { name: 'Pedro Rocha', role: 'Repórter de Negócios', avatarInitial: 'P' },
+    coverImage:
+      'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80',
+    author: {
+      name: 'Pedro Rocha',
+      role: 'Repórter de Negócios',
+      avatarInitial: 'P',
+    },
     publishedAt: '24 abr 2026',
     readTime: 7,
   },
@@ -62,8 +87,13 @@ export const ARTICLES: Article[] = [
     title: 'Segurança Cibernética: ameaças crescentes exigem resposta global',
     excerpt:
       'Ataques coordenados a infraestruturas críticas aceleram a criação de alianças internacionais de defesa digital sem precedentes.',
-    coverImage: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&q=80',
-    author: { name: 'Julia Farias', role: 'Analista de Segurança', avatarInitial: 'J' },
+    coverImage:
+      'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&q=80',
+    author: {
+      name: 'Julia Farias',
+      role: 'Analista de Segurança',
+      avatarInitial: 'J',
+    },
     publishedAt: '23 abr 2026',
     readTime: 9,
   },
@@ -74,8 +104,13 @@ export const ARTICLES: Article[] = [
     title: 'Crises Migratórias: desafios e perspectivas para 2026',
     excerpt:
       'O fluxo de refugiados em níveis históricos pressiona governos e organizações internacionais a buscarem soluções estruturais urgentes.',
-    coverImage: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
-    author: { name: 'Ricardo Lima', role: 'Editor de Economia', avatarInitial: 'R' },
+    coverImage:
+      'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
+    author: {
+      name: 'Ricardo Lima',
+      role: 'Editor de Economia',
+      avatarInitial: 'R',
+    },
     publishedAt: '22 abr 2026',
     readTime: 6,
   },
@@ -86,14 +121,19 @@ export const ARTICLES: Article[] = [
     title: 'Novo acordo diplomático transforma relações internacionais',
     excerpt:
       'Líderes mundiais assinam tratado histórico que redefine o equilíbrio de poder entre as maiores potências do século XXI.',
-    coverImage: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=80',
-    author: { name: 'Maria Silva', role: 'Correspondente Internacional', avatarInitial: 'M' },
+    coverImage:
+      'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=80',
+    author: {
+      name: 'Maria Silva',
+      role: 'Correspondente Internacional',
+      avatarInitial: 'M',
+    },
     publishedAt: '21 abr 2026',
     readTime: 4,
   },
 ];
 
-export const FEATURED_ARTICLE = ARTICLES.find(a => a.featured) ?? ARTICLES[0];
+export const FEATURED_ARTICLE = ARTICLES.find((a) => a.featured) ?? ARTICLES[0];
 
 export const ARTICLE_BODY = `
 Sempre diziam que o poder vinha de exércitos e fronteiras. Hoje, a arena global se transformou de maneiras que nenhum teórico clássico das relações internacionais poderia prever com precisão. Algoritmos, dados e conectividade tornaram-se armas tão potentes quanto qualquer arsenal bélico do século passado.

@@ -28,20 +28,34 @@ export function Navbar() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'navbar__link navbar__link--active' : 'navbar__link';
   const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'navbar__mobile-link navbar__mobile-link--active' : 'navbar__mobile-link';
+    isActive
+      ? 'navbar__mobile-link navbar__mobile-link--active'
+      : 'navbar__mobile-link';
 
   return (
     <header className="navbar">
       <div className="navbar__inner container">
-        <Link to="/" className="navbar__logo" aria-label="Interpop — Página inicial">
+        <Link
+          to="/"
+          className="navbar__logo"
+          aria-label="Interpop — Página inicial"
+        >
           <img src={interpopLogo} alt="Interpop" className="navbar__logo-img" />
         </Link>
 
         <nav className="navbar__nav" aria-label="Navegação principal">
-          <NavLink to="/" end className={linkClass}>Início</NavLink>
-          <NavLink to="/noticias" className={linkClass}>Notícias</NavLink>
-          <NavLink to="/newsletter" className={linkClass}>Newsletter</NavLink>
-          <NavLink to="/sobre" className={linkClass}>Sobre</NavLink>
+          <NavLink to="/" end className={linkClass}>
+            Início
+          </NavLink>
+          <NavLink to="/noticias" className={linkClass}>
+            Notícias
+          </NavLink>
+          <NavLink to="/newsletter" className={linkClass}>
+            Newsletter
+          </NavLink>
+          <NavLink to="/sobre" className={linkClass}>
+            Sobre
+          </NavLink>
           {canPublish && (
             <NavLink
               to="/admin"
@@ -62,17 +76,27 @@ export function Navbar() {
               <div className="navbar__user-avatar" aria-hidden="true">
                 {currentUser.avatar_initial}
               </div>
-              <span className="navbar__user-name">{currentUser.first_name}</span>
+              <span className="navbar__user-name">
+                {currentUser.first_name}
+              </span>
               <button className="navbar__logout" onClick={handleLogout}>
                 Sair
               </button>
             </div>
           ) : (
             <>
-              <Button variant="outline" size="sm" onClick={() => navigate('/login')}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/login')}
+              >
                 Entrar
               </Button>
-              <Button variant="primary" size="sm" onClick={() => navigate('/cadastro')}>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => navigate('/cadastro')}
+              >
                 Criar conta
               </Button>
             </>
@@ -83,20 +107,51 @@ export function Navbar() {
           className="navbar__burger"
           aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
           aria-expanded={menuOpen}
-          onClick={() => setMenuOpen(o => !o)}
+          onClick={() => setMenuOpen((o) => !o)}
         >
-          <span /><span /><span />
+          <span />
+          <span />
+          <span />
         </button>
       </div>
 
       {menuOpen && (
         <div className="navbar__mobile" role="dialog" aria-label="Menu mobile">
-          <NavLink to="/" end onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Início</NavLink>
-          <NavLink to="/noticias" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Notícias</NavLink>
-          <NavLink to="/newsletter" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Newsletter</NavLink>
-          <NavLink to="/sobre" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>Sobre</NavLink>
+          <NavLink
+            to="/"
+            end
+            onClick={() => setMenuOpen(false)}
+            className={mobileLinkClass}
+          >
+            Início
+          </NavLink>
+          <NavLink
+            to="/noticias"
+            onClick={() => setMenuOpen(false)}
+            className={mobileLinkClass}
+          >
+            Notícias
+          </NavLink>
+          <NavLink
+            to="/newsletter"
+            onClick={() => setMenuOpen(false)}
+            className={mobileLinkClass}
+          >
+            Newsletter
+          </NavLink>
+          <NavLink
+            to="/sobre"
+            onClick={() => setMenuOpen(false)}
+            className={mobileLinkClass}
+          >
+            Sobre
+          </NavLink>
           {canPublish && (
-            <NavLink to="/admin" onClick={() => setMenuOpen(false)} className="navbar__mobile-link navbar__mobile-link--admin">
+            <NavLink
+              to="/admin"
+              onClick={() => setMenuOpen(false)}
+              className="navbar__mobile-link navbar__mobile-link--admin"
+            >
               Painel Admin
             </NavLink>
           )}
@@ -107,10 +162,24 @@ export function Navbar() {
               </Button>
             ) : (
               <>
-                <Button variant="outline" fullWidth onClick={() => { navigate('/login'); setMenuOpen(false); }}>
+                <Button
+                  variant="outline"
+                  fullWidth
+                  onClick={() => {
+                    navigate('/login');
+                    setMenuOpen(false);
+                  }}
+                >
                   Entrar
                 </Button>
-                <Button variant="primary" fullWidth onClick={() => { navigate('/cadastro'); setMenuOpen(false); }}>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  onClick={() => {
+                    navigate('/cadastro');
+                    setMenuOpen(false);
+                  }}
+                >
                   Criar conta
                 </Button>
               </>

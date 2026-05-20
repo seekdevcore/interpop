@@ -17,8 +17,8 @@ export const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,          // send httpOnly JWT cookies
-  xsrfCookieName: 'csrftoken',   // Django CSRF cookie name
+  withCredentials: true, // send httpOnly JWT cookies
+  xsrfCookieName: 'csrftoken', // Django CSRF cookie name
   xsrfHeaderName: 'X-CSRFToken', // Django CSRF header name
   headers: { 'Content-Type': 'application/json' },
 });
@@ -28,8 +28,8 @@ const api = axios.create({
 let refreshing: Promise<void> | null = null;
 
 api.interceptors.response.use(
-  res => res,
-  async error => {
+  (res) => res,
+  async (error) => {
     const original: InternalAxiosRequestConfig & { _retry?: boolean } =
       error.config ?? {};
 
@@ -42,7 +42,9 @@ api.interceptors.response.use(
     if (!refreshing) {
       refreshing = api
         .post('/api/auth/refresh/')
-        .then(() => { refreshing = null; })
+        .then(() => {
+          refreshing = null;
+        })
         .catch(() => {
           refreshing = null;
           // Broadcast a logout event so AuthContext can clean up

@@ -52,28 +52,35 @@ export interface BanRequestDecisionPayload {
 const moderationService = {
   // ─── Direct bans (admin only) ────────────────────────────
   listUsers: (params?: Record<string, string>) =>
-    api.get<{ results: ApiUser[]; count: number }>('/api/auth/users/', { params }),
+    api.get<{ results: ApiUser[]; count: number }>('/api/auth/users/', {
+      params,
+    }),
 
   listBans: (params?: Record<string, string>) =>
-    api.get<{ results: ApiBan[]; count: number }>('/api/moderation/bans/', { params }),
+    api.get<{ results: ApiBan[]; count: number }>('/api/moderation/bans/', {
+      params,
+    }),
 
   ban: (payload: BanPayload) =>
     api.post<ApiBan>('/api/moderation/bans/', payload),
 
-  unban: (banId: string) =>
-    api.delete(`/api/moderation/bans/${banId}/`),
+  unban: (banId: string) => api.delete(`/api/moderation/bans/${banId}/`),
 
   // ─── BanRequests (editor solicita / admin decide) ────────
   listBanRequests: (params?: Record<string, string>) =>
     api.get<{ results: ApiBanRequest[]; count: number }>(
-      '/api/moderation/ban-requests/', { params },
+      '/api/moderation/ban-requests/',
+      { params },
     ),
 
   createBanRequest: (payload: BanRequestPayload) =>
     api.post<ApiBanRequest>('/api/moderation/ban-requests/', payload),
 
   decideBanRequest: (id: string, payload: BanRequestDecisionPayload) =>
-    api.post<ApiBanRequest>(`/api/moderation/ban-requests/${id}/decide/`, payload),
+    api.post<ApiBanRequest>(
+      `/api/moderation/ban-requests/${id}/decide/`,
+      payload,
+    ),
 };
 
 export default moderationService;

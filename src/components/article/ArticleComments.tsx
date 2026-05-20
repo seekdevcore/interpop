@@ -23,16 +23,17 @@ interface ArticleCommentsProps {
 }
 
 export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
-  const [comments, setComments]           = useState<ApiComment[]>([]);
+  const [comments, setComments] = useState<ApiComment[]>([]);
   const [totalComments, setTotalComments] = useState(0);
-  const [commentText, setCommentText]     = useState('');
-  const [submitting, setSubmitting]       = useState(false);
-  const [commentError, setCommentError]   = useState('');
+  const [commentText, setCommentText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   useEffect(() => {
     if (!slug) return;
-    commentService.list(slug)
-      .then(r => {
+    commentService
+      .list(slug)
+      .then((r) => {
         setComments(r.data.results);
         setTotalComments(r.data.count);
       })
@@ -45,8 +46,8 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
     setCommentError('');
     try {
       const { data } = await commentService.add(slug, commentText.trim());
-      setComments(prev => [data, ...prev]);
-      setTotalComments(n => n + 1);
+      setComments((prev) => [data, ...prev]);
+      setTotalComments((n) => n + 1);
       setCommentText('');
     } catch (err: unknown) {
       const e = err as {
@@ -82,31 +83,41 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
   const handleDelete = useCallback((id: string) => {
     const removeFromList = (list: ApiComment[]): ApiComment[] =>
       list
-        .filter(c => c.id !== id)
-        .map(c => ({ ...c, replies: removeFromList(c.replies ?? []) }));
-    setComments(prev => removeFromList(prev));
-    setTotalComments(n => Math.max(0, n - 1));
+        .filter((c) => c.id !== id)
+        .map((c) => ({ ...c, replies: removeFromList(c.replies ?? []) }));
+    setComments((prev) => removeFromList(prev));
+    setTotalComments((n) => Math.max(0, n - 1));
   }, []);
 
-  const handleReplyAdded = useCallback((parentId: string, reply: ApiComment) => {
-    setComments(prev =>
-      prev.map(c =>
-        c.id === parentId
-          ? { ...c, replies: [...(c.replies ?? []), reply], replies_count: c.replies_count + 1 }
-          : c
-      )
-    );
-    setTotalComments(n => n + 1);
-  }, []);
+  const handleReplyAdded = useCallback(
+    (parentId: string, reply: ApiComment) => {
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === parentId
+            ? {
+                ...c,
+                replies: [...(c.replies ?? []), reply],
+                replies_count: c.replies_count + 1,
+              }
+            : c,
+        ),
+      );
+      setTotalComments((n) => n + 1);
+    },
+    [],
+  );
 
-  const handleLikeToggled = useCallback((id: string, liked: boolean, count: number) => {
-    const update = (list: ApiComment[]): ApiComment[] =>
-      list.map(c => {
-        if (c.id === id) return { ...c, is_liked: liked, likes_count: count };
-        return { ...c, replies: update(c.replies ?? []) };
-      });
-    setComments(prev => update(prev));
-  }, []);
+  const handleLikeToggled = useCallback(
+    (id: string, liked: boolean, count: number) => {
+      const update = (list: ApiComment[]): ApiComment[] =>
+        list.map((c) => {
+          if (c.id === id) return { ...c, is_liked: liked, likes_count: count };
+          return { ...c, replies: update(c.replies ?? []) };
+        });
+      setComments((prev) => update(prev));
+    },
+    [],
+  );
 
   return (
     <section className="article-comments" aria-labelledby="comments-heading">
@@ -118,7 +129,7 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
         <div className="article-comment-form">
           <textarea
             value={commentText}
-            onChange={e => setCommentText(e.target.value)}
+            onChange={(e) => setCommentText(e.target.value)}
             placeholder="Deixe seu comentário…"
             rows={3}
             maxLength={2000}
@@ -152,15 +163,20 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
         </div>
       ) : (
         <p className="article-comments__login-prompt">
-          <Link to="/login" className="auth-link auth-link--strong">Entre</Link> ou{' '}
-          <Link to="/cadastro" className="auth-link auth-link--strong">crie uma conta</Link>{' '}
+          <Link to="/login" className="auth-link auth-link--strong">
+            Entre
+          </Link>{' '}
+          ou{' '}
+          <Link to="/cadastro" className="auth-link auth-link--strong">
+            crie uma conta
+          </Link>{' '}
           para comentar.
         </p>
       )}
 
       {comments.length > 0 ? (
         <ol className="article-comments-list">
-          {comments.map(c => (
+          {comments.map((c) => (
             <CommentItem
               key={c.id}
               comment={c}

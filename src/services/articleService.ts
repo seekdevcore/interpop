@@ -16,7 +16,12 @@ export interface ApiArticle {
   /** Legenda da capa (G1-style: "Pessoa — Foto: Agência"). Só vem na detail
    *  view (`GET /api/articles/<slug>/`), não na listagem — evita inflar payload. */
   cover_caption?: string;
-  author: { id: string; full_name: string; avatar_initial: string; role: string };
+  author: {
+    id: string;
+    full_name: string;
+    avatar_initial: string;
+    role: string;
+  };
   category: ApiCategory | null;
   status: 'draft' | 'published';
   is_featured: boolean;
@@ -61,10 +66,11 @@ export function invalidateCategoriesCache(): void {
 
 const articleService = {
   list: (params?: Record<string, string>) =>
-    api.get<{ results: ApiArticle[]; count: number }>('/api/articles/', { params }),
+    api.get<{ results: ApiArticle[]; count: number }>('/api/articles/', {
+      params,
+    }),
 
-  get: (slug: string) =>
-    api.get<ApiArticle>(`/api/articles/${slug}/`),
+  get: (slug: string) => api.get<ApiArticle>(`/api/articles/${slug}/`),
 
   create: (payload: ArticleWritePayload) => {
     const form = new FormData();
@@ -86,11 +92,9 @@ const articleService = {
     });
   },
 
-  remove: (slug: string) =>
-    api.delete(`/api/articles/${slug}/`),
+  remove: (slug: string) => api.delete(`/api/articles/${slug}/`),
 
-  recordView: (slug: string) =>
-    api.post(`/api/articles/${slug}/view/`),
+  recordView: (slug: string) => api.post(`/api/articles/${slug}/view/`),
 
   listCategories: () =>
     api.get<{ results: ApiCategory[]; count: number }>('/api/categories/'),
@@ -103,8 +107,14 @@ const articleService = {
     if (_categoriesPromise) return _categoriesPromise;
     _categoriesPromise = api
       .get<{ results: ApiCategory[]; count: number }>('/api/categories/')
-      .then(r => { _categoriesCache = r.data.results; return _categoriesCache; })
-      .catch(err => { _categoriesPromise = null; throw err; });
+      .then((r) => {
+        _categoriesCache = r.data.results;
+        return _categoriesCache;
+      })
+      .catch((err) => {
+        _categoriesPromise = null;
+        throw err;
+      });
     return _categoriesPromise;
   },
 };

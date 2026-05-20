@@ -83,7 +83,9 @@
   cursor: pointer;
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .comment-item__like:hover:not(:disabled) {
@@ -112,7 +114,9 @@
   cursor: pointer;
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
   color: var(--color-muted, #6b7280);
 }
 

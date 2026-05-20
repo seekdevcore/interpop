@@ -25,18 +25,19 @@ const CAROUSEL_SIZE = 9;
 export function Home() {
   const [carouselArticles, setCarouselArticles] = useState<ApiArticle[]>([]);
   const [featured, setFeatured] = useState<ApiArticle | null>(null);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    articleService.list({ status: 'published', page: '1' })
+    articleService
+      .list({ status: 'published', page: '1' })
       .then(({ data }) => {
-        const feat = data.results.find(a => a.is_featured) ?? null;
+        const feat = data.results.find((a) => a.is_featured) ?? null;
         setFeatured(feat);
         // Carousel shows the latest N non-featured articles. The featured
         // article already has its own dedicated section, so excluding it
         // avoids visual duplication.
-        const rest = data.results.filter(a => a.id !== feat?.id);
+        const rest = data.results.filter((a) => a.id !== feat?.id);
         setCarouselArticles(rest.slice(0, CAROUSEL_SIZE));
       })
       .catch(() => {})
@@ -56,13 +57,14 @@ export function Home() {
             <div className="home-hero__text">
               <p className="home-hero__tag">Sobre o projeto</p>
               <h1 id="hero-manifesto" className="home-hero__manifesto">
-                O <em>Interpop</em> é um projeto independente que busca analisar criticamente
-                o <em>Soft Power</em> e seu papel na manutenção da hegemonia global.
+                O <em>Interpop</em> é um projeto independente que busca analisar
+                criticamente o <em>Soft Power</em> e seu papel na manutenção da
+                hegemonia global.
               </h1>
               <p className="home-hero__lede">
-                Nesse sentido, a partir da cultura pop e das dinâmicas midiáticas, o projeto
-                investiga como determinados Atores exercem influência política de forma
-                indireta no sistema internacional.
+                Nesse sentido, a partir da cultura pop e das dinâmicas
+                midiáticas, o projeto investiga como determinados Atores exercem
+                influência política de forma indireta no sistema internacional.
               </p>
             </div>
             <div className="home-hero__visual" aria-hidden="true">
@@ -101,13 +103,20 @@ export function Home() {
           </div>
 
           {loading ? (
-            <div className="home-loading" role="status" aria-label="Carregando artigos">
+            <div
+              className="home-loading"
+              role="status"
+              aria-label="Carregando artigos"
+            >
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="home-skeleton" />
               ))}
             </div>
           ) : carouselArticles.length > 0 ? (
-            <NewsCarousel articles={carouselArticles} label="Últimas notícias" />
+            <NewsCarousel
+              articles={carouselArticles}
+              label="Últimas notícias"
+            />
           ) : (
             <div className="home-empty" role="status">
               <p>Nenhum artigo disponível no momento.</p>

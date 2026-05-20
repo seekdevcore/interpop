@@ -24,23 +24,23 @@
 }
 
 /* ── Per-category accents (foreground = ink, background = soft chip) ── */
-.badge[data-category="musica"] {
+.badge[data-category='musica'] {
   --badge-fg: var(--clr-cat-musica);
   --badge-bg: var(--clr-cat-musica-bg);
 }
-.badge[data-category="moda"] {
+.badge[data-category='moda'] {
   --badge-fg: var(--clr-cat-moda);
   --badge-bg: var(--clr-cat-moda-bg);
 }
-.badge[data-category="cinema"] {
+.badge[data-category='cinema'] {
   --badge-fg: var(--clr-cat-cinema);
   --badge-bg: var(--clr-cat-cinema-bg);
 }
-.badge[data-category="literatura"] {
+.badge[data-category='literatura'] {
   --badge-fg: var(--clr-cat-literatura);
   --badge-bg: var(--clr-cat-literatura-bg);
 }
-.badge[data-category="cultura-digital"] {
+.badge[data-category='cultura-digital'] {
   --badge-fg: var(--clr-cat-cultura-digital);
   --badge-bg: var(--clr-cat-cultura-digital-bg);
 }

@@ -39,6 +39,11 @@
 }
 
 @media (max-width: 720px) {
-  .news-page { padding: var(--sp-6) 0 var(--sp-12); }
-  .news-page__header { padding-bottom: var(--sp-4); margin-bottom: var(--sp-6); }
+  .news-page {
+    padding: var(--sp-6) 0 var(--sp-12);
+  }
+  .news-page__header {
+    padding-bottom: var(--sp-4);
+    margin-bottom: var(--sp-6);
+  }
 }

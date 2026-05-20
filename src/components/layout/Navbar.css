@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  background: rgba(255,255,255,0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--clr-border);
@@ -44,12 +44,21 @@
   color: var(--clr-muted);
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--radius-md);
-  transition: color var(--t-fast), background var(--t-fast);
+  transition:
+    color var(--t-fast),
+    background var(--t-fast);
   white-space: nowrap;
 }
 
-.navbar__link:hover { color: var(--clr-text); background: var(--clr-border); }
-.navbar__link--active { color: var(--clr-primary); font-weight: 600; background: var(--clr-primary-50); }
+.navbar__link:hover {
+  color: var(--clr-text);
+  background: var(--clr-border);
+}
+.navbar__link--active {
+  color: var(--clr-primary);
+  font-weight: 600;
+  background: var(--clr-primary-50);
+}
 
 /* Actions */
 .navbar__actions {
@@ -75,7 +84,9 @@
   height: 2px;
   background: var(--clr-text);
   border-radius: 2px;
-  transition: transform var(--t-fast), opacity var(--t-fast);
+  transition:
+    transform var(--t-fast),
+    opacity var(--t-fast);
 }
 
 /* Mobile menu */
@@ -94,10 +105,15 @@
   color: var(--clr-muted);
   padding: var(--sp-3) var(--sp-2);
   border-radius: var(--radius-md);
-  transition: color var(--t-fast), background var(--t-fast);
+  transition:
+    color var(--t-fast),
+    background var(--t-fast);
 }
 
-.navbar__mobile-link:hover { color: var(--clr-primary); background: var(--clr-primary-50); }
+.navbar__mobile-link:hover {
+  color: var(--clr-primary);
+  background: var(--clr-primary-50);
+}
 
 .navbar__mobile-actions {
   display: flex;
@@ -159,11 +175,21 @@
   transition: color var(--t-fast);
 }
 
-.navbar__logout:hover { color: var(--clr-primary); }
+.navbar__logout:hover {
+  color: var(--clr-primary);
+}
 
-@media (max-width: 900px) { .navbar__nav { display: none; } }
+@media (max-width: 900px) {
+  .navbar__nav {
+    display: none;
+  }
+}
 
 @media (max-width: 640px) {
-  .navbar__actions { display: none; }
-  .navbar__burger { display: flex; }
+  .navbar__actions {
+    display: none;
+  }
+  .navbar__burger {
+    display: flex;
+  }
 }

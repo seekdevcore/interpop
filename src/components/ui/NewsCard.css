@@ -6,7 +6,9 @@
   border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--clr-border);
-  transition: transform var(--t-base), box-shadow var(--t-base);
+  transition:
+    transform var(--t-base),
+    box-shadow var(--t-base);
   height: 100%;
   /* Top accent strip — color injected by [data-category] rules below. */
   --card-accent: var(--clr-primary);
@@ -25,13 +27,25 @@
   transition: opacity var(--t-base);
 }
 
-.news-card[data-category]:not([data-category="default"])::before { opacity: 1; }
+.news-card[data-category]:not([data-category='default'])::before {
+  opacity: 1;
+}
 
-.news-card[data-category="musica"]           { --card-accent: var(--clr-cat-musica); }
-.news-card[data-category="moda"]             { --card-accent: var(--clr-cat-moda); }
-.news-card[data-category="cinema"]           { --card-accent: var(--clr-cat-cinema); }
-.news-card[data-category="literatura"]       { --card-accent: var(--clr-cat-literatura); }
-.news-card[data-category="cultura-digital"]  { --card-accent: var(--clr-cat-cultura-digital); }
+.news-card[data-category='musica'] {
+  --card-accent: var(--clr-cat-musica);
+}
+.news-card[data-category='moda'] {
+  --card-accent: var(--clr-cat-moda);
+}
+.news-card[data-category='cinema'] {
+  --card-accent: var(--clr-cat-cinema);
+}
+.news-card[data-category='literatura'] {
+  --card-accent: var(--clr-cat-literatura);
+}
+.news-card[data-category='cultura-digital'] {
+  --card-accent: var(--clr-cat-cultura-digital);
+}
 
 .news-card:hover {
   transform: translateY(-3px);
@@ -72,7 +86,9 @@
   z-index: 1;
 }
 
-.news-card:hover .news-card__image img { transform: scale(1.045); }
+.news-card:hover .news-card__image img {
+  transform: scale(1.045);
+}
 
 .news-card__image .badge {
   position: absolute;
@@ -109,7 +125,9 @@
   transition: color var(--t-fast);
 }
 
-.news-card:hover .news-card__title { color: var(--clr-primary); }
+.news-card:hover .news-card__title {
+  color: var(--clr-primary);
+}
 
 .news-card__excerpt {
   font-family: var(--font-serif);
@@ -211,17 +229,48 @@
 }
 
 /* ─── Compact variant ─── */
-.news-card--compact { flex-direction: row; gap: 0; min-height: 90px; }
-.news-card--compact .news-card__image { width: 100px; min-height: 90px; aspect-ratio: auto; flex-shrink: 0; }
-.news-card--compact .news-card__image::after { display: none; }
-.news-card--compact .news-card__image .badge { display: none; }
-.news-card--compact .news-card__body { padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); }
-.news-card--compact .news-card__title { font-size: var(--text-sm); -webkit-line-clamp: 2; }
-.news-card--compact .news-card__meta { padding-top: var(--sp-2); }
+.news-card--compact {
+  flex-direction: row;
+  gap: 0;
+  min-height: 90px;
+}
+.news-card--compact .news-card__image {
+  width: 100px;
+  min-height: 90px;
+  aspect-ratio: auto;
+  flex-shrink: 0;
+}
+.news-card--compact .news-card__image::after {
+  display: none;
+}
+.news-card--compact .news-card__image .badge {
+  display: none;
+}
+.news-card--compact .news-card__body {
+  padding: var(--sp-3) var(--sp-4);
+  gap: var(--sp-2);
+}
+.news-card--compact .news-card__title {
+  font-size: var(--text-sm);
+  -webkit-line-clamp: 2;
+}
+.news-card--compact .news-card__meta {
+  padding-top: var(--sp-2);
+}
 
 @media (max-width: 720px) {
-  .news-card--featured { flex-direction: column; }
-  .news-card--featured .news-card__image { width: 100%; min-height: 220px; }
-  .news-card--featured .news-card__body { padding: var(--sp-5); }
-  .news-card--featured .news-card__title { font-size: 1.5rem; letter-spacing: -0.015em; }
+  .news-card--featured {
+    flex-direction: column;
+  }
+  .news-card--featured .news-card__image {
+    width: 100%;
+    min-height: 220px;
+  }
+  .news-card--featured .news-card__body {
+    padding: var(--sp-5);
+  }
+  .news-card--featured .news-card__title {
+    font-size: 1.5rem;
+    letter-spacing: -0.015em;
+  }
 }

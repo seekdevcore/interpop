@@ -7,14 +7,14 @@
  */
 const VARIANT_MAP: Record<string, string> = {
   // Música
-  'musica': 'musica',
-  'música': 'musica',
+  musica: 'musica',
+  música: 'musica',
   // Moda
-  'moda': 'moda',
+  moda: 'moda',
   // Cinema
-  'cinema': 'cinema',
+  cinema: 'cinema',
   // Literatura
-  'literatura': 'literatura',
+  literatura: 'literatura',
   // Cultura Digital
   'cultura-digital': 'cultura-digital',
   'cultura digital': 'cultura-digital',

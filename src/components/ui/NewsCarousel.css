@@ -12,12 +12,14 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  scrollbar-width: none;            /* Firefox */
-  -ms-overflow-style: none;          /* IE/old Edge */
-  padding-bottom: var(--sp-2);       /* breathing room for card shadow */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/old Edge */
+  padding-bottom: var(--sp-2); /* breathing room for card shadow */
 }
 
-.news-carousel__track::-webkit-scrollbar { display: none; }
+.news-carousel__track::-webkit-scrollbar {
+  display: none;
+}
 
 .news-carousel__track:focus-visible {
   outline: 2px solid var(--clr-primary);
@@ -33,13 +35,13 @@
 
 @media (max-width: 900px) {
   .news-carousel__slide {
-    flex: 0 0 calc((100% - var(--sp-5)) / 2);  /* 2 cards tablet */
+    flex: 0 0 calc((100% - var(--sp-5)) / 2); /* 2 cards tablet */
   }
 }
 
 @media (max-width: 560px) {
   .news-carousel__slide {
-    flex: 0 0 calc(100% - var(--sp-4));        /* 1 card mobile, peek of next */
+    flex: 0 0 calc(100% - var(--sp-4)); /* 1 card mobile, peek of next */
   }
 }
 
@@ -64,7 +66,10 @@
   border: 1.5px solid var(--clr-border);
   color: var(--clr-text);
   cursor: pointer;
-  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    color var(--t-fast),
+    background var(--t-fast);
 }
 
 .news-carousel__btn:hover {
@@ -105,10 +110,14 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: background var(--t-fast), transform var(--t-fast);
+  transition:
+    background var(--t-fast),
+    transform var(--t-fast);
 }
 
-.news-carousel__dot:hover { background: var(--clr-subtle); }
+.news-carousel__dot:hover {
+  background: var(--clr-subtle);
+}
 
 .news-carousel__dot--active {
   background: var(--clr-primary);
@@ -122,6 +131,10 @@
 
 /* Respect user motion preference — explicit reset on the scroll behavior. */
 @media (prefers-reduced-motion: reduce) {
-  .news-carousel__track { scroll-behavior: auto; }
-  .news-carousel__dot--active { transform: none; }
+  .news-carousel__track {
+    scroll-behavior: auto;
+  }
+  .news-carousel__dot--active {
+    transform: none;
+  }
 }

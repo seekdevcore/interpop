@@ -45,7 +45,9 @@
   padding: 0;
 }
 
-.auth-password-toggle:hover { text-decoration: underline; }
+.auth-password-toggle:hover {
+  text-decoration: underline;
+}
 
 /* Checkbox */
 .auth-checkbox {
@@ -58,7 +60,7 @@
   line-height: 1.5;
 }
 
-.auth-checkbox input[type="checkbox"] {
+.auth-checkbox input[type='checkbox'] {
   width: 16px;
   height: 16px;
   margin-top: 2px;
@@ -67,9 +69,18 @@
 }
 
 /* Links */
-.auth-link { color: var(--clr-primary); font-weight: 500; transition: opacity var(--t-fast); }
-.auth-link:hover { opacity: 0.75; text-decoration: underline; }
-.auth-link--strong { font-weight: 700; }
+.auth-link {
+  color: var(--clr-primary);
+  font-weight: 500;
+  transition: opacity var(--t-fast);
+}
+.auth-link:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+.auth-link--strong {
+  font-weight: 700;
+}
 
 /* `.auth-link` aplicado a <button> (modal triggers para Termos/Privacidade) —
    precisa zerar o estilo nativo do botão para parecer link inline. */
@@ -121,10 +132,15 @@
   color: var(--clr-text);
   background: var(--clr-white);
   cursor: pointer;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
 }
 
-.auth-social-btn:hover { border-color: var(--clr-subtle); box-shadow: var(--shadow-sm); }
+.auth-social-btn:hover {
+  border-color: var(--clr-subtle);
+  box-shadow: var(--shadow-sm);
+}
 
 /* Switch */
 .auth-switch {
@@ -135,8 +151,12 @@
 }
 
 @media (max-width: 480px) {
-  .auth-form__row--cols { grid-template-columns: 1fr; }
-  .auth-socials { grid-template-columns: 1fr; }
+  .auth-form__row--cols {
+    grid-template-columns: 1fr;
+  }
+  .auth-socials {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Success state */

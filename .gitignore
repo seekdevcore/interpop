@@ -31,3 +31,7 @@ backend/venv/
 *.pyo
 backend/.env
 backend/db.sqlite3
+
+# Documentos internos de planejamento (não versionados)
+docs/Improvement-system.md
+docs/HOSTING-DEPLOY-PLAN.md

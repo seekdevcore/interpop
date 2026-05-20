@@ -33,28 +33,30 @@ interface AdminPostsProps {
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
   return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit', month: 'short', year: 'numeric',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   }).format(new Date(iso));
 }
 
 export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
   const navigate = useNavigate();
 
-  const [articles, setArticles]     = useState<ApiArticle[]>([]);
+  const [articles, setArticles] = useState<ApiArticle[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   // Filtros — refletem a UI imediatamente; busca é debounced.
-  const [searchInput, setSearchInput]     = useState('');
-  const [search, setSearch]               = useState('');
-  const [categorySlug, setCategorySlug]   = useState('');
-  const [statusFilter, setStatusFilter]   = useState<StatusFilter>('all');
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const [categorySlug, setCategorySlug] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   // Confirmação de exclusão inline (sem modal) — mesma UX do Article.tsx.
   const [confirmDeleteSlug, setConfirmDeleteSlug] = useState('');
-  const [deletingSlug, setDeletingSlug]           = useState('');
+  const [deletingSlug, setDeletingSlug] = useState('');
 
   // Debounce da busca (300ms) para não disparar request a cada tecla.
   useEffect(() => {
@@ -64,7 +66,8 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
 
   // Carrega categorias uma vez (cacheado in-module no service).
   useEffect(() => {
-    articleService.getCachedCategories()
+    articleService
+      .getCachedCategories()
       .then(setCategories)
       .catch(() => {});
   }, []);
@@ -73,28 +76,27 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
   // body do useEffect). Isso evita o lint `react-hooks/set-state-in-effect`
   // que pega setState síncrono no corpo do effect. Padrão simétrico ao
   // Admin/index.tsx (fetchUsers/fetchBans começam com setLoadingX(true)).
-  const fetchArticles = useCallback(async (
-    searchVal: string,
-    categoryVal: string,
-    statusVal: StatusFilter,
-  ) => {
-    setLoading(true);
-    const params: Record<string, string> = { page: '1' };
-    if (searchVal)   params.search = searchVal;
-    if (categoryVal) params.category__slug = categoryVal;
-    if (statusVal !== 'all') params.status = statusVal;
+  const fetchArticles = useCallback(
+    async (searchVal: string, categoryVal: string, statusVal: StatusFilter) => {
+      setLoading(true);
+      const params: Record<string, string> = { page: '1' };
+      if (searchVal) params.search = searchVal;
+      if (categoryVal) params.category__slug = categoryVal;
+      if (statusVal !== 'all') params.status = statusVal;
 
-    try {
-      const { data } = await articleService.list(params);
-      setArticles(data.results);
-      setTotalCount(data.count);
-      setError('');
-    } catch {
-      setError('Não foi possível carregar as publicações.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      try {
+        const { data } = await articleService.list(params);
+        setArticles(data.results);
+        setTotalCount(data.count);
+        setError('');
+      } catch {
+        setError('Não foi possível carregar as publicações.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   // Re-fetch a cada mudança de filtro (busca debounced + categoria + status).
   useEffect(() => {
@@ -107,8 +109,8 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
   // + contar locais para published/draft visíveis. Para evitar request extra
   // ao montar, deixo published/draft refletindo a lista atual também.
   const stats = useMemo(() => {
-    const published = articles.filter(a => a.status === 'published').length;
-    const drafts    = articles.filter(a => a.status === 'draft').length;
+    const published = articles.filter((a) => a.status === 'published').length;
+    const drafts = articles.filter((a) => a.status === 'draft').length;
     return { total: totalCount, published, drafts };
   }, [articles, totalCount]);
 
@@ -118,24 +120,32 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
     [currentUser, isAdmin],
   );
 
-  const handleDelete = useCallback(async (slug: string) => {
-    setDeletingSlug(slug);
-    setError('');
-    try {
-      await articleService.remove(slug);
-      setConfirmDeleteSlug('');
-      // Re-fetch usando filtros atuais — mantém a página consistente.
-      await fetchArticles(search, categorySlug, statusFilter);
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { detail?: string } } };
-      setError(e?.response?.data?.detail ?? 'Não foi possível excluir a publicação.');
-    } finally {
-      setDeletingSlug('');
-    }
-  }, [fetchArticles, search, categorySlug, statusFilter]);
+  const handleDelete = useCallback(
+    async (slug: string) => {
+      setDeletingSlug(slug);
+      setError('');
+      try {
+        await articleService.remove(slug);
+        setConfirmDeleteSlug('');
+        // Re-fetch usando filtros atuais — mantém a página consistente.
+        await fetchArticles(search, categorySlug, statusFilter);
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { detail?: string } } };
+        setError(
+          e?.response?.data?.detail ?? 'Não foi possível excluir a publicação.',
+        );
+      } finally {
+        setDeletingSlug('');
+      }
+    },
+    [fetchArticles, search, categorySlug, statusFilter],
+  );
 
   return (
-    <section className="admin__section admin-posts" aria-labelledby="posts-heading">
+    <section
+      className="admin__section admin-posts"
+      aria-labelledby="posts-heading"
+    >
       <h2 id="posts-heading" className="admin__section-title">
         <span>Publicações</span>
       </h2>
@@ -159,32 +169,54 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
       {/* Barra de filtros — sempre visível, nunca em modal */}
       <div className="admin-posts__filters" role="search">
         <div className="admin-posts__search">
-          <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">
-            <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.8" />
-            <path d="M13 13l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <svg
+            viewBox="0 0 20 20"
+            width="16"
+            height="16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              cx="8.5"
+              cy="8.5"
+              r="5.5"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            />
+            <path
+              d="M13 13l3 3"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
           </svg>
           <input
             type="search"
             value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Buscar por título, conteúdo ou autor..."
             aria-label="Buscar publicações"
           />
         </div>
 
         <div className="admin-posts__filter-group">
-          <label htmlFor="filter-category" className="admin-posts__filter-label">
+          <label
+            htmlFor="filter-category"
+            className="admin-posts__filter-label"
+          >
             Categoria
           </label>
           <select
             id="filter-category"
             className="admin-posts__select"
             value={categorySlug}
-            onChange={e => setCategorySlug(e.target.value)}
+            onChange={(e) => setCategorySlug(e.target.value)}
           >
             <option value="">Todas</option>
-            {categories.map(c => (
-              <option key={c.slug} value={c.slug}>{c.name}</option>
+            {categories.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>
@@ -196,9 +228,9 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
         >
           {(
             [
-              { key: 'all',       label: 'Todos' },
+              { key: 'all', label: 'Todos' },
               { key: 'published', label: 'Publicados' },
-              { key: 'draft',     label: 'Rascunhos' },
+              { key: 'draft', label: 'Rascunhos' },
             ] as const
           ).map(({ key, label }) => (
             <button
@@ -214,7 +246,11 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
         </div>
       </div>
 
-      {error && <p className="admin__api-error" role="alert">{error}</p>}
+      {error && (
+        <p className="admin__api-error" role="alert">
+          {error}
+        </p>
+      )}
 
       {/* Lista */}
       {loading ? (
@@ -257,10 +293,10 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
               </tr>
             </thead>
             <tbody>
-              {articles.map(article => {
+              {articles.map((article) => {
                 const isConfirming = confirmDeleteSlug === article.slug;
-                const isDeleting   = deletingSlug === article.slug;
-                const editable     = canEdit(article);
+                const isDeleting = deletingSlug === article.slug;
+                const editable = canEdit(article);
 
                 return (
                   <tr key={article.id}>
@@ -275,7 +311,10 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
                             decoding="async"
                           />
                         ) : (
-                          <div className="admin-posts__thumb admin-posts__thumb--placeholder" aria-hidden="true">
+                          <div
+                            className="admin-posts__thumb admin-posts__thumb--placeholder"
+                            aria-hidden="true"
+                          >
                             ▤
                           </div>
                         )}
@@ -287,7 +326,9 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
                             {article.title}
                           </Link>
                           {article.excerpt && (
-                            <p className="admin-posts__excerpt">{article.excerpt}</p>
+                            <p className="admin-posts__excerpt">
+                              {article.excerpt}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -297,19 +338,27 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
                         <div className="admin__avatar admin__avatar--sm">
                           {article.author.avatar_initial}
                         </div>
-                        <p className="admin__user-cell-name">{article.author.full_name}</p>
+                        <p className="admin__user-cell-name">
+                          {article.author.full_name}
+                        </p>
                       </div>
                     </td>
                     <td>
                       {article.category ? (
-                        <span className="admin-posts__cat-badge">{article.category.name}</span>
+                        <span className="admin-posts__cat-badge">
+                          {article.category.name}
+                        </span>
                       ) : (
                         <span className="admin__cell-muted">—</span>
                       )}
                     </td>
                     <td>
-                      <span className={`admin-posts__status admin-posts__status--${article.status}`}>
-                        {article.status === 'published' ? '● Publicado' : '○ Rascunho'}
+                      <span
+                        className={`admin-posts__status admin-posts__status--${article.status}`}
+                      >
+                        {article.status === 'published'
+                          ? '● Publicado'
+                          : '○ Rascunho'}
                       </span>
                     </td>
                     <td className="admin__cell-muted admin__cell-nowrap">
@@ -323,14 +372,18 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => navigate(`/editar-publicacao/${article.slug}`)}
+                                onClick={() =>
+                                  navigate(`/editar-publicacao/${article.slug}`)
+                                }
                               >
                                 Editar
                               </Button>
                               <button
                                 type="button"
                                 className="admin-posts__delete-btn"
-                                onClick={() => setConfirmDeleteSlug(article.slug)}
+                                onClick={() =>
+                                  setConfirmDeleteSlug(article.slug)
+                                }
                                 disabled={!!deletingSlug}
                               >
                                 Excluir

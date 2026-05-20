@@ -18,25 +18,27 @@ function readingTime(body: string): number {
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit', month: 'long', year: 'numeric',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
   }).format(new Date(iso));
 }
 
 export function Article() {
-  const { slug }                  = useParams<{ slug: string }>();
-  const navigate                  = useNavigate();
-  const { currentUser, isAdmin }  = useAuth();
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { currentUser, isAdmin } = useAuth();
 
-  const [article, setArticle]         = useState<ApiArticle | null>(null);
-  const [loadError, setLoadError]     = useState<string>('');
-  const [loadingArticle, setLoading]  = useState(true);
-  const [progress, setProgress]       = useState(0);
-  const viewedRef                     = useRef(false);
+  const [article, setArticle] = useState<ApiArticle | null>(null);
+  const [loadError, setLoadError] = useState<string>('');
+  const [loadingArticle, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const viewedRef = useRef(false);
 
   // Reading progress bar
   useEffect(() => {
     const onScroll = () => {
-      const el    = document.documentElement;
+      const el = document.documentElement;
       const total = el.scrollHeight - el.clientHeight;
       setProgress(total > 0 ? (el.scrollTop / total) * 100 : 0);
     };
@@ -46,11 +48,15 @@ export function Article() {
 
   // Load article
   useEffect(() => {
-    if (!slug) { navigate('/'); return; }
+    if (!slug) {
+      navigate('/');
+      return;
+    }
     setLoading(true);
     setLoadError('');
-    articleService.get(slug)
-      .then(r => setArticle(r.data))
+    articleService
+      .get(slug)
+      .then((r) => setArticle(r.data))
       .catch((err: unknown) => {
         const e = err as {
           response?: { status?: number; data?: { detail?: string } };
@@ -61,9 +67,13 @@ export function Article() {
         if (status === 404) {
           setLoadError('Artigo não encontrado.');
         } else if (status) {
-          setLoadError(detail ?? `Erro inesperado do servidor (HTTP ${status}).`);
+          setLoadError(
+            detail ?? `Erro inesperado do servidor (HTTP ${status}).`,
+          );
         } else if (e?.request) {
-          setLoadError('Não foi possível alcançar o servidor. Verifique se o backend está rodando.');
+          setLoadError(
+            'Não foi possível alcançar o servidor. Verifique se o backend está rodando.',
+          );
         } else {
           setLoadError('Erro inesperado ao carregar o artigo.');
         }
@@ -82,7 +92,11 @@ export function Article() {
   if (loadingArticle) {
     return (
       <PageLayout>
-        <div className="article-loading" role="status" aria-label="Carregando artigo">
+        <div
+          className="article-loading"
+          role="status"
+          aria-label="Carregando artigo"
+        >
           <div className="article-loading__spinner" />
         </div>
       </PageLayout>
@@ -92,9 +106,20 @@ export function Article() {
   if (loadError || !article) {
     return (
       <PageLayout>
-        <div className="container-sm" style={{ padding: '4rem 0', textAlign: 'center' }}>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', marginBottom: '1rem' }}>
-            {loadError ? 'Não foi possível abrir o artigo' : 'Artigo indisponível'}
+        <div
+          className="container-sm"
+          style={{ padding: '4rem 0', textAlign: 'center' }}
+        >
+          <h1
+            style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: '2rem',
+              marginBottom: '1rem',
+            }}
+          >
+            {loadError
+              ? 'Não foi possível abrir o artigo'
+              : 'Artigo indisponível'}
           </h1>
           <p style={{ color: 'var(--clr-muted)', marginBottom: '2rem' }}>
             {loadError || 'Tente novamente em instantes.'}
@@ -107,7 +132,8 @@ export function Article() {
     );
   }
 
-  const canEditArticle = !!currentUser && (isAdmin || currentUser.id === article.author.id);
+  const canEditArticle =
+    !!currentUser && (isAdmin || currentUser.id === article.author.id);
 
   return (
     <PageLayout>
@@ -119,7 +145,10 @@ export function Article() {
         aria-valuemax={100}
         aria-label="Progresso de leitura"
       >
-        <div className="article-progress__fill" style={{ width: `${progress}%` }} />
+        <div
+          className="article-progress__fill"
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
       <article className="article-page">
@@ -133,7 +162,9 @@ export function Article() {
           </nav>
 
           <header className="article-header">
-            {article.category && <Badge variant="subtle">{article.category.name}</Badge>}
+            {article.category && (
+              <Badge variant="subtle">{article.category.name}</Badge>
+            )}
             <h1 className="article-title">{article.title}</h1>
             <p className="article-excerpt">{article.excerpt}</p>
 
@@ -144,12 +175,16 @@ export function Article() {
                 </div>
                 <div className="article-author__info">
                   <strong>{article.author.full_name}</strong>
-                  <span>{article.author.role === 'admin' ? 'Editor' : 'Colaborador'}</span>
+                  <span>
+                    {article.author.role === 'admin' ? 'Editor' : 'Colaborador'}
+                  </span>
                 </div>
               </div>
               <div className="article-meta">
                 {article.published_at && (
-                  <time dateTime={article.published_at}>{formatDate(article.published_at)}</time>
+                  <time dateTime={article.published_at}>
+                    {formatDate(article.published_at)}
+                  </time>
                 )}
                 <span aria-hidden="true">·</span>
                 <span>{readingTime(article.body ?? '')} min de leitura</span>
@@ -187,9 +222,13 @@ export function Article() {
           <hr className="article-divider" />
 
           <div className="article-author-card">
-            <div className="article-author-card__avatar">{article.author.avatar_initial}</div>
+            <div className="article-author-card__avatar">
+              {article.author.avatar_initial}
+            </div>
             <div>
-              <p className="article-author-card__name">{article.author.full_name}</p>
+              <p className="article-author-card__name">
+                {article.author.full_name}
+              </p>
               <p className="article-author-card__role">
                 {article.author.role === 'admin' ? 'Editor' : 'Colaborador'}
               </p>

@@ -65,7 +65,10 @@ export function NewsCarousel({
     let best = Infinity;
     slides.forEach((s, i) => {
       const dist = Math.abs(s.offsetLeft - scrollLeft);
-      if (dist < best) { best = dist; closest = i; }
+      if (dist < best) {
+        best = dist;
+        closest = i;
+      }
     });
     return closest;
   }, []);
@@ -90,32 +93,38 @@ export function NewsCarousel({
   }, []);
 
   /** Scroll programático para um índice específico (clamped to alignable). */
-  const scrollToIndex = useCallback((index: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const slides = Array.from(track.children) as HTMLElement[];
-    const maxAlignable = findMaxAlignableIndex();
-    const clamped = Math.min(Math.max(index, 0), maxAlignable);
-    const slide = slides[clamped];
-    if (!slide) return;
-    track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
-  }, [findMaxAlignableIndex]);
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      const track = trackRef.current;
+      if (!track) return;
+      const slides = Array.from(track.children) as HTMLElement[];
+      const maxAlignable = findMaxAlignableIndex();
+      const clamped = Math.min(Math.max(index, 0), maxAlignable);
+      const slide = slides[clamped];
+      if (!slide) return;
+      track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+    },
+    [findMaxAlignableIndex],
+  );
 
   /** Avança N posições a partir do scroll atual. Wrap acontece nos LIMITES
    *  ALINHÁVEIS, não no `articles.length` — slides "não alinháveis" no fim
    *  causariam scrollTo silenciosamente clampeado (trava). */
-  const advance = useCallback((direction: 1 | -1) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const current = findClosestSlide();
-    const maxAlignable = findMaxAlignableIndex();
-    let next = current + direction;
-    if (next > maxAlignable) next = 0;
-    if (next < 0)            next = maxAlignable;
-    const slide = track.children[next] as HTMLElement | undefined;
-    if (!slide) return;
-    track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
-  }, [findClosestSlide, findMaxAlignableIndex]);
+  const advance = useCallback(
+    (direction: 1 | -1) => {
+      const track = trackRef.current;
+      if (!track) return;
+      const current = findClosestSlide();
+      const maxAlignable = findMaxAlignableIndex();
+      let next = current + direction;
+      if (next > maxAlignable) next = 0;
+      if (next < 0) next = maxAlignable;
+      const slide = track.children[next] as HTMLElement | undefined;
+      if (!slide) return;
+      track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+    },
+    [findClosestSlide, findMaxAlignableIndex],
+  );
 
   // ── Auto-rotação ────────────────────────────────────────────────────
   // CRITICO: este effect NÃO depende de `activeIndex`. Se dependesse,
@@ -194,14 +203,32 @@ export function NewsCarousel({
         <button
           type="button"
           className="news-carousel__btn news-carousel__btn--play"
-          onClick={() => setIsPlaying(p => !p)}
-          aria-label={isPlaying ? 'Pausar rotação automática' : 'Retomar rotação automática'}
+          onClick={() => setIsPlaying((p) => !p)}
+          aria-label={
+            isPlaying
+              ? 'Pausar rotação automática'
+              : 'Retomar rotação automática'
+          }
           aria-pressed={!isPlaying}
         >
           {isPlaying ? (
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-              <rect x="3.5" y="2.5" width="3" height="11" fill="currentColor" rx="0.5" />
-              <rect x="9.5" y="2.5" width="3" height="11" fill="currentColor" rx="0.5" />
+              <rect
+                x="3.5"
+                y="2.5"
+                width="3"
+                height="11"
+                fill="currentColor"
+                rx="0.5"
+              />
+              <rect
+                x="9.5"
+                y="2.5"
+                width="3"
+                height="11"
+                fill="currentColor"
+                rx="0.5"
+              />
             </svg>
           ) : (
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -210,7 +237,11 @@ export function NewsCarousel({
           )}
         </button>
 
-        <div className="news-carousel__dots" role="tablist" aria-label="Selecionar slide">
+        <div
+          className="news-carousel__dots"
+          role="tablist"
+          aria-label="Selecionar slide"
+        >
           {/* numDots = páginas únicas alcançáveis (maxAlignable + 1), não
               total de slides — Plausible/Posthog/Embla pattern. */}
           {Array.from({ length: numDots }).map((_, i) => (
@@ -234,7 +265,14 @@ export function NewsCarousel({
             aria-label="Slide anterior"
           >
             <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-              <path d="M10 2L4 8l6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M10 2L4 8l6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
           <button
@@ -244,7 +282,14 @@ export function NewsCarousel({
             aria-label="Próximo slide"
           >
             <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-              <path d="M6 2l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M6 2l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </div>

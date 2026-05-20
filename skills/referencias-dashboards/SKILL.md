@@ -15,9 +15,9 @@ Invoke this skill **before** any of the following:
 - Comparing the dashboard against industry references (operational, business, BI)
 - Auditing an existing dashboard for clarity, density, or filter discoverability
 
-This skill complements `ecossistemas-ui-ux`: every dashboard is UI/UX before it is a dashboard. For visual decisions that are *not* dashboard-specific, defer to `ecossistemas-ui-ux`. For dashboard-specific decisions, **this skill has precedence**.
+This skill complements `ecossistemas-ui-ux`: every dashboard is UI/UX before it is a dashboard. For visual decisions that are _not_ dashboard-specific, defer to `ecossistemas-ui-ux`. For dashboard-specific decisions, **this skill has precedence**.
 
-## The three categories (decide the dashboard *type* first)
+## The three categories (decide the dashboard _type_ first)
 
 Before sourcing references, classify the dashboard into exactly one of three buckets — each maps to a different design philosophy.
 
@@ -25,29 +25,29 @@ Before sourcing references, classify the dashboard into exactly one of three buc
 
 Use when the priority is **visual structure, responsiveness, palette, and reusable components** in a modern framework (React/Tailwind/Vue).
 
-| Source | Use |
-|--------|-----|
-| Figma Community | Search "CRM Dashboard", "SaaS Analytics". Measure exact spacing, export SVG icons, extract typography and color palettes ready for code. |
+| Source                                      | Use                                                                                                                                       |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Figma Community                             | Search "CRM Dashboard", "SaaS Analytics". Measure exact spacing, export SVG icons, extract typography and color palettes ready for code.  |
 | Tailwind UI + community Tailwind components | Clean HTML, modern grids, collapsible sidebars, complex tables with pagination. Accelerates full-stack work while keeping responsiveness. |
-| Dribbble / Behance | Cutting-edge visual trends (micro-interactions, glassmorphism, floating cards). Use to break the monotony of admin layouts. |
+| Dribbble / Behance                          | Cutting-edge visual trends (micro-interactions, glassmorphism, floating cards). Use to break the monotony of admin layouts.               |
 
 ### 2. Business metrics and sector KPIs
 
 Use when the priority is **deciding what data to show**, summarizing complex operations into primary vs secondary cards, and choosing the right chart for each scenario.
 
-| Source | Use |
-|--------|-----|
+| Source                               | Use                                                                                                                                                                                                                |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Klipfolio Dashboard Examples Gallery | Sector-segmented panels (Sales, Executive, Marketing, Finance). Teaches data crossing (conversion rates, MoM growth, CAC). **Architecture rule:** monetary/percentage aggregates at the top, graphic detail below. |
-| Geckoboard Examples | Real-time operational screens. Minimalist philosophy — focus on what demands immediate action. Reference for *avoiding* information overload. |
+| Geckoboard Examples                  | Real-time operational screens. Minimalist philosophy — focus on what demands immediate action. Reference for _avoiding_ information overload.                                                                      |
 
 ### 3. Business intelligence and dense data analysis
 
 Use when there is **massive data volume**, advanced filters, dynamic segmentation, and corporate-level reporting density.
 
-| Source | Use |
-|--------|-----|
-| Power BI Data Stories Gallery | Senior-analyst reports: supply chains, regional demographics, fiscal consolidations. Use for complex multi-source data flows. |
-| Looker Studio Template Gallery | Direct integration with web/ad APIs: conversion funnels, click behavior, campaign performance. Use for marketing/web BI. |
+| Source                         | Use                                                                                                                           |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Power BI Data Stories Gallery  | Senior-analyst reports: supply chains, regional demographics, fiscal consolidations. Use for complex multi-source data flows. |
+| Looker Studio Template Gallery | Direct integration with web/ad APIs: conversion funnels, click behavior, campaign performance. Use for marketing/web BI.      |
 
 ## Hard rules (non-negotiable technical standards)
 
@@ -65,7 +65,7 @@ These constraints come from the dashboards guide and align with the Interpop pro
 ## Application flow (mandatory order)
 
 1. **Define the dashboard type** — Operational (Geckoboard), Business (Klipfolio), or Analytical (Power BI / Looker)?
-2. **Map the KPIs** — list primary metrics (top) and secondary metrics (below) *before* drawing any pixel.
+2. **Map the KPIs** — list primary metrics (top) and secondary metrics (below) _before_ drawing any pixel.
 3. **Source visual inspiration** — Figma Community + Tailwind UI for layout and componentization of the chosen type.
 4. **Refine the aesthetics** — Dribbble / Behance only for micro-interactions and finishing details.
 5. **Validate against `ecossistemas-ui-ux`** — Lighthouse + WAVE + Mobbin. Every dashboard is UI/UX before it is a dashboard.
@@ -92,5 +92,5 @@ When invoked (by the orchestration protocol or explicitly):
 ## References
 
 - Full source: `docs/guia_referencias_dashboards.pdf` (Interpop repository).
-- Project-specific application fluxo: `AGENTS.md` → section *Padrão `referencias_dashboards`*.
+- Project-specific application fluxo: `AGENTS.md` → section _Padrão `referencias_dashboards`_.
 - Sibling skill (broader UI/UX context): `ecossistemas-ui-ux`.

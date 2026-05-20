@@ -38,7 +38,8 @@ export function ScrollToHashOrTop() {
     const prefersReduced =
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     // Cross-page → instant; same-page hash → smooth (unless user opts out).
-    const behavior: ScrollBehavior = prefersReduced || !samePage ? 'auto' : 'smooth';
+    const behavior: ScrollBehavior =
+      prefersReduced || !samePage ? 'auto' : 'smooth';
 
     if (!hash) {
       window.scrollTo({ top: 0, left: 0, behavior });

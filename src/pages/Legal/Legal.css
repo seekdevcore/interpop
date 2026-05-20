@@ -54,7 +54,9 @@
   transition: opacity var(--t-fast);
 }
 
-.legal a:hover { opacity: 0.75; }
+.legal a:hover {
+  opacity: 0.75;
+}
 
 .legal code {
   font-family: 'SF Mono', Menlo, Consolas, monospace;
@@ -65,8 +67,13 @@
   border-radius: var(--radius-sm);
 }
 
-.legal em { font-style: italic; }
-.legal strong { font-weight: 700; color: var(--clr-text); }
+.legal em {
+  font-style: italic;
+}
+.legal strong {
+  font-weight: 700;
+  color: var(--clr-text);
+}
 
 /* Data table (dados coletados) */
 .legal__table {
@@ -101,7 +108,9 @@
   vertical-align: top;
 }
 
-.legal__table tbody tr:last-child td { border-bottom: none; }
+.legal__table tbody tr:last-child td {
+  border-bottom: none;
+}
 
 .legal__disclaimer {
   margin-top: var(--sp-8);

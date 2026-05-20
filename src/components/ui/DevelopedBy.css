@@ -19,7 +19,9 @@
   border-radius: var(--radius-sm);
 }
 
-.developed-by__link:hover { opacity: 0.85; }
+.developed-by__link:hover {
+  opacity: 0.85;
+}
 
 .developed-by__logo {
   height: 18px;
@@ -29,4 +31,6 @@
   transition: opacity var(--t-fast);
 }
 
-.developed-by:hover .developed-by__logo { opacity: 1; }
+.developed-by:hover .developed-by__logo {
+  opacity: 1;
+}

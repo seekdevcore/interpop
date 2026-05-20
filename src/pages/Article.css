@@ -11,7 +11,11 @@
 
 .article-progress__fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--clr-primary), var(--clr-primary-light));
+  background: linear-gradient(
+    90deg,
+    var(--clr-primary),
+    var(--clr-primary-light)
+  );
   transition: width 100ms linear;
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
 }
@@ -31,12 +35,25 @@
   padding: var(--sp-6) 0 var(--sp-8);
 }
 
-.article-breadcrumb a { color: var(--clr-muted); transition: color var(--t-fast); }
-.article-breadcrumb a:hover { color: var(--clr-primary); }
-.article-breadcrumb span[aria-current] { color: var(--clr-text); font-weight: 500; }
+.article-breadcrumb a {
+  color: var(--clr-muted);
+  transition: color var(--t-fast);
+}
+.article-breadcrumb a:hover {
+  color: var(--clr-primary);
+}
+.article-breadcrumb span[aria-current] {
+  color: var(--clr-text);
+  font-weight: 500;
+}
 
 /* ─── Header ─── */
-.article-header { margin-bottom: var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-5); }
+.article-header {
+  margin-bottom: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
 
 .article-title {
   font-family: var(--font-serif);
@@ -95,8 +112,14 @@
   gap: 2px;
 }
 
-.article-author__info strong { font-size: var(--text-sm); font-weight: 700; }
-.article-author__info span  { font-size: var(--text-xs); color: var(--clr-subtle); }
+.article-author__info strong {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.article-author__info span {
+  font-size: var(--text-xs);
+  color: var(--clr-subtle);
+}
 
 .article-meta {
   display: flex;
@@ -182,14 +205,14 @@
 }
 
 .article-admin-actions__btn--danger {
-  color: #B91C1C;
-  border-color: #FCA5A5;
+  color: #b91c1c;
+  border-color: #fca5a5;
 }
 
 .article-admin-actions__btn--danger:hover:not(:disabled) {
-  color: #FFFFFF;
-  background: #B91C1C;
-  border-color: #B91C1C;
+  color: #ffffff;
+  background: #b91c1c;
+  border-color: #b91c1c;
 }
 
 .article-admin-actions__btn:disabled {
@@ -209,7 +232,7 @@
   flex-basis: 100%;
   margin: var(--sp-1) 0 0;
   font-size: var(--text-sm);
-  color: #991B1B;
+  color: #991b1b;
 }
 
 /* ─── Cover image ───
@@ -264,8 +287,8 @@
   bottom: 0;
   right: 0;
   font-size: var(--text-xs);
-  color: rgba(255,255,255,0.7);
-  background: rgba(0,0,0,0.35);
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.35);
   padding: var(--sp-1) var(--sp-3);
 }
 
@@ -279,7 +302,9 @@
   color: #1f1f1f;
 }
 
-.article-body p      { margin-bottom: var(--sp-6); }
+.article-body p {
+  margin-bottom: var(--sp-6);
+}
 .article-body h2 {
   font-family: var(--font-display);
   font-size: clamp(1.25rem, 2.5vw, 1.625rem);
@@ -366,9 +391,22 @@
   flex-shrink: 0;
 }
 
-.article-author-card__name { font-size: var(--text-base); font-weight: 700; margin-bottom: 2px; }
-.article-author-card__role { font-size: var(--text-xs); color: var(--clr-primary); font-weight: 600; margin-bottom: var(--sp-3); }
-.article-author-card__bio  { font-size: var(--text-sm); color: var(--clr-muted); line-height: 1.6; }
+.article-author-card__name {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.article-author-card__role {
+  font-size: var(--text-xs);
+  color: var(--clr-primary);
+  font-weight: 600;
+  margin-bottom: var(--sp-3);
+}
+.article-author-card__bio {
+  font-size: var(--text-sm);
+  color: var(--clr-muted);
+  line-height: 1.6;
+}
 
 /* ─── Comments ─── */
 .article-comments h2 {
@@ -377,7 +415,10 @@
   margin-bottom: var(--sp-6);
 }
 
-.article-comments h2 span { color: var(--clr-subtle); font-weight: 400; }
+.article-comments h2 span {
+  color: var(--clr-subtle);
+  font-weight: 400;
+}
 
 .article-comment-form {
   display: flex;
@@ -396,7 +437,9 @@
   color: var(--clr-text);
   resize: vertical;
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
 }
 
 .article-comment-form textarea:focus {
@@ -404,9 +447,17 @@
   box-shadow: 0 0 0 3px var(--clr-primary-100);
 }
 
-.article-comment-form__actions { display: flex; justify-content: flex-end; }
+.article-comment-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
 
-.article-comments-list { list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); }
+.article-comments-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
 
 .article-comment {
   display: flex;
@@ -434,9 +485,19 @@
   margin-bottom: var(--sp-2);
 }
 
-.article-comment__header strong { font-size: var(--text-sm); font-weight: 700; }
-.article-comment__header time   { font-size: var(--text-xs); color: var(--clr-subtle); }
-.article-comment__content p     { font-size: var(--text-sm); color: var(--clr-muted); line-height: 1.65; }
+.article-comment__header strong {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+.article-comment__header time {
+  font-size: var(--text-xs);
+  color: var(--clr-subtle);
+}
+.article-comment__content p {
+  font-size: var(--text-sm);
+  color: var(--clr-muted);
+  line-height: 1.65;
+}
 
 /* ─── Related ─── */
 .article-related {
@@ -461,16 +522,30 @@
 }
 
 @media (max-width: 860px) {
-  .article-related__grid { grid-template-columns: repeat(2, 1fr); }
+  .article-related__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 560px) {
-  .article-cover { max-height: 56vw; }      /* 16:9 ratio em mobile (100vw × 9/16) */
-  .article-cover img { max-height: 56vw; }
-  .article-related__grid { grid-template-columns: 1fr; }
-  .article-author-card { flex-direction: column; }
-  .article-quote { padding: var(--sp-5); }
-  .article-body { line-height: 1.8; }
+  .article-cover {
+    max-height: 56vw;
+  } /* 16:9 ratio em mobile (100vw × 9/16) */
+  .article-cover img {
+    max-height: 56vw;
+  }
+  .article-related__grid {
+    grid-template-columns: 1fr;
+  }
+  .article-author-card {
+    flex-direction: column;
+  }
+  .article-quote {
+    padding: var(--sp-5);
+  }
+  .article-body {
+    line-height: 1.8;
+  }
 }
 
 /* Loading state */
@@ -490,7 +565,11 @@
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Comments extras */
 .article-comments__login-prompt {

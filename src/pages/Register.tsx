@@ -21,16 +21,21 @@ type OpenDoc = null | 'termos' | 'privacidade';
 export function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState<RegisterForm>({
-    firstName: '', lastName: '', email: '', password: '', confirm: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirm: '',
   });
   const [agreed, setAgreed] = useState(false);
   const [openDoc, setOpenDoc] = useState<OpenDoc>(null);
 
-  const set = (field: keyof RegisterForm) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm(f => ({ ...f, [field]: e.target.value }));
+  const set =
+    (field: keyof RegisterForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  const passwordMismatch = form.confirm !== '' && form.confirm !== form.password;
+  const passwordMismatch =
+    form.confirm !== '' && form.confirm !== form.password;
 
   // Gating: signup só ocorre se `agreed` for true E senhas baterem.
   // Aceitação dos termos é PRÉ-REQUISITO legal — sem aceite, navegação
@@ -110,7 +115,7 @@ export function Register() {
           <input
             type="checkbox"
             checked={agreed}
-            onChange={e => setAgreed(e.target.checked)}
+            onChange={(e) => setAgreed(e.target.checked)}
             required
           />
           Aceito os{' '}
@@ -120,8 +125,8 @@ export function Register() {
             onClick={() => setOpenDoc('termos')}
           >
             Termos de uso
-          </button>
-          {' '}e a{' '}
+          </button>{' '}
+          e a{' '}
           <button
             type="button"
             className="auth-link auth-link--btn"
@@ -144,7 +149,9 @@ export function Register() {
 
       <p className="auth-switch">
         Já tem uma conta?{' '}
-        <Link to="/login" className="auth-link auth-link--strong">Entrar</Link>
+        <Link to="/login" className="auth-link auth-link--strong">
+          Entrar
+        </Link>
       </p>
 
       {/* Modais de documento legal — leitura rápida sem sair do fluxo de
@@ -157,10 +164,15 @@ export function Register() {
         size="lg"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setOpenDoc(null)}>Fechar</Button>
+            <Button variant="ghost" onClick={() => setOpenDoc(null)}>
+              Fechar
+            </Button>
             <Button
               variant="primary"
-              onClick={() => { setAgreed(true); setOpenDoc(null); }}
+              onClick={() => {
+                setAgreed(true);
+                setOpenDoc(null);
+              }}
             >
               Li e aceito
             </Button>
@@ -177,10 +189,15 @@ export function Register() {
         size="lg"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setOpenDoc(null)}>Fechar</Button>
+            <Button variant="ghost" onClick={() => setOpenDoc(null)}>
+              Fechar
+            </Button>
             <Button
               variant="primary"
-              onClick={() => { setAgreed(true); setOpenDoc(null); }}
+              onClick={() => {
+                setAgreed(true);
+                setOpenDoc(null);
+              }}
             >
               Li e aceito
             </Button>

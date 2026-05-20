@@ -8,17 +8,17 @@ A partir de música, moda, cinema, literatura e cultura digital, o Interpop inve
 
 ## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| **Frontend** | React 19 + TypeScript + Vite + React Router 7 |
-| **Backend** | Django 5 + Django REST Framework |
-| **Toolchain Python** | [`uv`](https://docs.astral.sh/uv/) (substitui pip + venv) |
-| **Banco** | SQLite (dev) · PostgreSQL (prod) |
-| **Auth** | JWT em cookie httpOnly + django-axes (brute-force) + roles admin/editor/user |
-| **Charts** | Recharts (dashboard de métricas admin) |
-| **E-mail** | SMTP Gmail (welcome + notificações de artigo + alertas de moderação) |
-| **SEO** | Sitemap.xml + robots.txt dinâmicos + Open Graph middleware para crawlers sociais |
-| **Hospedagem (planejada)** | Hostinger KVM 1 — Nginx + gunicorn + systemd + Let's Encrypt |
+| Camada                     | Tecnologia                                                                       |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| **Frontend**               | React 19 + TypeScript + Vite + React Router 7                                    |
+| **Backend**                | Django 5 + Django REST Framework                                                 |
+| **Toolchain Python**       | [`uv`](https://docs.astral.sh/uv/) (substitui pip + venv)                        |
+| **Banco**                  | SQLite (dev) · PostgreSQL (prod)                                                 |
+| **Auth**                   | JWT em cookie httpOnly + django-axes (brute-force) + roles admin/editor/user     |
+| **Charts**                 | Recharts (dashboard de métricas admin)                                           |
+| **E-mail**                 | SMTP Gmail (welcome + notificações de artigo + alertas de moderação)             |
+| **SEO**                    | Sitemap.xml + robots.txt dinâmicos + Open Graph middleware para crawlers sociais |
+| **Hospedagem (planejada)** | Hostinger KVM 1 — Nginx + gunicorn + systemd + Let's Encrypt                     |
 
 ---
 
@@ -86,10 +86,9 @@ interpop/
 │   ├── ecossistemas-ui-ux/     # Padrão UI/UX do projeto (5 categorias de fontes)
 │   ├── referencias-dashboards/ # Padrão para dashboards/KPIs/admin
 │   └── README.md               # Catálogo + instruções de instalação
-├── docs/                       # PDFs editoriais + plano de deploy + assets
+├── docs/                       # PDFs editoriais + assets
 │   ├── ecossistema_ui_ux_revisado.pdf
 │   ├── guia_referencias_dashboards.pdf
-│   ├── HOSTING-DEPLOY-PLAN.md
 │   └── Logos/                  # Variantes do logo (SVG + assinatura)
 ├── AGENTS.md                   # Instruções para agentes AI (espelhado em CLAUDE.md)
 └── CLAUDE.md                   # → AGENTS.md (symlink — mesmo conteúdo)
@@ -112,9 +111,7 @@ interpop/
 ## Documentação adicional
 
 - [AGENTS.md](AGENTS.md) — instruções para agentes AI: comandos do projeto, plugins ativos, sumários e convenções.
-- [docs/HOSTING-DEPLOY-PLAN.md](docs/HOSTING-DEPLOY-PLAN.md) — plano de deploy para Hostinger KVM 1 (Nginx + gunicorn + systemd + Let's Encrypt).
 - [skills/README.md](skills/README.md) — catálogo das skills locais + plugins referenciados.
-- [docs/LOGO-TODO.md](docs/LOGO-TODO.md) — estado e pendências da identidade visual.
 - [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) — documentação técnica geral.
 
 ---

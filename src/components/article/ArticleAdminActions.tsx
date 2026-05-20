@@ -21,8 +21,8 @@ interface ArticleAdminActionsProps {
 export function ArticleAdminActions({ slug }: ArticleAdminActionsProps) {
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
-  const [deleting, setDeleting]     = useState(false);
-  const [error, setError]           = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleDelete = useCallback(async () => {
     if (deleting) return;
@@ -33,14 +33,20 @@ export function ArticleAdminActions({ slug }: ArticleAdminActionsProps) {
       navigate('/noticias');
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
-      setError(e?.response?.data?.detail ?? 'Não foi possível excluir a publicação.');
+      setError(
+        e?.response?.data?.detail ?? 'Não foi possível excluir a publicação.',
+      );
       setDeleting(false);
       setConfirming(false);
     }
   }, [slug, deleting, navigate]);
 
   return (
-    <div className="article-admin-actions" role="group" aria-label="Ações da publicação">
+    <div
+      className="article-admin-actions"
+      role="group"
+      aria-label="Ações da publicação"
+    >
       <Link
         to={`/editar-publicacao/${slug}`}
         className="article-admin-actions__btn"
@@ -51,13 +57,18 @@ export function ArticleAdminActions({ slug }: ArticleAdminActionsProps) {
         <button
           type="button"
           className="article-admin-actions__btn article-admin-actions__btn--danger"
-          onClick={() => { setConfirming(true); setError(''); }}
+          onClick={() => {
+            setConfirming(true);
+            setError('');
+          }}
         >
           Excluir
         </button>
       ) : (
         <>
-          <span className="article-admin-actions__confirm">Excluir esta publicação?</span>
+          <span className="article-admin-actions__confirm">
+            Excluir esta publicação?
+          </span>
           <button
             type="button"
             className="article-admin-actions__btn article-admin-actions__btn--danger"
@@ -77,7 +88,9 @@ export function ArticleAdminActions({ slug }: ArticleAdminActionsProps) {
         </>
       )}
       {error && (
-        <p role="alert" className="article-admin-actions__error">{error}</p>
+        <p role="alert" className="article-admin-actions__error">
+          {error}
+        </p>
       )}
     </div>
   );

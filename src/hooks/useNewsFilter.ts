@@ -6,7 +6,7 @@ export function useNewsFilter(articles: Article[]) {
   const [activeCategory, setActiveCategory] = useState<Category>('Todos');
 
   const filtered = useMemo(() => {
-    return articles.filter(article => {
+    return articles.filter((article) => {
       const matchesCategory =
         activeCategory === 'Todos' || article.category === activeCategory;
       const matchesSearch =

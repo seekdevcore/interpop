@@ -28,7 +28,11 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
       {/* Brand panel */}
       <div className="auth-layout__brand" aria-hidden="true">
         <div className="auth-layout__brand-inner">
-          <Link to="/" className="auth-layout__logo" aria-label="Interpop — início">
+          <Link
+            to="/"
+            className="auth-layout__logo"
+            aria-label="Interpop — início"
+          >
             <img src={interpopLogo} alt="Interpop" />
           </Link>
           <blockquote className="auth-layout__tagline">
@@ -36,7 +40,9 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
           </blockquote>
           <div className="auth-layout__brand-bottom">
             <div className="auth-layout__dots">
-              <span /><span /><span />
+              <span />
+              <span />
+              <span />
             </div>
             <DevelopedBy />
           </div>
@@ -54,7 +60,9 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
       {/* Form panel */}
       <div className="auth-layout__form-panel">
         <div className="auth-layout__form-wrapper">
-          <Link to="/" className="auth-layout__back">← Voltar ao início</Link>
+          <Link to="/" className="auth-layout__back">
+            ← Voltar ao início
+          </Link>
           <div className="auth-layout__header">
             <h1>{heading}</h1>
             <p>{subheading}</p>
@@ -65,13 +73,25 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
         <footer className="auth-layout__footer">
           {/* Footer triggers → abrem modais inline em vez de navegar (evita
               perder os dados do formulário de login/cadastro). */}
-          <button type="button" className="auth-layout__footer-btn" onClick={() => setOpenDoc('sobre')}>
+          <button
+            type="button"
+            className="auth-layout__footer-btn"
+            onClick={() => setOpenDoc('sobre')}
+          >
             Sobre
           </button>
-          <button type="button" className="auth-layout__footer-btn" onClick={() => setOpenDoc('privacidade')}>
+          <button
+            type="button"
+            className="auth-layout__footer-btn"
+            onClick={() => setOpenDoc('privacidade')}
+          >
             Privacidade
           </button>
-          <button type="button" className="auth-layout__footer-btn" onClick={() => setOpenDoc('termos')}>
+          <button
+            type="button"
+            className="auth-layout__footer-btn"
+            onClick={() => setOpenDoc('termos')}
+          >
             Termos
           </button>
           <span>© {new Date().getFullYear()} Interpop</span>
@@ -84,7 +104,11 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
         onClose={close}
         title="Sobre o Interpop"
         size="lg"
-        footer={<Button variant="primary" onClick={close}>Fechar</Button>}
+        footer={
+          <Button variant="primary" onClick={close}>
+            Fechar
+          </Button>
+        }
       >
         <AboutContent onNavigate={close} />
       </Modal>
@@ -94,7 +118,11 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
         onClose={close}
         title="Política de privacidade"
         size="lg"
-        footer={<Button variant="primary" onClick={close}>Fechar</Button>}
+        footer={
+          <Button variant="primary" onClick={close}>
+            Fechar
+          </Button>
+        }
       >
         <LegalContent type="privacidade" />
       </Modal>
@@ -104,7 +132,11 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
         onClose={close}
         title="Termos de uso"
         size="lg"
-        footer={<Button variant="primary" onClick={close}>Fechar</Button>}
+        footer={
+          <Button variant="primary" onClick={close}>
+            Fechar
+          </Button>
+        }
       >
         <LegalContent type="termos" />
       </Modal>

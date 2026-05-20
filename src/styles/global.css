@@ -3,104 +3,112 @@
 /* ─── Design Tokens ─── */
 :root {
   /* Brand */
-  --clr-primary:       #19144c;
-  --clr-primary-dark:  #100d36;
+  --clr-primary: #19144c;
+  --clr-primary-dark: #100d36;
   --clr-primary-light: #2d2675;
-  --clr-primary-50:    #EEF0F8;
-  --clr-primary-100:   #DDE0F0;
+  --clr-primary-50: #eef0f8;
+  --clr-primary-100: #dde0f0;
 
   /* Neutrals */
-  --clr-white:   #ffffff;
-  --clr-bg:      #F7F8FA;
+  --clr-white: #ffffff;
+  --clr-bg: #f7f8fa;
   --clr-surface: #ffffff;
-  --clr-border:  #E8EAED;
-  --clr-text:    #111827;
-  --clr-muted:   #4B5563;
-  --clr-subtle:  #6B7280;
+  --clr-border: #e8eaed;
+  --clr-text: #111827;
+  --clr-muted: #4b5563;
+  --clr-subtle: #6b7280;
 
   /* Semantic */
   --clr-success: #059669;
-  --clr-error:   #DC2626;
+  --clr-error: #dc2626;
 
   /* Brand accent system — derived from the editorial signature set
      in docs/Logos/ASSINATURA *.svg. Use these tokens for any
      non-category brand surfaces (toasts, callouts, banners). */
-  --clr-accent:        #f8b046;  /* warm yellow signature */
-  --clr-accent-soft:   #ffefd9;  /* beige surface */
-  --clr-neutral-2:     #4e4d4d;  /* secondary gray (rules / dividers) */
+  --clr-accent: #f8b046; /* warm yellow signature */
+  --clr-accent-soft: #ffefd9; /* beige surface */
+  --clr-neutral-2: #4e4d4d; /* secondary gray (rules / dividers) */
 
   /* Editorial accents — used only on category badges and card top border.
      Migrated 2026-05-17 away from loud pop pink/violet to a harmonized
      editorial earth-tone family that complements the new brand (navy +
      yellow + beige). Each foreground passes WCAG AA on white (>= 4.5:1).
      Background variants are tinted at 95% lightness for soft chip surfaces. */
-  --clr-cat-musica:              #5E4F3B;  /* sépia/earth — was loud violet */
-  --clr-cat-musica-bg:           #F5F2EE;
-  --clr-cat-moda:                #A8554C;  /* terracotta — was loud magenta */
-  --clr-cat-moda-bg:             #FAEEEB;
-  --clr-cat-cinema:              #B45309;  /* amber — film reel (kept) */
-  --clr-cat-cinema-bg:           #FEF3E7;
-  --clr-cat-literatura:          #15803D;  /* forest — book bindings (kept) */
-  --clr-cat-literatura-bg:       #E8F5EC;
-  --clr-cat-cultura-digital:     #0E7490;  /* teal — digital cool (kept) */
-  --clr-cat-cultura-digital-bg:  #E5F5FA;
+  --clr-cat-musica: #5e4f3b; /* sépia/earth — was loud violet */
+  --clr-cat-musica-bg: #f5f2ee;
+  --clr-cat-moda: #a8554c; /* terracotta — was loud magenta */
+  --clr-cat-moda-bg: #faeeeb;
+  --clr-cat-cinema: #b45309; /* amber — film reel (kept) */
+  --clr-cat-cinema-bg: #fef3e7;
+  --clr-cat-literatura: #15803d; /* forest — book bindings (kept) */
+  --clr-cat-literatura-bg: #e8f5ec;
+  --clr-cat-cultura-digital: #0e7490; /* teal — digital cool (kept) */
+  --clr-cat-cultura-digital-bg: #e5f5fa;
 
   /* Typography */
-  --font-sans:    'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
   --font-display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
-  --font-serif:   'Newsreader', Georgia, serif;
+  --font-serif: 'Newsreader', Georgia, serif;
 
   /* Type scale */
-  --text-xs:   0.75rem;
-  --text-sm:   0.875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
   --text-base: 1rem;
-  --text-lg:   1.125rem;
-  --text-xl:   1.25rem;
-  --text-2xl:  1.5rem;
-  --text-3xl:  1.875rem;
-  --text-4xl:  2.25rem;
-  --text-5xl:  3rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
 
   /* Spacing (8-pt grid) */
-  --sp-1:  0.25rem;
-  --sp-2:  0.5rem;
-  --sp-3:  0.75rem;
-  --sp-4:  1rem;
-  --sp-5:  1.25rem;
-  --sp-6:  1.5rem;
-  --sp-8:  2rem;
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
   --sp-10: 2.5rem;
   --sp-12: 3rem;
   --sp-16: 4rem;
   --sp-20: 5rem;
 
   /* Radius */
-  --radius-sm:   0.375rem;
-  --radius-md:   0.625rem;
-  --radius-lg:   0.875rem;
-  --radius-xl:   1.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg: 0 10px 32px rgba(0,0,0,0.12);
-  --shadow-xl: 0 24px 64px rgba(0,0,0,0.18);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.18);
 
   /* Transitions */
-  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
-  --t-fast:    150ms var(--ease);
-  --t-base:    250ms var(--ease);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast: 150ms var(--ease);
+  --t-base: 250ms var(--ease);
 
   /* Layout */
-  --container:    1200px;
+  --container: 1200px;
   --container-sm: 800px;
-  --navbar-h:     64px;
+  --navbar-h: 64px;
 }
 
 /* ─── Reset ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
 body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -109,13 +117,40 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
-a    { text-decoration: none; color: inherit; }
-button { cursor: pointer; font-family: var(--font-sans); border: none; background: none; }
-img  { max-width: 100%; display: block; }
-input, textarea, select { font-family: var(--font-sans); }
+a {
+  text-decoration: none;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  border: none;
+  background: none;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+input,
+textarea,
+select {
+  font-family: var(--font-sans);
+}
 
 /* ─── Utilities ─── */
-.container    { max-width: var(--container);    margin: 0 auto; padding: 0 var(--sp-6); }
-.container-sm { max-width: var(--container-sm); margin: 0 auto; padding: 0 var(--sp-6); }
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--sp-6);
+}
+.container-sm {
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  padding: 0 var(--sp-6);
+}
 
-:focus-visible { outline: 2px solid var(--clr-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
+:focus-visible {
+  outline: 2px solid var(--clr-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

@@ -84,10 +84,12 @@
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
-  background: rgba(255,255,255,0.35);
+  background: rgba(255, 255, 255, 0.35);
 }
 
-.auth-layout__dots span:first-child { background: var(--clr-white); }
+.auth-layout__dots span:first-child {
+  background: var(--clr-white);
+}
 
 /* ─── Form panel ─── */
 .auth-layout__form-panel {
@@ -119,7 +121,9 @@
   transition: color var(--t-fast);
 }
 
-.auth-layout__back:hover { color: var(--clr-primary); }
+.auth-layout__back:hover {
+  color: var(--clr-primary);
+}
 
 .auth-layout__header {
   margin-bottom: var(--sp-8);
@@ -155,8 +159,12 @@
 }
 
 .auth-layout__footer a:hover,
-.auth-layout__footer-btn:hover { color: var(--clr-primary); }
-.auth-layout__footer span { margin-left: auto; }
+.auth-layout__footer-btn:hover {
+  color: var(--clr-primary);
+}
+.auth-layout__footer span {
+  margin-left: auto;
+}
 
 /* Triggers (Sobre/Privacidade/Termos) abrem modais inline em vez de
    navegar; resetam o estilo nativo do <button> pra ficar visualmente
@@ -171,8 +179,16 @@
 }
 
 @media (max-width: 860px) {
-  .auth-layout { grid-template-columns: 1fr; }
-  .auth-layout__brand { display: none; }
-  .auth-layout__form-wrapper { padding: var(--sp-8) var(--sp-6); }
-  .auth-layout__footer { padding: var(--sp-5) var(--sp-6); }
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+  .auth-layout__brand {
+    display: none;
+  }
+  .auth-layout__form-wrapper {
+    padding: var(--sp-8) var(--sp-6);
+  }
+  .auth-layout__footer {
+    padding: var(--sp-5) var(--sp-6);
+  }
 }

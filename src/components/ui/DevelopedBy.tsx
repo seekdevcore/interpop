@@ -26,7 +26,13 @@ export function DevelopedBy({ href }: DevelopedByProps) {
     <span className="developed-by">
       <span className="developed-by__label">Desenvolvido por</span>
       {href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer" className="developed-by__link" aria-label="Seek — site externo">
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="developed-by__link"
+          aria-label="Seek — site externo"
+        >
           {logo}
         </a>
       ) : (

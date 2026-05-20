@@ -22,24 +22,24 @@ export function AboutContent({ onNavigate }: AboutContentProps) {
   return (
     <div className="about-content">
       <p className="about-content__lede">
-        O Interpop é um projeto independente que busca analisar criticamente
-        o Soft Power e seu papel na manutenção da hegemonia global.
+        O Interpop é um projeto independente que busca analisar criticamente o
+        Soft Power e seu papel na manutenção da hegemonia global.
       </p>
 
       <section className="about-content__section">
         <h3>Por que existimos</h3>
         <p>
           A partir da cultura pop e das dinâmicas midiáticas, o projeto
-          investiga como determinados Atores exercem influência política
-          de forma indireta no sistema internacional. Música, moda, cinema,
-          literatura e cultura digital não são apenas entretenimento —
-          são instrumentos de projeção de poder.
+          investiga como determinados Atores exercem influência política de
+          forma indireta no sistema internacional. Música, moda, cinema,
+          literatura e cultura digital não são apenas entretenimento — são
+          instrumentos de projeção de poder.
         </p>
         <p>
           Nossa missão é dar ferramentas analíticas para que o leitor
           decodifique o que consome diariamente: por trás de uma série de
-          streaming, de uma onda musical ou de uma tendência viral, há
-          decisões de Estado, interesses econômicos e disputas narrativas.
+          streaming, de uma onda musical ou de uma tendência viral, há decisões
+          de Estado, interesses econômicos e disputas narrativas.
         </p>
       </section>
 
@@ -72,13 +72,15 @@ export function AboutContent({ onNavigate }: AboutContentProps) {
       <section className="about-content__section">
         <h3>Como contribuir</h3>
         <p>
-          Receba nossas análises por e-mail e ajude o projeto a crescer.
-          Toda publicação é resultado de pesquisa independente — apoio do
-          leitor é o que sustenta o trabalho.
+          Receba nossas análises por e-mail e ajude o projeto a crescer. Toda
+          publicação é resultado de pesquisa independente — apoio do leitor é o
+          que sustenta o trabalho.
         </p>
         <div className="about-content__cta">
           <Button variant="primary" size="lg">
-            <Link to="/newsletter" onClick={onNavigate}>Assinar newsletter</Link>
+            <Link to="/newsletter" onClick={onNavigate}>
+              Assinar newsletter
+            </Link>
           </Button>
           <a
             href="mailto:interpop.cc@gmail.com?subject=Contato"

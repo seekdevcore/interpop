@@ -27,7 +27,9 @@ export interface ApiPaginatedComments {
 
 const commentService = {
   list: (slug: string, params?: Record<string, string>) =>
-    api.get<ApiPaginatedComments>(`/api/articles/${slug}/comments/`, { params }),
+    api.get<ApiPaginatedComments>(`/api/articles/${slug}/comments/`, {
+      params,
+    }),
 
   add: (slug: string, content: string, parent_id?: string) =>
     api.post<ApiComment>(`/api/articles/${slug}/comments/`, {
@@ -35,11 +37,12 @@ const commentService = {
       ...(parent_id ? { parent_id } : {}),
     }),
 
-  remove: (id: string) =>
-    api.delete(`/api/comments/${id}/`),
+  remove: (id: string) => api.delete(`/api/comments/${id}/`),
 
   toggleLike: (id: string) =>
-    api.post<{ liked: boolean; likes_count: number }>(`/api/comments/${id}/like/`),
+    api.post<{ liked: boolean; likes_count: number }>(
+      `/api/comments/${id}/like/`,
+    ),
 };
 
 export default commentService;
