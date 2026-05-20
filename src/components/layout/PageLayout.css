@@ -7,3 +7,29 @@
 .page-layout__main {
   flex: 1;
 }
+
+/* ─── Skip link (WCAG 2.4.1) ────────────────────────────────────────────
+   Invisível visualmente, mas presente no DOM e na ordem de tabulação.
+   Ao receber foco (Tab logo após page load), aparece no topo esquerdo. */
+.skip-link {
+  position: absolute;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--clr-primary);
+  color: var(--clr-white);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  z-index: 9999;
+  transform: translateY(-200%);
+  transition: transform var(--t-fast);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--clr-white);
+  outline-offset: 2px;
+}
