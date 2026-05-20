@@ -29,6 +29,11 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Re-busca o usuário no backend e atualiza o estado.
+   *  Usar após mudanças no perfil (avatar, nome, bio) para refletir no
+   *  Navbar e outros consumers sem precisar de reload. Silencioso em falha
+   *  de rede — mantém o estado atual. */
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -67,6 +72,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const { data } = await authService.me();
+      setCurrentUser(data);
+    } catch {
+      // Falha silenciosa — não deslogamos o usuário aqui. Se for 401 real,
+      // o axios interceptor já dispara 'auth:logout' separadamente.
+    }
+  }, []);
+
   // Dev é admin++ (mesmos privilégios + imune a ban). Em qualquer lugar que
   // checa `isAdmin`, dev passa também. `isDev` é exposto separadamente para
   // casos específicos (badge, futura gestão hierárquica de admins).
@@ -84,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

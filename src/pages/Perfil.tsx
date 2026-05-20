@@ -31,7 +31,7 @@ interface PasswordForm {
 }
 
 export function Perfil() {
-  const { currentUser, isLoading } = useAuth();
+  const { currentUser, isLoading, refreshUser } = useAuth();
 
   // Estado local que sincroniza com currentUser. Permite editar sem alterar
   // o context imediatamente — só atualiza ao salvar com sucesso.
@@ -145,6 +145,8 @@ export function Perfil() {
         last_name: u.last_name,
         bio: u.bio ?? '',
       });
+      // Propaga para o AuthContext → Navbar reflete o nome novo imediatamente
+      await refreshUser();
     } catch (err) {
       setInfoFeedback({
         type: 'error',
@@ -180,9 +182,12 @@ export function Perfil() {
     setAvatarFeedback(null);
     try {
       await authService.updateProfile({ avatar: avatarFile });
+      // Propaga para o AuthContext → Navbar pega a nova URL do avatar
+      // automaticamente. Sem reload necessário.
+      await refreshUser();
       setAvatarFeedback({
         type: 'success',
-        msg: 'Avatar atualizado. Recarregue a página para ver no Navbar.',
+        msg: 'Avatar atualizado.',
       });
       setAvatarFile(null); // limpa file pra próximo upload
     } catch (err) {
@@ -257,6 +262,7 @@ export function Perfil() {
             <div className="perfil-card__body">
               <div className="perfil-grid">
                 <Input
+                  id="perfil-first-name"
                   label="Nome"
                   value={info.first_name}
                   onChange={(e) =>
@@ -266,6 +272,7 @@ export function Perfil() {
                   autoComplete="given-name"
                 />
                 <Input
+                  id="perfil-last-name"
                   label="Sobrenome"
                   value={info.last_name}
                   onChange={(e) =>
@@ -400,6 +407,7 @@ export function Perfil() {
 
             <div className="perfil-card__body">
               <Input
+                id="perfil-pw-current"
                 label="Senha atual"
                 type="password"
                 value={pwForm.current}
@@ -410,6 +418,7 @@ export function Perfil() {
                 required
               />
               <Input
+                id="perfil-pw-new"
                 label="Nova senha"
                 type="password"
                 value={pwForm.next}
@@ -420,6 +429,7 @@ export function Perfil() {
                 required
               />
               <Input
+                id="perfil-pw-new2"
                 label="Confirmar nova senha"
                 type="password"
                 value={pwForm.next2}
