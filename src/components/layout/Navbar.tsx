@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { NavbarUserMenu } from './NavbarUserMenu';
 import interpopLogo from '../../assets/interpop-logo.svg';
 import './Navbar.css';
 
@@ -72,17 +73,7 @@ export function Navbar() {
 
         <div className="navbar__actions">
           {currentUser ? (
-            <div className="navbar__user">
-              <div className="navbar__user-avatar" aria-hidden="true">
-                {currentUser.avatar_initial}
-              </div>
-              <span className="navbar__user-name">
-                {currentUser.first_name}
-              </span>
-              <button className="navbar__logout" onClick={handleLogout}>
-                Sair
-              </button>
-            </div>
+            <NavbarUserMenu />
           ) : (
             <>
               <Button

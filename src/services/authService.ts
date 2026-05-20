@@ -41,6 +41,32 @@ export const authService = {
 
   me: () => api.get<ApiUser>('/api/auth/me/'),
 
+  /** PATCH parcial. Backend aceita: first_name, last_name, bio, avatar.
+   *  `email` e `username` NÃO são editáveis aqui — exigem fluxo separado
+   *  com confirmação por email (fora do MVP). */
+  updateProfile: (
+    payload: Partial<{
+      first_name: string;
+      last_name: string;
+      bio: string;
+      avatar: File | null;
+    }>,
+  ) => {
+    // Se há arquivo, precisa ser multipart/form-data
+    if (payload.avatar instanceof File) {
+      const fd = new FormData();
+      Object.entries(payload).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) {
+          fd.append(k, v as string | Blob);
+        }
+      });
+      return api.patch<ApiUser>('/api/auth/me/', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return api.patch<ApiUser>('/api/auth/me/', payload);
+  },
+
   changePassword: (old_password: string, new_password: string) =>
     api.post('/api/auth/me/password/', { old_password, new_password }),
 

@@ -1,0 +1,199 @@
+/* Perfil — página de edição do usuário logado.
+   Visual editorial coerente com /admin: cards brancos, padding generoso,
+   hierarquia tipográfica clara, paleta restrita (navy + neutros). */
+
+.perfil-page {
+  padding: var(--sp-8) 0 var(--sp-16);
+}
+
+.perfil-page__header {
+  margin-bottom: var(--sp-8);
+}
+
+.perfil-page__title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--clr-text);
+  margin: 0 0 var(--sp-2);
+}
+
+.perfil-page__subtitle {
+  color: var(--clr-muted);
+  font-size: var(--text-base);
+}
+
+.perfil-loading {
+  padding: var(--sp-16) 0;
+  text-align: center;
+  color: var(--clr-muted);
+}
+
+/* ─── Card ─── */
+.perfil-card {
+  background: var(--clr-white);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--sp-6);
+  overflow: hidden;
+}
+
+.perfil-card__header {
+  padding: var(--sp-5) var(--sp-6);
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.perfil-card__header h2 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--clr-text);
+  margin: 0 0 4px;
+}
+
+.perfil-card__header p {
+  font-size: var(--text-sm);
+  color: var(--clr-muted);
+}
+
+.perfil-card__body {
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.perfil-card__footer {
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--clr-bg);
+  border-top: 1px solid var(--clr-border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.perfil-card__optional {
+  color: var(--clr-subtle);
+  font-weight: 400;
+}
+
+.perfil-card__hint {
+  font-size: var(--text-xs);
+  color: var(--clr-subtle);
+  margin: 0;
+}
+
+/* ─── Grid 2 cols (nome/sobrenome) ─── */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+@media (max-width: 640px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Textarea custom (mesmo visual do Input) ─── */
+.perfil-textarea {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  color: var(--clr-text);
+  background: var(--clr-white);
+  resize: vertical;
+  outline: none;
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+
+.perfil-textarea:focus {
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 3px var(--clr-primary-100);
+}
+
+/* ─── Email readonly ─── */
+.perfil-readonly {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  background: var(--clr-bg);
+  color: var(--clr-muted);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  cursor: not-allowed;
+}
+
+/* ─── Feedback ─── */
+.perfil-feedback {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.perfil-feedback--success {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.perfil-feedback--error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* ─── Avatar ─── */
+.perfil-avatar-body {
+  flex-direction: row;
+  gap: var(--sp-6);
+  align-items: center;
+}
+
+@media (max-width: 520px) {
+  .perfil-avatar-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.perfil-avatar-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-full);
+  background: var(--clr-primary);
+  color: var(--clr-white);
+  font-weight: 700;
+  font-size: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid var(--clr-border);
+}
+
+.perfil-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.perfil-avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  flex: 1;
+  align-items: flex-start;
+}
+
+.perfil-avatar-input {
+  display: none;
+}

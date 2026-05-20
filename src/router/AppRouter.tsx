@@ -11,6 +11,7 @@ import { Login } from '../pages/Login';
 import { Register } from '../pages/Register';
 import { ForgotPassword } from '../pages/ForgotPassword';
 import { ResetPassword } from '../pages/ResetPassword';
+import { Perfil } from '../pages/Perfil';
 import { AdminRoute } from './AdminRoute';
 import { ScrollToHashOrTop } from './ScrollToHashOrTop';
 
@@ -61,6 +62,10 @@ export function AppRouter() {
         <Route path="/cadastro" element={<Register />} />
         <Route path="/recuperar-senha" element={<ForgotPassword />} />
         <Route path="/redefinir-senha/:token" element={<ResetPassword />} />
+        {/* /perfil: gating de auth feito DENTRO da Perfil.tsx (redireciona
+            para /login se não logado). Sem AdminRoute porque qualquer usuário
+            autenticado (incluindo leitor comum) pode editar seu próprio perfil. */}
+        <Route path="/perfil" element={<Perfil />} />
         <Route
           path="/admin"
           element={
