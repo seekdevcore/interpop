@@ -33,7 +33,10 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        response = Response(UserPublicSerializer(user).data, status=status.HTTP_200_OK)
+        response = Response(
+            UserPublicSerializer(user, context={'request': request}).data,
+            status=status.HTTP_200_OK,
+        )
         issue_tokens_for_user(user, response)
         return response
 
@@ -57,7 +60,10 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        response = Response(UserPublicSerializer(user).data, status=status.HTTP_201_CREATED)
+        response = Response(
+            UserPublicSerializer(user, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
+        )
         issue_tokens_for_user(user, response)
         return response
 
@@ -80,13 +86,17 @@ class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(UserPublicSerializer(request.user).data)
+        return Response(
+            UserPublicSerializer(request.user, context={'request': request}).data
+        )
 
     def patch(self, request):
         serializer = UpdateProfileSerializer(request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(UserPublicSerializer(request.user).data)
+        return Response(
+            UserPublicSerializer(request.user, context={'request': request}).data
+        )
 
 
 class ChangePasswordView(APIView):
