@@ -107,8 +107,14 @@ export function Perfil() {
 
   function extractApiError(err: unknown, fallback: string): string {
     const e = err as {
-      response?: { data?: Record<string, unknown> | string };
+      response?: { status?: number; data?: Record<string, unknown> | string };
     };
+    // 401 = sessão expirou e o refresh também falhou. O axios interceptor
+    // já disparou `auth:logout`, então o redirect para /login acontece em
+    // seguida — mas a UX é melhor avisando o motivo antes de perder o estado.
+    if (e?.response?.status === 401) {
+      return 'Sua sessão expirou. Faça login novamente para continuar.';
+    }
     const data = e?.response?.data;
     if (typeof data === 'string') return data;
     if (data && typeof data === 'object') {
