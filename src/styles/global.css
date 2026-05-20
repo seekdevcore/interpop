@@ -1,4 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap');
+/* Self-host de fontes via @fontsource-variable (P1/C6 do Improvement-system §11.5).
+   Anteriormente: `@import url(fonts.googleapis.com/...)` no topo do CSS.
+   Problema: @import bloqueia parse do CSS + waterfall (CSS → @import → fontes).
+   3 famílias × ~9 weights × 2 estilos = ~12 requests sequenciais que mordiam
+   LCP em 300-600ms. Estimativa do impacto: ver Improvement-system.md.
+
+   Self-host com variable fonts: 1 arquivo woff2 cobre TODOS os pesos por
+   família (axis wght 100-900). 3 requests em paralelo, servidos do mesmo
+   origin, sem DNS lookup para Google Fonts. font-display:swap built-in. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/montserrat';
+@import '@fontsource-variable/newsreader/wght-italic.css';
+@import '@fontsource-variable/montserrat/wght-italic.css';
 
 /* ─── Design Tokens ─── */
 :root {
@@ -45,10 +58,14 @@
   --clr-cat-cultura-digital: #0e7490; /* teal — digital cool (kept) */
   --clr-cat-cultura-digital-bg: #e5f5fa;
 
-  /* Typography */
-  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --font-display: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
-  --font-serif: 'Newsreader', Georgia, serif;
+  /* Typography. Self-hosted via @fontsource-variable (P1/C6 §11.5).
+     Variable fonts expõem family `'<Name> Variable'`. Fallback no nome
+     legado garante que cache antigo do browser (que ainda tinha o
+     Google-Fonts servido) também encontre. System font no fim. */
+  --font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-display:
+    'Montserrat Variable', 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: 'Newsreader Variable', 'Newsreader', Georgia, serif;
 
   /* Type scale */
   --text-xs: 0.75rem;

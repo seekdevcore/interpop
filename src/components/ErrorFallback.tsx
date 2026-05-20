@@ -16,6 +16,8 @@ import './ErrorFallback.css';
 
 export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   // Log no console em dev — em prod o Sentry pega via onError do boundary.
+  // `error` é tipado como `unknown` em react-error-boundary (qualquer throw,
+  // não só `new Error(...)`). Narrow com instanceof antes de acessar .message.
   if (import.meta.env.DEV) {
     console.error('ErrorBoundary:', error);
   }
@@ -47,7 +49,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
             Voltar à home
           </Link>
         </div>
-        {import.meta.env.DEV && (
+        {import.meta.env.DEV && error instanceof Error && (
           <details className="error-fallback__details">
             <summary>Detalhes do erro (apenas em dev)</summary>
             <pre>{error.message}</pre>
