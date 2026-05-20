@@ -22,6 +22,7 @@ export interface ApiArticle {
     avatar: string | null;
     avatar_initial: string;
     role: string;
+    bio: string;
   };
   category: ApiCategory | null;
   status: 'draft' | 'published';

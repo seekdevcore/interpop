@@ -244,6 +244,9 @@ export function Article() {
                   ? 'Editor'
                   : 'Colaborador'}
               </p>
+              {article.author.bio && (
+                <p className="article-author-card__bio">{article.author.bio}</p>
+              )}
             </div>
           </div>
 
