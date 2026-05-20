@@ -16,6 +16,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import articleService, {
   type ApiArticle,
@@ -335,9 +336,11 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
                     </td>
                     <td>
                       <div className="admin__user-cell">
-                        <div className="admin__avatar admin__avatar--sm">
-                          {article.author.avatar_initial}
-                        </div>
+                        <Avatar
+                          src={article.author.avatar}
+                          initial={article.author.avatar_initial}
+                          className="admin__avatar admin__avatar--sm"
+                        />
                         <p className="admin__user-cell-name">
                           {article.author.full_name}
                         </p>

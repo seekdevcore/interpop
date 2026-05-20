@@ -19,6 +19,7 @@ export interface ApiArticle {
   author: {
     id: string;
     full_name: string;
+    avatar: string | null;
     avatar_initial: string;
     role: string;
   };
@@ -34,7 +35,12 @@ export interface ApiArticle {
 
 export interface ApiComment {
   id: string;
-  author: { id: string; full_name: string; avatar_initial: string };
+  author: {
+    id: string;
+    full_name: string;
+    avatar: string | null;
+    avatar_initial: string;
+  };
   content: string;
   created_at: string;
 }

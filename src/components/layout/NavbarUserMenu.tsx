@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Avatar } from '../ui/Avatar';
 
 interface NavbarUserMenuProps {
   onAfterAction?: () => void;
@@ -87,9 +88,11 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
         aria-expanded={open}
         aria-label={`Menu do usuário ${currentUser.first_name}`}
       >
-        <div className="navbar-menu__avatar" aria-hidden="true">
-          {currentUser.avatar_initial}
-        </div>
+        <Avatar
+          src={currentUser.avatar}
+          initial={currentUser.avatar_initial}
+          className="navbar-menu__avatar"
+        />
         <span className="navbar-menu__name">{currentUser.first_name}</span>
         <svg
           className="navbar-menu__chevron"

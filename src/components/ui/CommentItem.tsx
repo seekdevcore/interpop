@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import type { ApiComment } from '../../services/commentService';
 import commentService from '../../services/commentService';
+import { Avatar } from './Avatar';
 import { Button } from './Button';
 import './CommentItem.css';
 
@@ -32,15 +33,15 @@ export function CommentItem({
   onReplyAdded,
   onLikeToggled,
 }: CommentItemProps) {
-  const { currentUser } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [liking, setLiking] = useState(false);
 
+  // `isAdmin` (vem do AuthContext) já cobre admin E dev — dev é admin++.
   const canDelete =
-    currentUser &&
-    (currentUser.id === comment.author.id || currentUser.role === 'admin');
+    currentUser && (currentUser.id === comment.author.id || isAdmin);
 
   const handleLike = useCallback(async () => {
     if (!currentUser || liking) return;
@@ -86,9 +87,11 @@ export function CommentItem({
 
   return (
     <li className={`comment-item ${depth > 0 ? 'comment-item--reply' : ''}`}>
-      <div className="comment-item__avatar" aria-hidden="true">
-        {comment.author.avatar_initial}
-      </div>
+      <Avatar
+        src={comment.author.avatar}
+        initial={comment.author.avatar_initial}
+        className="comment-item__avatar"
+      />
 
       <div className="comment-item__body">
         <div className="comment-item__header">

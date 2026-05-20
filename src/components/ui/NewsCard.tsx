@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { categoryVariant } from '../../utils/categoryVariant';
 import type { ApiArticle } from '../../services/articleService';
@@ -45,9 +46,11 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
         )}
         <div className="news-card__meta">
           <div className="news-card__author">
-            <span className="news-card__avatar">
-              {article.author.avatar_initial}
-            </span>
+            <Avatar
+              src={article.author.avatar}
+              initial={article.author.avatar_initial}
+              className="news-card__avatar"
+            />
             <span>{article.author.full_name}</span>
           </div>
           <div className="news-card__info">

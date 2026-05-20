@@ -1,0 +1,14 @@
+/* Avatar — regras genéricas que complementam a className do parent.
+   `.avatar` é aplicada junto pelo componente; o parent define só cor,
+   tamanho e border-radius. */
+
+.avatar {
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

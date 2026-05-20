@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import moderationService, {
@@ -41,7 +42,10 @@ interface UnbanModalState {
 }
 
 export function Admin() {
-  const { currentUser, logout } = useAuth();
+  // `isAdmin` vem do AuthContext e já trata dev como admin++ (dono/criador).
+  // NÃO recomputar localmente — antes recomputava só `role === 'admin'` e o
+  // dev perdia tab Métricas, ações de ban etc.
+  const { currentUser, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
   const [tab, setTab] = useState<Tab>('usuarios');
@@ -54,13 +58,11 @@ export function Admin() {
   const [loadingBans, setLoadingBans] = useState(true);
   const [loadingBanReqs, setLoadingBanReqs] = useState(true);
 
-  const isAdmin = currentUser?.role === 'admin';
-
   // ── Banimentos sub-tabs ──
   // Editor não vê sub-tab "Usuários banidos" (admin-only endpoint), então
   // inicia direto em 'solicitacoes' — única que ele consegue ver.
   const [banTab, setBanTab] = useState<BanSubTab>(
-    currentUser?.role === 'admin' ? 'ativos' : 'solicitacoes',
+    isAdmin ? 'ativos' : 'solicitacoes',
   );
 
   // ── Métricas ──
@@ -412,7 +414,11 @@ export function Admin() {
 
         <div className="admin__sidebar-footer">
           <div className="admin__current-user">
-            <div className="admin__avatar">{currentUser?.avatar_initial}</div>
+            <Avatar
+              src={currentUser?.avatar ?? null}
+              initial={currentUser?.avatar_initial ?? ''}
+              className="admin__avatar"
+            />
             <div>
               <p className="admin__user-name">{currentUser?.full_name}</p>
               <p className="admin__user-role">Administrador</p>
@@ -549,9 +555,11 @@ export function Admin() {
                       <tr key={user.id}>
                         <td>
                           <div className="admin__user-cell">
-                            <div className="admin__avatar admin__avatar--sm">
-                              {user.avatar_initial}
-                            </div>
+                            <Avatar
+                              src={user.avatar}
+                              initial={user.avatar_initial}
+                              className="admin__avatar admin__avatar--sm"
+                            />
                             <div>
                               <p className="admin__user-cell-name">
                                 {user.full_name}
@@ -679,9 +687,11 @@ export function Admin() {
                     <div key={r.id} className="admin__ban-card">
                       <div className="admin__ban-card-header">
                         <div className="admin__user-cell">
-                          <div className="admin__avatar admin__avatar--sm">
-                            {r.target.avatar_initial}
-                          </div>
+                          <Avatar
+                            src={r.target.avatar}
+                            initial={r.target.avatar_initial}
+                            className="admin__avatar admin__avatar--sm"
+                          />
                           <div>
                             <p className="admin__user-cell-name">
                               {r.target.full_name}
@@ -765,9 +775,11 @@ export function Admin() {
                     <div key={b.id} className="admin__ban-card">
                       <div className="admin__ban-card-header">
                         <div className="admin__user-cell">
-                          <div className="admin__avatar admin__avatar--sm admin__avatar--banned">
-                            {b.user.avatar_initial}
-                          </div>
+                          <Avatar
+                            src={b.user.avatar}
+                            initial={b.user.avatar_initial}
+                            className="admin__avatar admin__avatar--sm admin__avatar--banned"
+                          />
                           <div>
                             <p className="admin__user-cell-name">
                               {b.user.full_name}
@@ -1090,7 +1102,11 @@ export function Admin() {
       >
         <div className="admin__ban-modal-body">
           <div className="admin__ban-modal-user">
-            <div className="admin__avatar">{banModal.user?.avatar_initial}</div>
+            <Avatar
+              src={banModal.user?.avatar ?? null}
+              initial={banModal.user?.avatar_initial ?? ''}
+              className="admin__avatar"
+            />
             <div>
               <p className="admin__user-cell-name">
                 {banModal.user?.full_name}
@@ -1166,9 +1182,11 @@ export function Admin() {
       >
         <div className="admin__ban-modal-body">
           <div className="admin__ban-modal-user">
-            <div className="admin__avatar admin__avatar--banned">
-              {unbanModal.ban?.user.avatar_initial}
-            </div>
+            <Avatar
+              src={unbanModal.ban?.user.avatar ?? null}
+              initial={unbanModal.ban?.user.avatar_initial ?? ''}
+              className="admin__avatar admin__avatar--banned"
+            />
             <div>
               <p className="admin__user-cell-name">
                 {unbanModal.ban?.user.full_name}

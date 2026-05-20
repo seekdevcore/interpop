@@ -3,6 +3,7 @@ import api from './api';
 export interface ApiCommentAuthor {
   id: string;
   full_name: string;
+  avatar: string | null;
   avatar_initial: string;
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout';
+import { Avatar } from '../components/ui/Avatar';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ArticleShareBar } from '../components/article/ArticleShareBar';
@@ -9,6 +10,7 @@ import { ArticleComments } from '../components/article/ArticleComments';
 import { useAuth } from '../contexts/AuthContext';
 import articleService, { type ApiArticle } from '../services/articleService';
 import { renderArticleBody } from '../utils/renderArticleBody';
+import '../styles/article-body.css';
 import './Article.css';
 
 function readingTime(body: string): number {
@@ -170,13 +172,18 @@ export function Article() {
 
             <div className="article-byline">
               <div className="article-author">
-                <div className="article-author__avatar" aria-hidden="true">
-                  {article.author.avatar_initial}
-                </div>
+                <Avatar
+                  src={article.author.avatar}
+                  initial={article.author.avatar_initial}
+                  className="article-author__avatar"
+                />
                 <div className="article-author__info">
                   <strong>{article.author.full_name}</strong>
                   <span>
-                    {article.author.role === 'admin' ? 'Editor' : 'Colaborador'}
+                    {article.author.role === 'admin' ||
+                    article.author.role === 'dev'
+                      ? 'Editor'
+                      : 'Colaborador'}
                   </span>
                 </div>
               </div>
@@ -222,15 +229,20 @@ export function Article() {
           <hr className="article-divider" />
 
           <div className="article-author-card">
-            <div className="article-author-card__avatar">
-              {article.author.avatar_initial}
-            </div>
+            <Avatar
+              src={article.author.avatar}
+              initial={article.author.avatar_initial}
+              className="article-author-card__avatar"
+            />
             <div>
               <p className="article-author-card__name">
                 {article.author.full_name}
               </p>
               <p className="article-author-card__role">
-                {article.author.role === 'admin' ? 'Editor' : 'Colaborador'}
+                {article.author.role === 'admin' ||
+                article.author.role === 'dev'
+                  ? 'Editor'
+                  : 'Colaborador'}
               </p>
             </div>
           </div>
