@@ -22,9 +22,12 @@ export function renderArticleBody(
   body: string,
   authorName?: string,
 ): ReactNode[] {
+  // Aceita CRLF (Windows), LF (Unix) e linhas "em branco" com espaços/tabs:
+  // sem isso, copy-paste do Word/notepad gerava UM único parágrafo no preview.
   const paragraphs = body
+    .replace(/\r\n/g, '\n')
     .trim()
-    .split('\n\n')
+    .split(/\n[ \t]*\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
 

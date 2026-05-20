@@ -1,0 +1,65 @@
+/* article-body — estilos compartilhados pelo render markdown leve.
+   Usados em Article.tsx (render final) E no preview do CreatePost.
+   Fonte única para garantir que o editor veja exatamente o que o leitor verá. */
+
+.article-body {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  font-weight: 400;
+  font-optical-sizing: auto;
+  line-height: 1.9;
+  color: #1f1f1f;
+}
+
+.article-body p {
+  margin-bottom: var(--sp-6);
+}
+
+.article-body h2,
+.article-section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.625rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--clr-text);
+  margin: var(--sp-12) 0 var(--sp-5);
+  line-height: 1.25;
+}
+
+.article-dropcap {
+  float: left;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 7vw, 5rem);
+  font-weight: 900;
+  line-height: 0.8;
+  color: var(--clr-primary);
+  margin-right: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.article-quote {
+  border: none;
+  background: var(--clr-primary-50);
+  border-left: 4px solid var(--clr-primary);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  padding: var(--sp-6) var(--sp-8);
+  margin: var(--sp-8) 0;
+}
+
+.article-quote p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.0625rem, 2vw, 1.25rem);
+  font-style: italic;
+  font-optical-sizing: auto;
+  color: var(--clr-primary-dark);
+  line-height: 1.65;
+  margin: 0 0 var(--sp-3);
+}
+
+.article-quote cite {
+  font-size: var(--text-sm);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--clr-primary);
+  font-family: var(--font-sans);
+}

@@ -7,6 +7,7 @@ import articleService, {
   type ApiCategory,
 } from '../../services/articleService';
 import { renderArticleBody } from '../../utils/renderArticleBody';
+import '../../styles/article-body.css';
 import './CreatePost.css';
 
 interface CreatePostProps {
