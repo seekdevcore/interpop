@@ -20,8 +20,11 @@ import { authService, type ApiUser } from '../services/authService';
 
 interface AuthContextValue {
   currentUser: ApiUser | null;
+  /** True para roles `admin` E `dev` — dev é admin++. */
   isAdmin: boolean;
-  /** Admin OU editor — pode publicar artigos e acessar /admin (UI adapta). */
+  /** True apenas para role `dev` (dono/criador, imune a ban). */
+  isDev: boolean;
+  /** Dev OU admin OU editor — pode publicar artigos e acessar /admin (UI adapta). */
   canPublish: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -32,12 +35,13 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<ApiUser | null>(null);
-  const [isLoading, setIsLoading]     = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Restore session on mount
   useEffect(() => {
-    authService.me()
-      .then(r => setCurrentUser(r.data))
+    authService
+      .me()
+      .then((r) => setCurrentUser(r.data))
       .catch(() => setCurrentUser(null))
       .finally(() => setIsLoading(false));
   }, []);
@@ -55,15 +59,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    try { await authService.logout(); } catch { /* ignore network errors */ }
+    try {
+      await authService.logout();
+    } catch {
+      /* ignore network errors */
+    }
     setCurrentUser(null);
   }, []);
 
-  const isAdmin    = currentUser?.role === 'admin';
+  // Dev é admin++ (mesmos privilégios + imune a ban). Em qualquer lugar que
+  // checa `isAdmin`, dev passa também. `isDev` é exposto separadamente para
+  // casos específicos (badge, futura gestão hierárquica de admins).
+  const isDev = currentUser?.role === 'dev';
+  const isAdmin = isDev || currentUser?.role === 'admin';
   const canPublish = isAdmin || currentUser?.role === 'editor';
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAdmin, canPublish, isLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        isAdmin,
+        isDev,
+        canPublish,
+        isLoading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

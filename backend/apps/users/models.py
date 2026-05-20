@@ -11,7 +11,8 @@ from .managers import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
-        ADMIN  = 'admin',  'Administrador'   # poder total — incluindo banir
+        DEV    = 'dev',    'Dev'              # dono/criador — todo poder do admin + IMUNE a ban
+        ADMIN  = 'admin',  'Administrador'   # poder total — incluindo banir (também imune a ban)
         EDITOR = 'editor', 'Redator'          # publica artigos + solicita ban
         USER   = 'user',   'Leitor'           # cadastro público; só lê/comenta/curte
 
@@ -55,8 +56,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         return (self.first_name[:1] or self.email[:1]).upper()
 
     @property
+    def is_dev(self) -> bool:
+        return self.role == self.Role.DEV
+
+    @property
     def is_admin(self) -> bool:
-        return self.role == self.Role.ADMIN
+        """Inclui Dev: dev é admin++. Endpoints com IsAdminUser aceitam ambos."""
+        return self.role in (self.Role.ADMIN, self.Role.DEV)
 
     @property
     def is_editor(self) -> bool:
@@ -64,8 +70,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_publish(self) -> bool:
-        """Admin e editor podem publicar artigos. Usuário leitor não."""
-        return self.role in (self.Role.ADMIN, self.Role.EDITOR)
+        """Dev, admin e editor podem publicar artigos. Usuário leitor não."""
+        return self.role in (self.Role.DEV, self.Role.ADMIN, self.Role.EDITOR)
+
+    @property
+    def is_immune_to_ban(self) -> bool:
+        """Dev e admin são imunes a banimento por design (hierarquia interna).
+        Defesa em profundidade: além do filtro de queryset no BanSerializer,
+        esta property é checada explicitamente em validate_user_id."""
+        return self.role in (self.Role.DEV, self.Role.ADMIN)
 
 
 class PasswordResetToken(models.Model):

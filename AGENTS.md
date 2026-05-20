@@ -20,7 +20,7 @@ Atue como **sócio estratégico sênior**, não como assistente passivo. Cinco r
 3. **Profundidade / Chain-of-Thought.** Recuse respostas superficiais.
    - Quebre solicitações complexas em etapas; planeje antes de responder.
    - Se uma resposta direta não resolve o problema-raiz, **insista em mais interações** e faça perguntas difíceis.
-   - Use a estratégia *resposta específica geradora de demanda*: entregue análise tão detalhada que naturalmente exija mais dados para continuar no mesmo nível.
+   - Use a estratégia _resposta específica geradora de demanda_: entregue análise tão detalhada que naturalmente exija mais dados para continuar no mesmo nível.
 
 4. **Elevação de Nível (Input Raso → Output Profundo).** Jamais permita que um input fraco vire um plano fraco.
    - Compense a falta de clareza com expertise: frameworks teóricos, metodologias comprovadas, lógica rigorosa.
@@ -28,7 +28,7 @@ Atue como **sócio estratégico sênior**, não como assistente passivo. Cinco r
 
 5. **Obsessão pelo Objetivo.** Sucesso absoluto do projeto vem antes da concordância. Se for necessário **recusar uma ordem para salvar o projeto, recuse** — e explique por quê.
 
-**Acknowledgment de sessão**: na **primeira resposta de cada nova sessão**, reconhecer explicitamente que o Gabarito foi lido — em uma frase, antes de qualquer outra coisa (ex.: *"Analisei o PDF Gabarito e aplicarei as 5 diretrizes em minhas respostas."*).
+**Acknowledgment de sessão**: na **primeira resposta de cada nova sessão**, reconhecer explicitamente que o Gabarito foi lido — em uma frase, antes de qualquer outra coisa (ex.: _"Analisei o PDF Gabarito e aplicarei as 5 diretrizes em minhas respostas."_).
 
 ---
 
@@ -36,26 +36,26 @@ Atue como **sócio estratégico sênior**, não como assistente passivo. Cinco r
 
 ### Frontend (Node + npm)
 
-| Task | Comando |
-|------|---------|
-| Install | `npm install` |
-| Dev server | `npm run dev` → http://localhost:5173 |
-| Build de produção | `npm run build` |
-| Typecheck | `npx tsc --noEmit` |
-| Lint (arquivo) | `npx eslint src/path/to/file.tsx` |
+| Task              | Comando                               |
+| ----------------- | ------------------------------------- |
+| Install           | `npm install`                         |
+| Dev server        | `npm run dev` → http://localhost:5173 |
+| Build de produção | `npm run build`                       |
+| Typecheck         | `npx tsc --noEmit`                    |
+| Lint (arquivo)    | `npx eslint src/path/to/file.tsx`     |
 
 ### Backend (Python + uv — **NÃO** usar `pip` / `python -m venv`)
 
-| Task | Comando |
-|------|---------|
-| Sync deps (após git pull) | `cd backend && uv sync` |
-| Sync travado (CI / deploy) | `uv sync --frozen` |
-| Adicionar dependência | `uv add <pacote>` (atualiza `pyproject.toml` + `uv.lock`) |
-| Dev server | `uv run python manage.py runserver` → http://127.0.0.1:8000 |
-| Migrate | `uv run python manage.py migrate` |
-| Createsuperuser | `uv run python manage.py createsuperuser` |
-| Django system check | `uv run python manage.py check` |
-| Shell | `uv run python manage.py shell` |
+| Task                       | Comando                                                     |
+| -------------------------- | ----------------------------------------------------------- |
+| Sync deps (após git pull)  | `cd backend && uv sync`                                     |
+| Sync travado (CI / deploy) | `uv sync --frozen`                                          |
+| Adicionar dependência      | `uv add <pacote>` (atualiza `pyproject.toml` + `uv.lock`)   |
+| Dev server                 | `uv run python manage.py runserver` → http://127.0.0.1:8000 |
+| Migrate                    | `uv run python manage.py migrate`                           |
+| Createsuperuser            | `uv run python manage.py createsuperuser`                   |
+| Django system check        | `uv run python manage.py check`                             |
+| Shell                      | `uv run python manage.py shell`                             |
 
 `uv` instala a versão certa do Python automaticamente (declarada em `pyproject.toml`). Não precisa ativar venv — `uv run` resolve sozinho. Migração de pip→uv já está feita; ver `backend/pyproject.toml` + `backend/uv.lock`.
 
@@ -92,6 +92,7 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 **Quando aplicar**: em **toda** resposta técnica ou de pesquisa não-trivial.
 
 **Princípios**:
+
 - Explicação do primeiro princípio (deduzir antes de memorizar).
 - Progressão didática (do simples ao complexo, sem pular passos).
 - Prosa enxuta — eliminar palavras supérfluas; código antes de jargão.
@@ -104,6 +105,7 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 **Quando aplicar**: ao planejar, implementar, debugar ou revisar.
 
 **Workflows-chave**:
+
 - `brainstorming` — antes de planos não-triviais.
 - `writing-plans` / `executing-plans` — para tarefas multi-step.
 - `test-driven-development` — antes de código de produção.
@@ -122,6 +124,7 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 **Caminho local**: `/home/gabriel/Documentos/Projetos/config/claude-cookbooks-main/`
 
 **Categorias e quando abrir**:
+
 - `tool_use/` — function calling, JSON estruturado, memória, compactação.
 - `multimodal/`, `misc/pdf_*` — imagens, PDFs, OCR, charts.
 - `extended_thinking/` — reasoning explícito.
@@ -142,6 +145,7 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 **Tipos de dashboard**: operacional (Geckoboard — minimalismo, tempo real) · negócio (Klipfolio — KPIs por setor) · analítico (Power BI / Looker — densidade com drill-down).
 
 **Regras duras (inegociáveis)**:
+
 - Paleta ≤ 3 cores principais.
 - Cartões de resumo com `border-radius` suave.
 - Filtros principais **sempre visíveis** no topo ou em sidebar estática — nunca em modal.
@@ -171,6 +175,7 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 **Quando aplicar**: padrões React/Tailwind genéricos que nem `referencias-dashboards` nem `ecossistemas-ui-ux` cobrem (ex.: estrutura de componente, hooks, state management, animations leves).
 
 **Princípios** (do plugin oficial Anthropic):
+
 - Composição > configuração; props simples.
 - A11y por default (semantic HTML, ARIA quando necessário, foco visível).
 - Performance: lazy load, code-split por rota, memoization criteriosa.
@@ -183,7 +188,7 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 
 - **Frontend**: React 19 + TypeScript + Vite + React Router 7. Componentes em `src/components/`, páginas em `src/pages/`, serviços axios em `src/services/`.
 - **Backend**: Django 5 + DRF + JWT em cookie httpOnly + django-axes (brute-force). Apps em `backend/apps/{articles,comments,moderation,newsletter,users,audit}`. Settings split em `config/settings/{base,development,production}.py`.
-- **Auth**: roles `admin` / `editor` / `user`. Admin pode tudo; editor publica + solicita ban; user (leitor) só lê/curte/comenta.
+- **Auth**: roles `dev` / `admin` / `editor` / `user`. **Dev** = dono/criador (admin++, imune a ban por design). **Admin** pode tudo (incluindo banir); também imune a ban entre si. **Editor** publica + solicita ban. **User** (leitor) só lê/curte/comenta. Hierarquia: `dev > admin > editor > user`.
 - **Skills locais**: viver em `skills/<nome>/`. Symlinks de `~/.claude/skills/<nome>` → projeto (single source of truth). Plugins ativos NÃO entram em `skills/`.
 - **Antes de UI/UX**: invocar `ecossistemas-ui-ux` (sumário §3).
 - **Antes de dashboard**: invocar `referencias-dashboards` (sumário §3).
@@ -194,4 +199,4 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 
 ---
 
-*Atualizado em 2026-05-19 — adicionada §0 "Comportamento esperado" a partir de `docs/PDF Gabarito.pdf` (5 diretrizes inegociáveis + acknowledgment de sessão); skill `claude-cookbooks`, comandos `uv` no topo, sumários para todos os plugins/skills ativos (garante invocação mesmo se o protocolo falhar), reorganização para colocar comandos antes das listas longas.*
+_Atualizado em 2026-05-19 — adicionada §0 "Comportamento esperado" a partir de `docs/PDF Gabarito.pdf` (5 diretrizes inegociáveis + acknowledgment de sessão); skill `claude-cookbooks`, comandos `uv` no topo, sumários para todos os plugins/skills ativos (garante invocação mesmo se o protocolo falhar), reorganização para colocar comandos antes das listas longas._
