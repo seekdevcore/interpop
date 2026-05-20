@@ -19,6 +19,20 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // `set-state-in-effect` é error por padrão no React Hooks v7 / React Compiler,
+      // mas o projeto usa o idiom "refetch quando filtros mudam" (URL params →
+      // useEffect → setLoading(true) → fetch). Documentado em Admin/index.tsx:85-94.
+      // Rebaixado para warning para não bloquear o pre-commit hook em código já
+      // estável. Quando refatorarmos para TanStack Query (Sprint 4 do roadmap),
+      // o problema some e a rule volta para error.
+      'react-hooks/set-state-in-effect': 'warn',
+      // `only-export-components` quebra com padrão React Context comum (hook
+      // `useAuth` + component `AuthProvider` no mesmo arquivo). Quebrar em 2
+      // arquivos é overkill — rebaixado para warn. Dev hot reload continua
+      // funcionando, só dispara full reload em vez de fast refresh.
+      'react-refresh/only-export-components': 'warn',
+    },
   },
   // `prettier` por último: desabilita regras do ESLint que conflitam com a
   // formatação aplicada pelo Prettier. Evita lint warnings sobre coisa que
