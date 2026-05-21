@@ -43,3 +43,4 @@ coverage.xml
 # Documentos internos de planejamento (não versionados)
 docs/Improvement-system.md
 docs/HOSTING-DEPLOY-PLAN.md
+docs/session-auth-strategy.md
