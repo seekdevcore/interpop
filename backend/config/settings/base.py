@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'axes',
     'django_filters',
+    'django_celery_beat',  # cron-like scheduler (Article auto-purge, etc.)
 ]
 
 LOCAL_APPS = [
@@ -293,5 +294,38 @@ LOGGING = {
         'django.request':  {'level': 'WARNING', 'handlers': ['console'], 'propagate': False},
         'django.security': {'level': 'INFO',    'handlers': ['console'], 'propagate': False},
         'interpop':        {'level': 'DEBUG' if DEBUG else 'INFO', 'handlers': ['console'], 'propagate': False},
+        'celery':          {'level': 'INFO',    'handlers': ['console'], 'propagate': False},
     },
 }
+
+# ── Celery (A20-A22 do Improvement-system §11.2) ─────────────────────────────────
+# Broker: Redis local default. Em prod (production.py) deve apontar pro Redis
+# do VPS via env REDIS_URL.
+#
+# Em dev sem Redis instalado: `CELERY_TASK_ALWAYS_EAGER=True` em
+# development.py faz as tasks rodarem síncronas no request thread (mesmo
+# efeito do código atual pre-Celery). Sem precisar de worker. Tests do
+# pytest também rodam eagerly por padrão.
+#
+# Pra subir worker real local: `sudo apt install redis-server` + flip
+# do flag pra False + `celery -A config worker -l info` em outro terminal.
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = None  # tasks são fire-and-forget (email, push)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERY_ENABLE_UTC = True
+# Beat scheduler usando DB (django-celery-beat) — schedule via Django admin
+# em vez de cron file. Permite ajuste dinâmico sem restart do beat.
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# Retry default: 3 tentativas com backoff exponencial. Email transiente
+# (SMTP timeout) tem alta chance de funcionar no 2º try.
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_TASK_DEFAULT_RETRY_DELAY = 60      # 1 min
+CELERY_TASK_MAX_RETRIES = 3
+# Hard timeout: tasks longas (>5min) são killed. send_article_notification
+# pra 1000 subscribers leva ~30s em SendGrid; folga grande mesmo assim.
+CELERY_TASK_TIME_LIMIT = 300
+CELERY_TASK_SOFT_TIME_LIMIT = 270

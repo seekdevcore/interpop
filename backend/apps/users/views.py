@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.core.mail import send_mail
 from django.db.models import Count, Q
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -124,19 +122,13 @@ class PasswordResetRequestView(APIView):
         token_obj = serializer.save()
 
         if token_obj:
-            site_url = getattr(settings, 'SITE_URL', 'http://localhost:5173')
-            reset_url = f"{site_url}/redefinir-senha/{token_obj.token}"
-            send_mail(
-                subject='[Interpop] Redefinição de senha',
-                message=(
-                    f'Você solicitou a redefinição da sua senha.\n\n'
-                    f'Clique no link abaixo para criar uma nova senha (válido por 1 hora):\n\n'
-                    f'{reset_url}\n\n'
-                    f'Se não foi você, ignore este e-mail.'
-                ),
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@interpop.com'),
-                recipient_list=[token_obj.user.email],
-                fail_silently=True,
+            # ADR-009: email vai pra fila Celery (em dev EAGER, em prod
+            # via Redis broker → worker em processo separado). Retry com
+            # backoff exponencial dentro da task se SMTP falhar.
+            from apps.users.tasks import send_password_reset_email
+            send_password_reset_email.delay(
+                user_email=token_obj.user.email,
+                token=str(token_obj.token),
             )
 
         # Always return 200 to avoid email enumeration

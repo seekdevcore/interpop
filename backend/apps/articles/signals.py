@@ -49,15 +49,16 @@ def _notify_subscribers_on_publish(sender, instance: Article, created: bool, **k
         return
 
     try:
-        # Late import: avoid app-loading cycles (newsletter imports nothing
-        # from articles, but keep it deferred to be safe).
-        from apps.newsletter.services import send_article_notification
-
-        sent, failed = send_article_notification(instance)
+        # ADR-009: enfileira via Celery em vez de chamar síncrono.
+        # Em prod (Redis broker) o publisher retorna em <10ms; envio real
+        # acontece em worker separado com retry policy. Em dev (EAGER),
+        # roda síncrono no thread atual — comportamento idêntico ao
+        # pre-Celery, com mesmo shape de tests passando.
+        from apps.newsletter.tasks import send_article_notification
+        send_article_notification.delay(article_id=str(instance.pk))
         logger.info(
-            'Auto-notify on publish for article %s: sent=%d failed=%d',
-            instance.slug, sent, failed,
+            'Article notification task enqueued for %s', instance.slug,
         )
     except Exception:
-        # Notification failures must never block the publish flow.
-        logger.exception('Auto-notify failed for article %s', instance.slug)
+        # Enqueue failures must never block the publish flow.
+        logger.exception('Failed to enqueue notification task for %s', instance.slug)

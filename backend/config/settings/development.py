@@ -42,6 +42,20 @@ else:
 # Relax axes for local testing
 AXES_FAILURE_LIMIT = 20
 
+# Celery em modo síncrono — não precisa de Redis instalado pra desenvolver.
+# Tasks rodam no request thread (mesmo comportamento do código pré-Celery,
+# mas no shape correto de `@shared_task` que vai pra prod).
+#
+# Pra subir worker real local:
+#   1. sudo apt install -y redis-server
+#   2. CELERY_TASK_ALWAYS_EAGER=False neste arquivo (ou via env)
+#   3. celery -A config worker -l info        (em terminal separado)
+#   4. celery -A config beat -l info          (se precisar de scheduled)
+CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=True, cast=bool)
+# Em eager mode, propaga exceptions pro caller (em vez de virar resultado
+# da task) — falhas em dev ficam visíveis no terminal do runserver.
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # Relax DRF throttle rates for local testing — the production values (100/h
 # anon, 1000/h user) bite hard during interactive dev (browser autoloads,
 # hot reloads, manual smoke tests).
