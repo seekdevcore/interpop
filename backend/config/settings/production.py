@@ -2,8 +2,13 @@
 from decouple import Csv, config
 
 from .base import *  # noqa: F401, F403
+from apps.audit.sentry import init_sentry
 
 DEBUG = False
+
+# Sentry — no-op silencioso se SENTRY_DSN não estiver no env.
+# Em prod real: DSN setado, traces 10%, releases taggadas via GIT_SHA.
+init_sentry(environment='production')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
