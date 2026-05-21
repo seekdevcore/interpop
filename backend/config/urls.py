@@ -5,6 +5,7 @@ from django.urls import include, path
 
 from apps.articles.robots_view import robots_txt
 from apps.articles.sitemaps import sitemap_xml
+from apps.audit.health_view import healthz
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
@@ -14,6 +15,11 @@ urlpatterns = [
     # pro frontend SITE_URL, não pro backend host.
     path('sitemap.xml', sitemap_xml, name='sitemap-xml'),
     path('robots.txt',  robots_txt,  name='robots-txt'),
+
+    # Health check — root path, sem versioning (monitor externo +
+    # nginx upstream check + smoke test do deploy).
+    path('healthz/', healthz, name='healthz'),
+    path('healthz',  healthz),  # alias sem trailing slash
 
     # API v1 — todos os endpoints da aplicação ficam sob /api/v1/.
     # Decisão formalizada em ADR-010 do Improvement-system.md §11.0.
