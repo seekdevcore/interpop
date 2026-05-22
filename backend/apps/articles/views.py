@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.audit.utils import get_client_ip
 from apps.users.permissions import IsPublisherOrReadOnly
 from .models import Article, Category
 from .serializers import (
@@ -16,14 +17,8 @@ from .serializers import (
 )
 
 
-def _client_ip(request) -> str:
-    """Extrai IP real respeitando X-Forwarded-For (nginx → gunicorn).
-    Em prod o Cloudflare também adiciona CF-Connecting-IP, mas X-Forwarded-For
-    do nginx já carrega isso. Em dev sem proxy, REMOTE_ADDR é direto."""
-    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
-    if forwarded:
-        return forwarded.split(',')[0].strip()
-    return request.META.get('REMOTE_ADDR', '0.0.0.0')
+# IP extraction moved to apps.audit.utils.get_client_ip (C13) — single
+# source of truth para extrair IP via X-Forwarded-For.
 
 
 class CategoryListView(generics.ListAPIView):
@@ -105,7 +100,7 @@ class ArticleViewCountView(APIView):
     BUCKET_TTL = 300  # 5 minutos
 
     def post(self, request, slug):
-        bucket_key = f'view_count:{slug}:{_client_ip(request)}'
+        bucket_key = f'view_count:{slug}:{get_client_ip(request) or "0.0.0.0"}'
         if cache.get(bucket_key):
             return Response(status=status.HTTP_204_NO_CONTENT)
 

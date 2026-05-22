@@ -13,6 +13,7 @@ import uuid
 
 from .logging import request_id_var, user_id_var
 from .models import AuditLog
+from .utils import get_client_ip
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +54,6 @@ class RequestIDMiddleware:
         return response
 
 
-def _get_ip(request) -> str | None:
-    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
-    if forwarded:
-        return forwarded.split(',')[0].strip()
-    return request.META.get('REMOTE_ADDR')
-
-
 class AuditLogMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -84,7 +78,7 @@ class AuditLogMiddleware:
                 request_path=request.path,
                 request_method=request.method,
                 response_status=response.status_code,
-                ip_address=_get_ip(request),
+                ip_address=get_client_ip(request),
                 user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
             )
         except Exception:
