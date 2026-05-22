@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ArticleShareBar } from '../components/article/ArticleShareBar';
 import { ArticleAdminActions } from '../components/article/ArticleAdminActions';
+import { formatDateLong } from '../utils/formatDate';
 import { ArticleComments } from '../components/article/ArticleComments';
 import { useAuth } from '../contexts/AuthContext';
 import articleService, { type ApiArticle } from '../services/articleService';
@@ -16,14 +17,6 @@ import './Article.css';
 function readingTime(body: string): number {
   const words = body.trim().split(/\s+/).length;
   return Math.max(1, Math.ceil(words / 200));
-}
-
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(iso));
 }
 
 export function Article() {
@@ -190,7 +183,7 @@ export function Article() {
               <div className="article-meta">
                 {article.published_at && (
                   <time dateTime={article.published_at}>
-                    {formatDate(article.published_at)}
+                    {formatDateLong(article.published_at)}
                   </time>
                 )}
                 <span aria-hidden="true">·</span>

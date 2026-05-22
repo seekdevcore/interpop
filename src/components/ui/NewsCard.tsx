@@ -2,21 +2,13 @@ import { Link } from 'react-router-dom';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { categoryVariant } from '../../utils/categoryVariant';
+import { formatDateShort } from '../../utils/formatDate';
 import type { ApiArticle } from '../../services/articleService';
 import './NewsCard.css';
 
 interface NewsCardProps {
   article: ApiArticle;
   variant?: 'default' | 'featured' | 'compact';
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(iso));
 }
 
 export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
@@ -54,7 +46,7 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
             <span>{article.author.full_name}</span>
           </div>
           <div className="news-card__info">
-            <span>{formatDate(article.published_at)}</span>
+            <span>{formatDateShort(article.published_at)}</span>
             {article.comment_count > 0 && (
               <>
                 <span>·</span>

@@ -4,6 +4,7 @@ import type { ApiComment } from '../../services/commentService';
 import commentService from '../../services/commentService';
 import { Avatar } from './Avatar';
 import { Button } from './Button';
+import { formatDateTime } from '../../utils/formatDate';
 import './CommentItem.css';
 
 interface CommentItemProps {
@@ -13,16 +14,6 @@ interface CommentItemProps {
   onDelete: (id: string) => void;
   onReplyAdded: (parentId: string, reply: ApiComment) => void;
   onLikeToggled: (id: string, liked: boolean, count: number) => void;
-}
-
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(iso));
 }
 
 export function CommentItem({
@@ -99,7 +90,7 @@ export function CommentItem({
             {comment.author.full_name}
           </strong>
           <time className="comment-item__time" dateTime={comment.created_at}>
-            {formatDate(comment.created_at)}
+            {formatDateTime(comment.created_at)}
           </time>
         </div>
 
