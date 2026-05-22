@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 
 
 class IsAdminUser(BasePermission):
@@ -60,3 +60,23 @@ class IsNotBanned(BasePermission):
     def has_permission(self, request, view):
         user = request.user
         return not (user.is_authenticated and user.is_banned)
+
+
+class IsEditorOrAdmin(IsAuthenticated):
+    """Permite GET para qualquer autenticado; POST só para editor/admin
+    (não pra usuário comum/leitor).
+
+    Usado em endpoints onde leitura é compartilhada mas a criação requer
+    permissão editorial — caso clássico: BanRequest (admin vê todas, editor
+    vê as suas próprias E pode criar novas). Para artigos use
+    `IsPublisherOrReadOnly` (semântica diferente: anon pode GET).
+
+    C14 do reorganization-proposal: antes vivia inline em
+    `apps/moderation/views.py`. Centralizada aqui para reuso.
+    """
+    def has_permission(self, request, view):
+        if not super().has_permission(request, view):
+            return False
+        if request.method == 'POST':
+            return request.user.can_publish  # admin OR editor
+        return True

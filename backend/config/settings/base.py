@@ -365,6 +365,7 @@ CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_TASK_DEFAULT_RETRY_DELAY = 60      # 1 min
 CELERY_TASK_MAX_RETRIES = 3
 # Hard timeout: tasks longas (>5min) são killed. send_article_notification
-# pra 1000 subscribers leva ~30s em SendGrid; folga grande mesmo assim.
+# (Celery task) pra 1000 subscribers leva ~30s em SendGrid; folga grande
+# mesmo assim. NB: o helper síncrono interno é _dispatch_article_notification_sync.
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TASK_SOFT_TIME_LIMIT = 270

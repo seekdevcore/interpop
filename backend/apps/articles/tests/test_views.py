@@ -9,8 +9,8 @@ Cobertura prioritária:
 - Edição/exclusão: dono OU admin (IsOwnerOrAdmin).
 - C4 regression: view_count NÃO dobra com 2 POSTs do mesmo IP em <5min.
 - C2 regression: publish dispara EXATAMENTE 1 chamada a
-  send_article_notification (não 2 — o signal de newsletter foi removido
-  em 1d7d3eb).
+  _dispatch_article_notification_sync (não 2 — o signal de newsletter foi
+  removido em 1d7d3eb).
 """
 from __future__ import annotations
 
@@ -253,10 +253,10 @@ def test_article_publish_triggers_send_article_notification_once(
     """C2 regression (1d7d3eb): antes do delete de apps/newsletter/signals.py,
     publicar disparava 2 emails (signal pre_save em newsletter + signal
     post_save em articles). Agora deve ser EXATAMENTE 1 chamada a
-    send_article_notification.
+    _dispatch_article_notification_sync (a task wrapper síncrona).
     Estratégia: criar draft, depois transição draft→published, contar
     chamadas mockadas ao send."""
-    with patch('apps.newsletter.services.send_article_notification') as mock_send:
+    with patch('apps.newsletter.services._dispatch_article_notification_sync') as mock_send:
         mock_send.return_value = (0, 0)
         art = make_article(editor_user, status='draft', title='To Publish')
         # Transition: draft → published
@@ -275,7 +275,7 @@ def test_draft_save_does_not_trigger_notification(
     make_article, editor_user,
 ):
     """Salvar draft sem transição não dispara notificação."""
-    with patch('apps.newsletter.services.send_article_notification') as mock_send:
+    with patch('apps.newsletter.services._dispatch_article_notification_sync') as mock_send:
         art = make_article(editor_user, status='draft', title='Draft Stay')
         art.body = 'Updated body still draft'
         art.save()

@@ -1,10 +1,11 @@
 """
 Tasks Celery do app newsletter.
 
-send_article_notification_task: wrapper async do service existente
-send_article_notification (newsletter/services.py). View/signal
-chamava sync; agora enfileira. Service permanece para casos legítimos
-de sync (admin action "enviar agora" que retorna count na UI).
+send_article_notification: wrapper async do service interno
+_dispatch_article_notification_sync (newsletter/services.py). View/signal
+chamava sync; agora enfileira. Service permanece como helper
+síncrono para a própria task — não deve ser chamado de view ou admin
+(use .delay() pra não bloquear o request).
 """
 from __future__ import annotations
 
@@ -31,7 +32,7 @@ def send_article_notification(self, article_id: str) -> None:
     artigo foi deletado (caso raro), task no-op e retorna."""
     # Import local pra evitar circular import com signals
     from apps.articles.models import Article
-    from apps.newsletter.services import send_article_notification as send_now
+    from apps.newsletter.services import _dispatch_article_notification_sync
 
     try:
         article = Article.objects.get(pk=article_id)
@@ -39,7 +40,7 @@ def send_article_notification(self, article_id: str) -> None:
         logger.warning('Article %s not found — likely deleted before task ran', article_id)
         return
 
-    sent, failed = send_now(article)
+    sent, failed = _dispatch_article_notification_sync(article)
     logger.info(
         'Article notification dispatched for %s: sent=%d failed=%d',
         article.slug, sent, failed,

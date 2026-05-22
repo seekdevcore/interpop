@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 
-from apps.newsletter.services import send_article_notification
+from apps.newsletter.tasks import send_article_notification
 
 from .models import Article, Category
 
@@ -21,22 +21,32 @@ class ArticleAdmin(admin.ModelAdmin):
     # Resend action kept as a manual fallback (e.g. SMTP outage at publish
     # time, edit of a recently published post). The default flow auto-notifies
     # via the post_save signal in apps/articles/signals.py.
+    #
+    # C12: troca de chamada síncrona para `.delay()` — não bloqueia o request
+    # admin (1k subscribers em SendGrid = ~30s travados antes). Worker Celery
+    # processa em background; admin recebe acknowledge imediato.
     actions = ['resend_notification']
 
     @admin.action(description='Reenviar notificação aos assinantes (manual)')
     def resend_notification(self, request, queryset):
-        total_sent = total_failed = skipped = 0
+        enqueued = skipped = 0
         for article in queryset:
             if article.status != Article.Status.PUBLISHED:
                 skipped += 1
                 continue
-            sent, failed = send_article_notification(article)
-            total_sent += sent
-            total_failed += failed
+            send_article_notification.delay(article_id=str(article.pk))
+            enqueued += 1
 
-        if total_sent:
-            self.message_user(request, f'{total_sent} e-mail(s) reenviado(s).', level=messages.SUCCESS)
-        if total_failed:
-            self.message_user(request, f'{total_failed} falharam (verifique SMTP).', level=messages.WARNING)
+        if enqueued:
+            self.message_user(
+                request,
+                f'{enqueued} artigo(s) enfileirado(s) para reenvio. '
+                f'O worker processa em background.',
+                level=messages.SUCCESS,
+            )
         if skipped:
-            self.message_user(request, f'{skipped} ignorado(s) (não publicados).', level=messages.INFO)
+            self.message_user(
+                request,
+                f'{skipped} ignorado(s) (não publicados).',
+                level=messages.INFO,
+            )

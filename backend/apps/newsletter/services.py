@@ -59,12 +59,22 @@ def send_welcome(subscriber: NewsletterSubscriber) -> bool:
         return False
 
 
-def send_article_notification(
+def _dispatch_article_notification_sync(
     article,
     *,
     subscribers: Iterable[NewsletterSubscriber] | None = None,
 ) -> tuple[int, int]:
-    """Send a single-article alert to active subscribers.
+    """Send a single-article alert to active subscribers (SYNCHRONOUS).
+
+    Underscore prefix + `_sync` suffix sinaliza que este helper bloqueia
+    o caller no envio SMTP. NÃO chamar de views ou handlers HTTP — use
+    a task Celery `apps.newsletter.tasks.send_article_notification`
+    (`.delay(article_id=...)`). Este helper existe para a task wrapper
+    poder reusar a lógica de render + loop de envio.
+
+    Rename feito no C11 da reorganization-proposal: antes era homônimo
+    da task (`send_article_notification` em ambos services + tasks),
+    forçando alias awkward em importadores.
 
     `subscribers` lets the caller scope the send (e.g. a single test
     address). Default = every active subscriber.

@@ -178,7 +178,7 @@ e2e/
 
 **Quando usar.**
 
-- Pós-deploy automatizado (rollback se falha) — já implementado em [`scripts/deploy.sh`](../../scripts/deploy.sh) (planejado §A.2 do `HOSTING-DEPLOY-PLAN.md`).
+- Pós-deploy automatizado (rollback se falha) — _planejado_ em `scripts/deploy.sh` (§A.2 do `HOSTING-DEPLOY-PLAN.md`); stub vive em `scripts/` como `exit 1` placeholder.
 - Pós-restart de gunicorn/celery (validação que nada quebrou na config).
 - Health check externo (UptimeRobot bate `/healthz/` a cada minuto).
 

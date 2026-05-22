@@ -5,8 +5,9 @@
 # - Cobertura evolutiva: 40% Sprint 1 → 80% pós-Sprint 4.
 # - Falha rápida: jobs paralelos (backend, frontend, security) com
 #   cancel-in-progress, sem cascata desnecessária.
-# - Sem deploy aqui — deploy é outro workflow (.github/workflows/deploy.yml,
-#   gated em push pra main com environment=production).
+# - Sem deploy aqui — deploy é (será) outro workflow
+#   (.github/workflows/deploy.yml — ainda não existe; planejado §A.3 do
+#   HOSTING-DEPLOY-PLAN.md; gated em push pra main com environment=production).
 
 name: CI
 

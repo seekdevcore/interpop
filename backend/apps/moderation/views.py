@@ -1,9 +1,8 @@
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.permissions import IsAdminUser, IsNotBanned
+from apps.users.permissions import IsAdminUser, IsEditorOrAdmin, IsNotBanned
 from .models import Ban, BanRequest
 from .serializers import BanRequestSerializer, BanSerializer
 from .services import (
@@ -49,15 +48,8 @@ class BanDestroyView(generics.RetrieveDestroyAPIView):
 
 # ─── BanRequest (redator solicita, admin decide) ─────────────────────────
 
-class IsEditorOrAdmin(IsAuthenticated):
-    """Permite GET pros dois; POST só pra editor/admin (não pra usuário comum)."""
-    def has_permission(self, request, view):
-        if not super().has_permission(request, view):
-            return False
-        u = request.user
-        if request.method == 'POST':
-            return u.can_publish  # admin OR editor
-        return True
+# IsEditorOrAdmin movido para apps.users.permissions (C14) — single source
+# of truth para permissões reusáveis.
 
 
 class BanRequestListCreateView(generics.ListCreateAPIView):

@@ -127,7 +127,9 @@ interpop/
 
 - [AGENTS.md](AGENTS.md) — instruções para agentes AI: comandos do projeto, plugins ativos, sumários e convenções.
 - [skills/README.md](skills/README.md) — catálogo das skills locais + plugins referenciados.
-- [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) — documentação técnica geral.
+- [docs/architecture/overview.md](docs/architecture/overview.md) — arquitetura atual (stack, topologia, apps, observability) em uma página.
+- [docs/runbooks/](docs/runbooks/) — runbooks operacionais (stubs — preencher conforme incidentes).
+- [docs/postmortems/](docs/postmortems/) — postmortems blameless (TEMPLATE + catálogo).
 
 ---
 
