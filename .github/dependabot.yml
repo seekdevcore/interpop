@@ -1,0 +1,74 @@
+# Dependabot — abre PRs semanais com atualizações de dependências.
+#
+# Cobertura:
+# - Python: lê backend/requirements.txt (auto-exportado do uv.lock).
+#   IMPORTANTE: aceitar PR do Dependabot exige rodar `uv add <pkg>@<versão>`
+#   localmente pra refletir no uv.lock — Dependabot só edita requirements.txt.
+#   Workflow recomendado: revisar PR, anotar versão, fechar PR sem merge,
+#   abrir PR próprio com `uv lock` atualizado.
+# - Node: lê package-lock.json — Dependabot atualiza nativamente.
+# - GitHub Actions: atualiza versões em .github/workflows/*.yml.
+#
+# Item S16 do Improvement-system.md §11.6.
+
+version: 2
+
+updates:
+  # ── Python (backend) ──────────────────────────────────────────────────────
+  - package-ecosystem: 'pip'
+    directory: '/backend'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'America/Sao_Paulo'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'backend'
+    commit-message:
+      prefix: 'deps(py)'
+      include: 'scope'
+    groups:
+      # Agrupa todas as updates patch+minor num único PR semanal
+      # (reduz ruído; security updates ainda abrem PR separado urgente)
+      python-non-major:
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # ── Node (frontend) ───────────────────────────────────────────────────────
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'America/Sao_Paulo'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'frontend'
+    commit-message:
+      prefix: 'deps(npm)'
+      include: 'scope'
+    groups:
+      js-non-major:
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # ── GitHub Actions (workflows) ────────────────────────────────────────────
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'America/Sao_Paulo'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+      - 'ci'
+    commit-message:
+      prefix: 'deps(actions)'

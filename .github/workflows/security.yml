@@ -1,0 +1,127 @@
+# Interpop Security — varredura de segurança em PRs, pushes e semanalmente.
+#
+# Filosofia (alinha com Improvement-system.md §11.6 + ADR-006 DevSecOps embedded):
+# - SAST + secret-scan + dependency-audit em todo PR pra develop/main.
+# - Schedule semanal pega CVEs novas em deps já no main (antes do próximo PR).
+# - Workflow separado do CI principal pra falha isolada e fácil triagem.
+# - Hoje vários scans rodam com `continue-on-error: true` — fase de baseline.
+#   Quando primeira limpeza for feita, trocar pra hard-gate (sem continue-on-error).
+#
+# Itens S15+S16 do Improvement-system §11.6.
+
+name: Security
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  schedule:
+    # Domingo 06:00 UTC = 03:00 Brasília — varredura semanal.
+    - cron: '0 6 * * 0'
+  workflow_dispatch: # trigger manual
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  security-events: write # permite upload SARIF (semgrep) pro Code Scanning
+
+jobs:
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # scan da história inteira (gitleaks varre commits, não só working tree)
+
+      - name: Gitleaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITLEAKS_LICENSE não necessário para repos públicos / repos privados
+          # de organizações OSS. Para repos privados comerciais, adicionar token.
+
+  pip-audit:
+    name: Python deps audit (pip-audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: 'latest'
+          enable-cache: true
+          cache-dependency-glob: 'backend/uv.lock'
+      - run: uv sync --frozen
+      - name: pip-audit (vulnerabilidades em deps Python)
+        run: |
+          uv pip install pip-audit
+          uv run pip-audit --requirement requirements.txt --strict
+        continue-on-error: true # baseline — remover após primeira limpeza
+
+  npm-audit:
+    name: Node deps audit (npm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: npm audit (severity moderate ou maior)
+        run: npm audit --omit=dev --audit-level=moderate
+        continue-on-error: true # baseline — remover após primeira limpeza
+
+  bandit:
+    name: Python SAST (bandit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: 'latest'
+          enable-cache: true
+          cache-dependency-glob: 'backend/uv.lock'
+      - run: uv sync --frozen --dev
+      - name: Install bandit
+        run: uv pip install 'bandit[toml]'
+      - name: Bandit scan (severity MEDIUM+ falha; LOW só informativo)
+        # -ll = low-or-higher reportado, mas só MEDIUM+ é exit≠0 efetivo
+        # -i = nível de confidence default MEDIUM
+        run: uv run bandit -r apps/ -ll -i
+        continue-on-error: true # baseline — remover após primeira limpeza
+
+  semgrep:
+    name: Multi-language SAST (semgrep)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep scan (django + python + javascript + security-audit)
+        run: |
+          semgrep scan \
+            --config p/django \
+            --config p/python \
+            --config p/javascript \
+            --config p/security-audit \
+            --error \
+            --exclude=backend/.venv \
+            --exclude=node_modules \
+            --exclude=backend/migrations
+        continue-on-error: true # baseline — remover após primeira limpeza

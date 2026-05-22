@@ -96,5 +96,6 @@ jobs:
           path: dist
           retention-days: 7
 
-  # Security scan ficará em workflow separado quando S15-S17 entrarem
-  # (gitleaks + pip-audit + npm audit + bandit + semgrep). Hoje ainda não.
+  # Security scan vive em .github/workflows/security.yml (S15+S16 do
+  # Improvement-system §11.6) — gitleaks, pip-audit, npm-audit, bandit,
+  # semgrep + Dependabot semanal via .github/dependabot.yml.
