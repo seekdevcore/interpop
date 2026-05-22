@@ -14,6 +14,9 @@ import metricsService, {
 } from '@/services/metricsService';
 import { MetricsDashboard } from './MetricsDashboard';
 import { AdminPosts } from './AdminPosts';
+import { HeroKpi } from './_metrics/HeroKpi';
+import { SmallStat } from './_metrics/SmallStat';
+import { ArticleRanking } from './_metrics/ArticleRanking';
 import type { ApiUser as ModerationUser } from '@/services/authService';
 import { extractApiError } from '@/utils/extractApiError';
 import interpopLogo from '@/assets/interpop-logo.svg';
@@ -1205,121 +1208,8 @@ function periodLabel(p: MetricsPeriod): string {
   }
 }
 
-// ── Metrics sub-components ─────────────────────────────────────────────────
-
-function formatNumber(n: number): string {
-  return n.toLocaleString('pt-BR');
-}
-
-interface HeroKpiProps {
-  label: string;
-  value: number;
-  /** Difference vs previous identical window. `null` = not applicable. */
-  delta: number | null;
-  deltaSuffix: string;
-}
-
-/** Big-number KPI card (Linear/Vercel pattern). Shows current value +
- *  signed delta chip vs. previous identical window. */
-function HeroKpi({ label, value, delta, deltaSuffix }: HeroKpiProps) {
-  const direction =
-    delta === null ? 'neutral' : delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
-  const arrow = direction === 'up' ? '▲' : direction === 'down' ? '▼' : '·';
-
-  return (
-    <div className="metrics__hero-card">
-      <p className="metrics__hero-label">{label}</p>
-      <p className="metrics__hero-value">{formatNumber(value)}</p>
-      <div className="metrics__hero-meta">
-        {delta !== null ? (
-          <span className={`metrics__delta metrics__delta--${direction}`}>
-            <span aria-hidden="true">{arrow}</span>
-            {delta > 0 ? '+' : ''}
-            {formatNumber(delta)}
-          </span>
-        ) : (
-          <span className="metrics__delta metrics__delta--neutral">—</span>
-        )}
-        <span className="metrics__hero-context">{deltaSuffix}</span>
-      </div>
-    </div>
-  );
-}
-
-interface SmallStatProps {
-  label: string;
-  value: number;
-}
-
-function SmallStat({ label, value }: SmallStatProps) {
-  return (
-    <div className="metrics__small-card">
-      <p className="metrics__small-value">{formatNumber(value)}</p>
-      <p className="metrics__small-label">{label}</p>
-    </div>
-  );
-}
-
-interface ArticleRankingProps {
-  articles: import('../../services/metricsService').PerArticleMetric[];
-}
-
-/** Article ranking table with inline bar chart (Posthog/Plausible).
- *  Each row's background gets a horizontal bar proportional to that
- *  article's view share relative to the top article — gives instant
- *  visual scale without needing a separate chart panel. */
-function ArticleRanking({ articles }: ArticleRankingProps) {
-  const maxViews = Math.max(...articles.map((a) => a.view_count), 1);
-
-  return (
-    <div className="metrics__ranking">
-      <div className="metrics__ranking-head">
-        <span>Publicação</span>
-        <span className="metrics__ranking-col">Views</span>
-        <span className="metrics__ranking-col">Coment.</span>
-        <span className="metrics__ranking-col">Curtidas</span>
-        <span className="metrics__ranking-col">Engaj.</span>
-      </div>
-      <ol className="metrics__ranking-list">
-        {articles.map((a, i) => {
-          const widthPct = Math.max(2, (a.view_count / maxViews) * 100);
-          const engagementPct = (a.engagement_rate * 100).toFixed(1);
-          return (
-            <li key={a.slug} className="metrics__ranking-row">
-              <div
-                className="metrics__ranking-bar"
-                style={{ width: `${widthPct}%` }}
-                aria-hidden="true"
-              />
-              <div className="metrics__ranking-content">
-                <div className="metrics__ranking-title-cell">
-                  <span className="metrics__ranking-index">{i + 1}</span>
-                  <div>
-                    <p className="metrics__ranking-title">{a.title}</p>
-                    {a.published_at && (
-                      <p className="metrics__ranking-date">
-                        {new Date(a.published_at).toLocaleDateString('pt-BR')}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <span className="metrics__ranking-col metrics__ranking-num">
-                  {formatNumber(a.view_count)}
-                </span>
-                <span className="metrics__ranking-col metrics__ranking-num">
-                  {formatNumber(a.comment_count)}
-                </span>
-                <span className="metrics__ranking-col metrics__ranking-num">
-                  {formatNumber(a.like_count)}
-                </span>
-                <span className="metrics__ranking-col metrics__ranking-num metrics__ranking-engagement">
-                  {engagementPct}%
-                </span>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
-}
+// Sub-componentes de métricas movidos para Admin/_metrics/ (E4):
+//   - HeroKpi.tsx
+//   - SmallStat.tsx
+//   - ArticleRanking.tsx
+//   - formatNumber.ts (compartilhado)
