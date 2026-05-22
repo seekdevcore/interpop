@@ -297,16 +297,22 @@ _Atualizado em 2026-05-20 — adicionada §5 com 19 roadmaps canônicos de roadm
 >
 > O catálogo completo, rationale, stack, gates, templates de report e exemplos vivem em [`docs/tests/testing-standards.md`](./docs/tests/testing-standards.md) — leitura obrigatória antes de tocar em código testável.
 
-### 6.1 Os 6 tipos de teste praticados
+### 6.1 Os 10 tipos de teste praticados (core)
 
-| #   | Tipo                              | Definição curta                                                     | Quando aplicar                                                                     | Estado                              |
-| --- | --------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------- |
-| 1   | **Unitário**                      | Testa 1 função/método isolado, sem DB nem HTTP. Mais rápido (~ms).  | Lógica pura, helpers, utils, validators, computed properties.                      | ✅ ativo                            |
-| 2   | **Retroativo (backfill)**         | Testa código pré-existente sem cobertura, escrito DEPOIS do código. | Refactor de área crítica; bug descoberto em código velho.                          | ✅ ativo                            |
-| 3   | **TDD (test-driven-development)** | Teste PRIMEIRO (vermelho → verde → refactor).                       | Lógica de segurança, cálculos de domínio, migrations one-shot, hotfix de produção. | ✅ ativo                            |
-| 4   | **Integração**                    | Múltiplos componentes juntos com DB real, testa fronteiras.         | API endpoints E2E backend, signals + service interagindo.                          | ✅ ativo (parcial)                  |
-| 5   | **E2E (end-to-end)**              | Fluxo completo browser → API → DB via Playwright.                   | Fluxos críticos: login, publicar artigo, comentar, banir.                          | ⏳ implementação futura (Sprint 3+) |
-| 6   | **Regressão**                     | Teste escrito APÓS um bug, reproduzindo o cenário exato que falhou. | Toda vez que um bug crítico é corrigido. Garante que NÃO volta.                    | ✅ ativo                            |
+| #   | Tipo                              | Definição curta                                                      | Quando aplicar                                                                       | Estado                                                |
+| --- | --------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| 1   | **Unitário**                      | Testa 1 função/método isolado, sem DB nem HTTP. Mais rápido (~ms).   | Lógica pura, helpers, utils, validators, computed properties.                        | ✅ ativo                                              |
+| 2   | **Retroativo (backfill)**         | Testa código pré-existente sem cobertura, escrito DEPOIS do código.  | Refactor de área crítica; bug descoberto em código velho.                            | ✅ ativo                                              |
+| 3   | **TDD (test-driven-development)** | Teste PRIMEIRO (vermelho → verde → refactor).                        | Lógica de segurança, cálculos de domínio, migrations one-shot, hotfix de produção.   | ✅ ativo                                              |
+| 4   | **Integração**                    | Múltiplos componentes juntos com DB real, testa fronteiras.          | API endpoints E2E backend, signals + service interagindo.                            | ✅ ativo (parcial)                                    |
+| 5   | **E2E (end-to-end)**              | Fluxo completo browser → API → DB via Playwright.                    | Fluxos críticos: login, publicar artigo, comentar, banir.                            | ⏳ implementação futura (Sprint 3+)                   |
+| 6   | **Regressão**                     | Teste escrito APÓS um bug, reproduzindo o cenário exato que falhou.  | Toda vez que um bug crítico é corrigido. Garante que NÃO volta.                      | ✅ ativo                                              |
+| 7   | **Smoke (fumaça)**                | Sanity check rápido — sistema subiu e responde no básico.            | Pós-deploy (rollback automático se falha), pós-restart, monitor externo UptimeRobot. | ✅ ativo (via `/healthz/`)                            |
+| 8   | **Acessibilidade (a11y)**         | Conformidade WCAG 2.2 AA: contraste, teclado, ARIA, screen reader.   | Antes de QUALQUER mudança visual de frontend (§4 — WCAG obrigatório).                | ✅ ativo (WAVE/axe manual) · 🟡 axe-core em CI futuro |
+| 9   | **Performance**                   | Core Web Vitals (LCP/INP/CLS), p50/p95/p99 backend, query count.     | Antes de mudança em hot path; antes de adicionar lib pesada; pós-pico de uso.        | 🟡 base via Sentry · gates Lighthouse CI em roadmap   |
+| 10  | **Segurança**                     | SAST (bandit, semgrep), DAST, secret scan (gitleaks), depend. audit. | Todo PR (CI automático); antes de release; pós-CVE em dependência.                   | 🟡 base manual · S15-S17 em roadmap (Sprint 1-2)      |
+
+**Extensão futura**: o documento mestre lista **13 tipos adicionais** (property-based, snapshot, mutation, migration, contract, visual regression, load/stress, fuzz, concurrency, doctest, compatibility, l10n, BDD) com critério "quando virar dor", e **protocolo formal para criar tipo novo** se nenhum dos 23 cobrir o caso. Ver [`docs/tests/testing-standards.md §2.11 + §2.12`](./docs/tests/testing-standards.md).
 
 ### 6.2 Convenções operacionais
 

@@ -172,6 +172,138 @@ e2e/
 - **C3** (transação atomic): regression em [`test_services.py::test_ban_user_rollback_on_failure`](../../backend/apps/moderation/tests/test_services.py). Mock força falha no segundo write e valida rollback.
 - **C4** (anti-abuse view_count): regression em [`test_views.py::test_view_count_incremented_once_per_5min_window`](../../backend/apps/articles/tests/test_views.py). 3 POSTs do mesmo IP em sequência → counter = 1.
 
+### 2.7 Teste de fumaça (smoke test)
+
+**Definição.** Teste **mínimo e rápido** que valida apenas que o sistema **subiu** e responde no básico. Não testa lógica de domínio. Roda em segundos.
+
+**Quando usar.**
+
+- Pós-deploy automatizado (rollback se falha) — já implementado em [`scripts/deploy.sh`](../../scripts/deploy.sh) (planejado §A.2 do `HOSTING-DEPLOY-PLAN.md`).
+- Pós-restart de gunicorn/celery (validação que nada quebrou na config).
+- Health check externo (UptimeRobot bate `/healthz/` a cada minuto).
+
+**Estado no Interpop.** ✅ Ativo. Implementação:
+
+- Endpoint [`GET /healthz/`](../../backend/apps/audit/health_view.py) responde `{"status":"ok","db":"ok","cache":"ok"}` em <50ms.
+- 4 testes formais em [`apps/audit/tests/test_health.py`](../../backend/apps/audit/tests/test_health.py) validam 200 quando ok, sem auth, GIT_SHA truncado.
+- `deploy.sh` (planejado) curl no `/healthz/` pós-restart com rollback automático se falhar.
+
+**Diferença vs unit/integration**: smoke tem propósito **operacional** (sistema vivo?), não **funcional** (lógica correta?). Pode coexistir com os outros.
+
+### 2.8 Teste de acessibilidade (a11y)
+
+**Definição.** Valida conformidade com **WCAG 2.2 AA** (regra dura do `AGENTS.md §4`): contraste, navegação por teclado, semantic HTML, ARIA, focus order, screen reader compatibility.
+
+**Quando usar.**
+
+- Antes de submeter qualquer mudança visual de frontend (`AGENTS.md §4`).
+- Após adicionar componente novo de UI ou alterar layout.
+- Auditoria periódica (mensal) de páginas críticas.
+
+**Estado no Interpop.** ✅ Ativo (manual) — automação no roadmap.
+
+- **WAVE** (extensão Firefox/Chrome) — relatório AIM Score, último: **10/10** (commit `6bde9ed`, 2026-05-21).
+- **axe DevTools** — extensão browser, mais profundo que WAVE.
+- **Firefox built-in Accessibility audit** — auditor nativo.
+
+**Roadmap automação** (Sprint 3+):
+
+- `@axe-core/playwright` em E2E tests — assertions automatizadas em cada fluxo.
+- Lighthouse CI com gate `accessibility >= 95`.
+- Auditoria trimestral com NVDA + Orca (manual, 5 fluxos críticos).
+
+**Política de violação.** Falha automática em CI quando entrar gate axe-core. Hoje (manual): violação WCAG AA = blocker de PR.
+
+### 2.9 Teste de performance
+
+**Definição.** Mede **velocidade e eficiência** sob carga. 3 categorias:
+
+- **Frontend** — Core Web Vitals (LCP, INP, CLS) via Lighthouse.
+- **Backend** — latência por endpoint (p50/p95/p99) + número de queries.
+- **DB** — query plan analysis (EXPLAIN), índices, N+1 detection.
+
+**Quando usar.**
+
+- Antes de qualquer mudança que afete request hot path (view, serializer, signal).
+- Antes de adicionar nova lib pesada ao bundle frontend.
+- Quando perfil de uso muda (ex.: artigo viralizando).
+
+**Estado no Interpop.** 🟡 Parcial — base implementada, gates automatizados em roadmap.
+
+- **Performance budgets** documentados em [`Improvement-system.md §12.3.1-3`](../planning/Improvement-system.md) e [`HOSTING-DEPLOY-PLAN.md §A.4`](../planning/HOSTING-DEPLOY-PLAN.md): LCP <1.8s home, p95 backend <300ms, queries ≤5 por endpoint público.
+- **Lighthouse** rodando manual no Chrome DevTools.
+- **Sentry Performance Monitoring** (A28) ativo — captura `traces_sample_rate=0.1` em produção.
+
+**Roadmap automação** (Sprint 3+):
+
+- Lighthouse CI com gates (`performance ≥ 85`, `LCP ≤ 1.8s`, `CLS ≤ 0.05`).
+- `pytest-benchmark` para asserts de latência (`AdminMetricsView < 200ms`).
+- `django-silk` em staging para detectar N+1 antes de PR.
+- `assertNumQueries(N)` em testes de view.
+
+### 2.10 Teste de segurança
+
+**Definição.** Procura **vulnerabilidades** ativamente: SQL injection, XSS, auth bypass, secrets vazados, dependências vulneráveis, configuração insegura.
+
+**Quando usar.**
+
+- Em **todo PR** (SAST automatizado).
+- Antes de release (pentest manual quando virar dor).
+- Após CVE divulgada em dependência usada.
+
+**Estado no Interpop.** 🟡 Parcial — fundação pronta, automação em CI no roadmap S15-S17 (`Improvement-system.md §11.6`).
+
+- **Tests existentes** em `apps/moderation/tests/test_serializers.py` cobrem defesa em profundidade (BanSerializer rejeita dev/admin).
+- **JWT cookie flow** testado E2E em `apps/users/tests/test_auth_flow.py`.
+- **CSP, HSTS, security headers** documentados em `production.py`.
+
+**Roadmap automação** (Sprint 1-2):
+
+- **SAST**: `bandit -ll` + `semgrep --config p/django` + `semgrep --config p/javascript` em CI.
+- **Secret scanning**: `gitleaks` em pre-commit + CI.
+- **Dependency audit**: `pip-audit` + `npm audit` em CI semanal + Dependabot.
+- **DAST** (futuro): OWASP ZAP contra staging.
+- **Pentest manual** (futuro): B4 do backlog — contratado após 5k MAU.
+
+**Política dura.** PR não merge se SAST acha severity ≥ MEDIUM. Secret detectado → block + rotação obrigatória.
+
+---
+
+## 2.11 Outros tipos de teste reconhecidos (catálogo de extensão)
+
+> Tipos consagrados na indústria que **ainda não são praticados** no Interpop mas podem entrar conforme dor surgir. Listados aqui para que decisões futuras de "criar tipo novo" não inventem nome quando já existe convenção.
+
+| Tipo                             | Definição curta                                                                                   | Quando virar dor no Interpop                                  |
+| -------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Property-based testing (PBT)** | Gera centenas de inputs aleatórios validando invariantes (Hypothesis em Python, fast-check em JS) | `_unique_slug` collision — tests #18-19 da lista §12.1.8      |
+| **Snapshot test**                | Captura output e compara com snapshot fixo (revisa diff manualmente)                              | `renderArticleBody` com input fixo — paridade preview/leitura |
+| **Mutation testing**             | Mede QUALIDADE dos testes mutando o código de produção (Stryker, mutmut)                          | Sprint 3+ pra validar que testes não são tautológicos         |
+| **Migration test**               | Aplica migrations em DB anônimo derivado de prod, valida reversibilidade                          | Antes de cada migration crítica que toca produção             |
+| **Contract test**                | Valida que frontend ↔ backend mantêm shape acordado (OpenAPI schema diff, Pact)                   | A7 drf-spectacular + F9 openapi-typescript do Sprint 4        |
+| **Visual regression**            | Captura screenshots e diff visual (Chromatic, Percy, BackstopJS)                                  | Sprint 4 quando design system maduro                          |
+| **Load/stress test**             | Simula carga concorrente alta (k6, Locust, JMeter)                                                | Antes de campanha de growth ou primeiro viral previsto        |
+| **Fuzz testing**                 | Bombardeia inputs malformados pra achar crashes (radamsa, AFL, atheris)                           | Validação real de upload (S5) — campos que aceitam binário    |
+| **Concurrency / race condition** | Testa comportamento sob threads/processos concorrentes (`pytest-asyncio`, `threading`)            | Quando Celery worker real + multiprocesso entrar em prod      |
+| **Doctest**                      | Valida exemplos em docstrings (`pytest --doctest-modules`)                                        | Documentação de API pública / lib publicada                   |
+| **Compatibility test**           | Cross-browser, multi-version (Python/Node matrix)                                                 | Antes de drop de suporte a versão                             |
+| **Localization test (l10n)**     | Valida traduções, formato de datas/números                                                        | Quando B15 i18n backend entrar                                |
+| **Acceptance test / BDD**        | Cenários em Gherkin (pytest-bdd, Behave)                                                          | Quando stakeholder não-técnico escrever requisitos            |
+
+## 2.12 Quando criar tipo novo (regra de extensão)
+
+**Princípio.** Se nenhuma das categorias 2.1-2.11 cobre o caso, **crie tipo novo** seguindo este protocolo — não use ad-hoc.
+
+**Protocolo:**
+
+1. **Justifique a necessidade** em 1 parágrafo: por que os tipos existentes não cobrem?
+2. **Pesquise nome consagrado** na literatura (Test Pyramid de Cohn, ISTQB glossary, Google Testing Blog) antes de inventar.
+3. **Crie ADR novo** em `Improvement-system.md §11.0` documentando o tipo (definição, quando usar, quando não, exemplo, estado, anti-padrão).
+4. **Atualize este documento** adicionando seção §2.N+1 (estilo §2.1-2.10).
+5. **Atualize `AGENTS.md §6.1`** adicionando linha na tabela de tipos core.
+6. **Implemente pelo menos 1 exemplo** no projeto antes de fechar o PR — sem exemplo real, vira documentação morta.
+
+**Anti-padrão**: criar "Smoke + integration" como tipo híbrido novo. Resposta: ou é smoke (5 linhas, /healthz) ou integration (DB real, fluxo). Pode coexistir, não fundir.
+
 ---
 
 ## 3. Pirâmide de testes
