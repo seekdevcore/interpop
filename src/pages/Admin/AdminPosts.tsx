@@ -23,21 +23,14 @@ import articleService, {
   type ApiCategory,
 } from '../../services/articleService';
 import type { ApiUser } from '../../services/authService';
+import { extractApiError } from '../../utils/extractApiError';
+import { formatDateShort } from '../../utils/formatDate';
 
 type StatusFilter = 'all' | 'published' | 'draft';
 
 interface AdminPostsProps {
   currentUser: ApiUser | null;
   isAdmin: boolean;
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(iso));
 }
 
 export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
@@ -131,9 +124,8 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
         // Re-fetch usando filtros atuais — mantém a página consistente.
         await fetchArticles(search, categorySlug, statusFilter);
       } catch (err: unknown) {
-        const e = err as { response?: { data?: { detail?: string } } };
         setError(
-          e?.response?.data?.detail ?? 'Não foi possível excluir a publicação.',
+          extractApiError(err, 'Não foi possível excluir a publicação.'),
         );
       } finally {
         setDeletingSlug('');
@@ -365,7 +357,9 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
                       </span>
                     </td>
                     <td className="admin__cell-muted admin__cell-nowrap">
-                      {formatDate(article.published_at ?? article.created_at)}
+                      {formatDateShort(
+                        article.published_at ?? article.created_at,
+                      ) || '—'}
                     </td>
                     <td>
                       {editable ? (

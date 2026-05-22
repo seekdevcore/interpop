@@ -21,7 +21,7 @@ export interface ApiArticle {
     full_name: string;
     avatar: string | null;
     avatar_initial: string;
-    role: string;
+    role: 'dev' | 'admin' | 'editor' | 'user';
     bio: string;
   };
   category: ApiCategory | null;

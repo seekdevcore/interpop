@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PageLayout } from '../components/layout/PageLayout';
 import { Button } from '../components/ui/Button';
 import newsletterService from '../services/newsletterService';
+import { extractApiError } from '../utils/extractApiError';
 import './Newsletter.css';
 
 export function Newsletter() {
@@ -22,19 +23,12 @@ export function Newsletter() {
       setStatus('success');
       setEmail('');
     } catch (err: unknown) {
-      const e2 = err as {
-        response?: { data?: { detail?: string; email?: string[] } };
-        request?: unknown;
-      };
-      let msg = 'Não foi possível concluir a inscrição. Tente novamente.';
-      const detail = e2?.response?.data?.detail;
-      const emailErr = e2?.response?.data?.email?.[0];
-      if (emailErr) msg = emailErr;
-      else if (detail) msg = detail;
-      else if (!e2?.response && e2?.request) {
-        msg = 'Não foi possível alcançar o servidor.';
-      }
-      setMessage(msg);
+      setMessage(
+        extractApiError(
+          err,
+          'Não foi possível concluir a inscrição. Tente novamente.',
+        ),
+      );
       setStatus('error');
     }
   };

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout';
 import { NewsCard } from '../components/ui/NewsCard';
 import { NewsCarousel } from '../components/ui/NewsCarousel';
-import { Button } from '../components/ui/Button';
 import articleService, { type ApiArticle } from '../services/articleService';
 import interpopLogo from '../assets/interpop-logo.svg';
 import './Home.css';
@@ -132,11 +131,12 @@ export function Home() {
           )}
 
           <div className="home-load-more">
-            <Button variant="outline" size="lg">
-              <Link to="/noticias" style={{ color: 'inherit' }}>
-                Ver todas as notícias
-              </Link>
-            </Button>
+            {/* F12: button>a é HTML inválido. Como o destino é navegação,
+                usar <Link> estilizado com classes do Button — semântica
+                correta (a11y screen-reader anuncia "link", não "button"). */}
+            <Link to="/noticias" className="btn btn--outline btn--lg">
+              Ver todas as notícias
+            </Link>
           </div>
         </div>
       </section>

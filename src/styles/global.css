@@ -33,7 +33,23 @@
 
   /* Semantic */
   --clr-success: #059669;
+  --clr-success-soft: #d1fae5; /* surface for success toasts/callouts */
   --clr-error: #dc2626;
+  --clr-error-soft: #fee2e2; /* surface for error toasts/alerts (U14) */
+  --clr-border-soft: #f1f3f5; /* mais clara que --clr-border, p/ chips/code */
+
+  /* ── Z-index scale (U14) ──────────────────────────────────────────────
+     Camadas explícitas evitam guerra de números mágicos (era comum
+     z-index: 9999 só "porque o outro era 999"). Use estas. */
+  --z-base: 0;
+  --z-raised: 1; /* hover surfaces, focused inputs */
+  --z-sticky: 100; /* sticky toolbars */
+  --z-navbar: 200; /* navbar */
+  --z-dropdown: 250; /* dropdown abaixo da navbar acima do conteúdo */
+  --z-progress: 300; /* reading progress bar do Article */
+  --z-modal: 500; /* Modal */
+  --z-toast: 9000; /* toasts/snackbars (acima de tudo, sob popups críticos) */
+  --z-popover: 9999; /* PageLayout skip-to-content + popovers críticos */
 
   /* Brand accent system — derived from the editorial signature set
      in docs/Logos/ASSINATURA *.svg. Use these tokens for any

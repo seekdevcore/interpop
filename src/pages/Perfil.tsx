@@ -16,6 +16,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
 import { authService, type ApiUser } from '../services/authService';
+import { extractApiError } from '../utils/extractApiError';
 import './Perfil.css';
 
 interface InfoForm {
@@ -104,30 +105,6 @@ export function Perfil() {
   }
 
   // ── Handlers ─────────────────────────────────────────────────────────────
-
-  function extractApiError(err: unknown, fallback: string): string {
-    const e = err as {
-      response?: { status?: number; data?: Record<string, unknown> | string };
-    };
-    // 401 = sessão expirou e o refresh também falhou. O axios interceptor
-    // já disparou `auth:logout`, então o redirect para /login acontece em
-    // seguida — mas a UX é melhor avisando o motivo antes de perder o estado.
-    if (e?.response?.status === 401) {
-      return 'Sua sessão expirou. Faça login novamente para continuar.';
-    }
-    const data = e?.response?.data;
-    if (typeof data === 'string') return data;
-    if (data && typeof data === 'object') {
-      const detail = (data as { detail?: string }).detail;
-      if (detail) return detail;
-      const first = Object.entries(data)[0];
-      if (first) {
-        const [, v] = first;
-        return Array.isArray(v) ? String(v[0]) : String(v);
-      }
-    }
-    return fallback;
-  }
 
   async function handleSaveInfo(e: React.FormEvent) {
     e.preventDefault();

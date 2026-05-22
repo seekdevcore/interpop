@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { categoryVariant } from '../../utils/categoryVariant';
+import { formatDateShort } from '../../utils/formatDate';
 import type { ApiArticle } from '../../services/articleService';
 import './NewsCard.css';
 
@@ -10,18 +11,20 @@ interface NewsCardProps {
   variant?: 'default' | 'featured' | 'compact';
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(iso));
-}
+// P3: placeholder SVG inline (data URI) substitui dependência externa
+// `placehold.co` — elimina request third-party + indisponibilidade do serviço.
+// Atributos width/height match com aspect-ratio 16:9 do container (P2 anti-CLS).
+const PLACEHOLDER_SVG =
+  `data:image/svg+xml;utf8,` +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">' +
+      '<rect width="800" height="450" fill="#1a1a1a"/>' +
+      '<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" ' +
+      'fill="#ffffff" font-family="serif" font-size="48" font-weight="700">Interpop</text>' +
+      '</svg>',
+  );
 
 export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
-  const PLACEHOLDER =
-    'https://placehold.co/800x450/1a1a1a/ffffff?text=Interpop';
   const catVariant = categoryVariant(
     article.category?.slug ?? article.category?.name,
   );
@@ -34,7 +37,13 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
       aria-label={article.title}
     >
       <div className="news-card__image">
-        <img src={article.cover_image ?? PLACEHOLDER} alt="" loading="lazy" />
+        <img
+          src={article.cover_image ?? PLACEHOLDER_SVG}
+          alt=""
+          loading="lazy"
+          width={800}
+          height={450}
+        />
         {article.category && (
           <Badge category={catVariant}>{article.category.name}</Badge>
         )}
@@ -54,7 +63,7 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
             <span>{article.author.full_name}</span>
           </div>
           <div className="news-card__info">
-            <span>{formatDate(article.published_at)}</span>
+            <span>{formatDateShort(article.published_at)}</span>
             {article.comment_count > 0 && (
               <>
                 <span>·</span>

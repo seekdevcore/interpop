@@ -8,7 +8,7 @@
   font-weight: 400;
   font-optical-sizing: auto;
   line-height: 1.9;
-  color: #1f1f1f;
+  color: var(--clr-text); /* U16: era #1f1f1f hard-coded */
 }
 
 .article-body p {

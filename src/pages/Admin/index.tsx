@@ -15,6 +15,7 @@ import metricsService, {
 import { MetricsDashboard } from './MetricsDashboard';
 import { AdminPosts } from './AdminPosts';
 import type { ApiUser as ModerationUser } from '../../services/authService';
+import { extractApiError } from '../../utils/extractApiError';
 import interpopLogo from '../../assets/interpop-logo.svg';
 import './Admin.css';
 
@@ -240,31 +241,14 @@ export function Admin() {
       setBanModal({ open: false, user: null, reason: '', triggerMessage: '' });
       fetchUsers();
     } catch (err: unknown) {
-      // Surfa QUALQUER erro do backend: detail global, ou primeiro field-error
-      // (user_id pra ban direto, target_id pra solicitação, ou outros campos).
-      // Antes só checávamos detail+target_id → erros de user_id apareciam como
-      // o fallback genérico, escondendo a causa real (ex: "Usuário já está banido").
-      const data = (
-        err as { response?: { data?: Record<string, unknown> | string } }
-      )?.response?.data;
-      let msg = isAdmin
-        ? 'Erro ao banir usuário.'
-        : 'Erro ao enviar solicitação.';
-      if (typeof data === 'string') {
-        msg = data;
-      } else if (data && typeof data === 'object') {
-        const detail = (data as { detail?: string }).detail;
-        if (detail) {
-          msg = detail;
-        } else {
-          const firstField = Object.entries(data)[0];
-          if (firstField) {
-            const [, v] = firstField;
-            msg = Array.isArray(v) ? String(v[0]) : String(v);
-          }
-        }
-      }
-      setApiError(msg);
+      // extractApiError surfa detail global OU primeiro field-error
+      // (user_id pra ban direto, target_id pra solicitação, etc.).
+      setApiError(
+        extractApiError(
+          err,
+          isAdmin ? 'Erro ao banir usuário.' : 'Erro ao enviar solicitação.',
+        ),
+      );
     } finally {
       setSubmitting(false);
     }

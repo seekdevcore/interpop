@@ -4,6 +4,7 @@ import { AuthLayout } from '../components/layout/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
+import { extractApiError } from '../utils/extractApiError';
 import './Auth.css';
 
 export function Login() {
@@ -27,30 +28,7 @@ export function Login() {
       await login(form.email, form.password);
       navigate('/');
     } catch (err: unknown) {
-      const e = err as {
-        response?: {
-          status?: number;
-          data?: { non_field_errors?: string[]; detail?: string };
-        };
-        request?: unknown;
-        message?: string;
-        code?: string;
-      };
-      const apiMsg =
-        e?.response?.data?.non_field_errors?.[0] ?? e?.response?.data?.detail;
-      let msg: string;
-      if (apiMsg) {
-        msg = apiMsg;
-      } else if (e?.response?.status) {
-        msg = `Erro inesperado do servidor (HTTP ${e.response.status}). Tente novamente.`;
-      } else if (e?.request) {
-        // Request sent but no response — backend down, CORS, or network
-        msg =
-          'Não foi possível alcançar o servidor. Verifique se o backend está rodando.';
-      } else {
-        msg = e?.message ?? 'Erro inesperado.';
-      }
-      setError(msg);
+      setError(extractApiError(err, 'Erro inesperado.'));
     } finally {
       setLoading(false);
     }

@@ -14,6 +14,7 @@ import { Register } from '../pages/Register';
 import { ForgotPassword } from '../pages/ForgotPassword';
 import { ResetPassword } from '../pages/ResetPassword';
 import { Perfil } from '../pages/Perfil';
+import { NotFound } from '../pages/NotFound';
 import { AdminRoute } from './AdminRoute';
 import { ScrollToHashOrTop } from './ScrollToHashOrTop';
 
@@ -103,6 +104,8 @@ export function AppRouter() {
               </AdminRoute>
             }
           />
+          {/* F16: catch-all 404 editorial — voz Interpop, não "Oops" genérico. */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </ErrorBoundary>
     </BrowserRouter>

@@ -6,6 +6,7 @@ import { Input } from '../../components/ui/Input';
 import articleService, {
   type ApiCategory,
 } from '../../services/articleService';
+import { extractApiError } from '../../utils/extractApiError';
 import { renderArticleBody } from '../../utils/renderArticleBody';
 import '../../styles/article-body.css';
 import './CreatePost.css';
@@ -161,32 +162,11 @@ export function CreatePost({ editingSlug }: CreatePostProps = {}) {
       }
       setPublished(true);
     } catch (err: unknown) {
-      const e2 = err as {
-        response?: { status?: number; data?: Record<string, unknown> | string };
-        request?: unknown;
-      };
-      // Surface the first field error or DRF detail; never fall back silently.
-      const data = e2?.response?.data;
-      let msg = 'Não foi possível publicar. Tente novamente.';
-      if (typeof data === 'string') {
-        msg = data;
-      } else if (data && typeof data === 'object') {
-        const detail = (data as { detail?: string }).detail;
-        if (detail) {
-          msg = detail;
-        } else {
-          const firstField = Object.entries(data)[0];
-          if (firstField) {
-            const [k, v] = firstField;
-            const valStr = Array.isArray(v) ? String(v[0]) : String(v);
-            msg = `${k}: ${valStr}`;
-          }
-        }
-      } else if (!e2?.response && e2?.request) {
-        msg =
-          'Não foi possível alcançar o servidor. Verifique se o backend está rodando.';
-      }
-      setApiError(msg);
+      // Surfa o primeiro field error OU DRF detail OU rede offline — nunca
+      // fallback silencioso.
+      setApiError(
+        extractApiError(err, 'Não foi possível publicar. Tente novamente.'),
+      );
     } finally {
       setIsPublishing(false);
     }

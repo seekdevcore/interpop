@@ -16,6 +16,7 @@ import { Button } from '../ui/Button';
 import { CommentItem } from '../ui/CommentItem';
 import commentService, { type ApiComment } from '../../services/commentService';
 import type { ApiUser } from '../../services/authService';
+import { extractApiError } from '../../utils/extractApiError';
 
 interface ArticleCommentsProps {
   slug: string;
@@ -50,31 +51,9 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
       setTotalComments((n) => n + 1);
       setCommentText('');
     } catch (err: unknown) {
-      const e = err as {
-        response?: { status?: number; data?: Record<string, unknown> | string };
-        request?: unknown;
-      };
-      const data = e?.response?.data;
-      let msg = 'Não foi possível publicar o comentário.';
-      if (typeof data === 'string') {
-        msg = data;
-      } else if (data && typeof data === 'object') {
-        const detail = (data as { detail?: string }).detail;
-        if (detail) {
-          msg = detail;
-        } else {
-          const firstField = Object.entries(data)[0];
-          if (firstField) {
-            const [, v] = firstField;
-            msg = Array.isArray(v) ? String(v[0]) : String(v);
-          }
-        }
-      } else if (e?.response?.status === 401) {
-        msg = 'Você precisa estar logado para comentar.';
-      } else if (!e?.response && e?.request) {
-        msg = 'Não foi possível alcançar o servidor.';
-      }
-      setCommentError(msg);
+      setCommentError(
+        extractApiError(err, 'Não foi possível publicar o comentário.'),
+      );
     } finally {
       setSubmitting(false);
     }
