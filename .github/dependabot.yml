@@ -1,13 +1,18 @@
 # Dependabot — abre PRs semanais com atualizações de dependências.
 #
 # Cobertura:
-# - Python: lê backend/requirements.txt (auto-exportado do uv.lock).
-#   IMPORTANTE: aceitar PR do Dependabot exige rodar `uv add <pkg>@<versão>`
-#   localmente pra refletir no uv.lock — Dependabot só edita requirements.txt.
-#   Workflow recomendado: revisar PR, anotar versão, fechar PR sem merge,
-#   abrir PR próprio com `uv lock` atualizado.
-# - Node: lê package-lock.json — Dependabot atualiza nativamente.
-# - GitHub Actions: atualiza versões em .github/workflows/*.yml.
+# - Python (pip): edita backend/pyproject.toml + backend/requirements.txt.
+#   NÃO toca backend/uv.lock. Workflow após mergear PR Python:
+#     cd backend && uv lock                                                # atualiza lock
+#     uv export --format requirements.txt --output-file requirements.txt \
+#       --no-hashes --no-emit-project --no-dev                             # re-sincroniza req.txt
+#   Commit do uv.lock + requirements.txt num único `chore(deps): sync...`
+#   evita drift que faria `uv sync --frozen` falhar em prod/CI.
+# - Node: edita package.json + package-lock.json (atualização nativa, sem drift).
+# - GitHub Actions: edita versões em .github/workflows/*.yml.
+#
+# IMPORTANTE: este arquivo é lido do BRANCH DEFAULT (main). Mudanças aqui só
+# valem após PR develop → main mergeado.
 #
 # Item S16 do Improvement-system.md §11.6.
 
