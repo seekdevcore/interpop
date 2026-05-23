@@ -1,0 +1,35 @@
+# Gate de origem de PR para main — só aceita PR vindo de develop.
+#
+# Por quê: o ruleset de main no GitHub força "merge via PR" e "status checks
+# verdes", mas não tem opção nativa de "limitar source branch". Este workflow
+# cobre esse gap — entra como required status check no ruleset de main.
+#
+# Política (alinha com CONTRIBUTING.md → "Fluxo de branches"):
+#   feature/* → develop → main
+#   bugfix/*  → develop → main
+#   hotfix/*  → develop → main  (cherry-pick em develop primeiro, depois sobe)
+#
+# Custo: 1 step, ~5s. Não consome quota relevante.
+
+name: Branch Gate (main)
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  gate:
+    name: PR para main vem de develop?
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Validar source branch
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "::error::PRs para 'main' só podem vir de 'develop'."
+            echo "Branch atual: ${{ github.head_ref }}"
+            echo "Política: ver CONTRIBUTING.md → 'Fluxo de branches'."
+            echo "Hotfix? Aplique primeiro em develop, depois faça PR develop → main."
+            exit 1
+          fi
+          echo "OK: PR de 'develop' → 'main'."
