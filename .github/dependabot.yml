@@ -17,6 +17,8 @@ updates:
   # ── Python (backend) ──────────────────────────────────────────────────────
   - package-ecosystem: 'pip'
     directory: '/backend'
+    # PR sobe em develop (fluxo do CONTRIBUTING.md: nada vai direto pra main).
+    target-branch: 'develop'
     schedule:
       interval: 'weekly'
       day: 'monday'
@@ -40,6 +42,7 @@ updates:
   # ── Node (frontend) ───────────────────────────────────────────────────────
   - package-ecosystem: 'npm'
     directory: '/'
+    target-branch: 'develop'
     schedule:
       interval: 'weekly'
       day: 'monday'
@@ -61,6 +64,7 @@ updates:
   # ── GitHub Actions (workflows) ────────────────────────────────────────────
   - package-ecosystem: 'github-actions'
     directory: '/'
+    target-branch: 'develop'
     schedule:
       interval: 'weekly'
       day: 'monday'
