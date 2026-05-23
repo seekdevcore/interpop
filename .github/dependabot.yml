@@ -77,11 +77,17 @@ updates:
       - dependency-name: 'cron-descriptor'
         update-types: ['version-update:semver-major']
 
-      # django major (5.x → 6.x) também depende de B16 (subir 5.2 primeiro).
-      # Sem este ignore, Dependabot propõe django 6.0+ direto, que quebra
-      # libs intermediárias e o jump é inseguro.
+      # django minor+major (5.1 → 5.2, 5.x → 6.x) depende de B16
+      # (Improvement-system.md). 5.1 → 5.2 é LTS-para-LTS — Dependabot trata
+      # como minor no semver, mas em Django essa é a transição que exige
+      # validação manual (settings deprecadas, middlewares customizados,
+      # auth backend, testes E2E). PR #28 caso confirmado.
+      # Patches (5.1.5, 5.1.6, ...) continuam abertos — trazem CVE fixes.
+      # Quando subir django em Sprint dedicada, remover este ignore inteiro.
       - dependency-name: 'django'
-        update-types: ['version-update:semver-major']
+        update-types:
+          - 'version-update:semver-major'
+          - 'version-update:semver-minor'
 
   # ── Node (frontend) ───────────────────────────────────────────────────────
   - package-ecosystem: 'npm'
