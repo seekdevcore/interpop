@@ -38,6 +38,13 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+    ignore:
+      # django-filter 25+ exige django>=5.2. Projeto está em django==5.1.4.
+      # Subir django é decisão sprint-level (testar middlewares, settings
+      # deprecadas, etc.) — quando subir, remover este ignore.
+      # Tracker: docs/planning/Improvement-system.md (criar item se faltar).
+      - dependency-name: 'django-filter'
+        update-types: ['version-update:semver-major']
 
   # ── Node (frontend) ───────────────────────────────────────────────────────
   - package-ecosystem: 'npm'
