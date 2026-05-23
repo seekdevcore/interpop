@@ -21,7 +21,7 @@ certifi==2026.5.20
     # via sentry-sdk
 cffi==2.0.0
     # via argon2-cffi-bindings
-click==8.4.0
+click==8.4.1
     # via
     #   celery
     #   click-didyoumean
@@ -79,7 +79,7 @@ psycopg2-binary==2.9.12
     # via interpop-backend
 pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
-pyjwt==2.12.1
+pyjwt==2.13.0
     # via djangorestframework-simplejwt
 python-crontab==3.3.0
     # via django-celery-beat
