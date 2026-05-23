@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthLayout } from '../components/layout/AuthLayout';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { authService } from '../services/authService';
+import { AuthLayout } from '@/components/layout/AuthLayout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { authService } from '@/services/authService';
 import './Auth.css';
 
 export function ForgotPassword() {

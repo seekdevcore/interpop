@@ -16,15 +16,15 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Avatar } from '../../components/ui/Avatar';
-import { Button } from '../../components/ui/Button';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import articleService, {
   type ApiArticle,
   type ApiCategory,
-} from '../../services/articleService';
-import type { ApiUser } from '../../services/authService';
-import { extractApiError } from '../../utils/extractApiError';
-import { formatDateShort } from '../../utils/formatDate';
+} from '@/services/articleService';
+import type { ApiUser } from '@/services/authService';
+import { extractApiError } from '@/utils/extractApiError';
+import { formatDateShort } from '@/utils/formatDate';
 
 type StatusFilter = 'all' | 'published' | 'draft';
 

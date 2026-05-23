@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import type { ApiComment } from '../../services/commentService';
-import commentService from '../../services/commentService';
+import { useAuth } from '@/contexts/AuthContext';
+import type { ApiComment } from '@/services/commentService';
+import commentService from '@/services/commentService';
 import { Avatar } from './Avatar';
 import { Button } from './Button';
-import { formatDateTime } from '../../utils/formatDate';
+import { formatDateTime } from '@/utils/formatDate';
 import './CommentItem.css';
 
 interface CommentItemProps {

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthLayout } from '../components/layout/AuthLayout';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../contexts/AuthContext';
-import { extractApiError } from '../utils/extractApiError';
+import { AuthLayout } from '@/components/layout/AuthLayout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/contexts/AuthContext';
+import { extractApiError } from '@/utils/extractApiError';
 import './Auth.css';
 
 export function Login() {

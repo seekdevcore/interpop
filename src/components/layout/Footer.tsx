@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { DevelopedBy } from '../ui/DevelopedBy';
-import newsletterService from '../../services/newsletterService';
-import interpopLogo from '../../assets/interpop-logo.svg';
+import newsletterService from '@/services/newsletterService';
+import interpopLogo from '@/assets/interpop-logo.svg';
 import './Footer.css';
 
 // Single contact mailbox for the project — kept in one place so it can be

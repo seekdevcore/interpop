@@ -10,7 +10,7 @@
  * Estilos compartilhados em /pages/About/About.css.
  */
 import { Link } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface AboutContentProps {
   /** Quando dentro de Modal, queremos que o "Assinar newsletter" feche o

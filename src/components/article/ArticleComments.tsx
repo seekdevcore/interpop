@@ -14,9 +14,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { CommentItem } from '../ui/CommentItem';
-import commentService, { type ApiComment } from '../../services/commentService';
-import type { ApiUser } from '../../services/authService';
-import { extractApiError } from '../../utils/extractApiError';
+import commentService, { type ApiComment } from '@/services/commentService';
+import type { ApiUser } from '@/services/authService';
+import { extractApiError } from '@/utils/extractApiError';
 
 interface ArticleCommentsProps {
   slug: string;

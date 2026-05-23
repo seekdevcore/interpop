@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NewsCard } from './NewsCard';
-import type { ApiArticle } from '../../services/articleService';
+import type { ApiArticle } from '@/services/articleService';
 import './NewsCarousel.css';
 
 interface NewsCarouselProps {

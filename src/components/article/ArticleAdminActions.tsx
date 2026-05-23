@@ -12,7 +12,7 @@
  */
 import { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import articleService from '../../services/articleService';
+import articleService from '@/services/articleService';
 
 interface ArticleAdminActionsProps {
   slug: string;

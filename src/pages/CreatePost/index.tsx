@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import articleService, {
-  type ApiCategory,
-} from '../../services/articleService';
-import { extractApiError } from '../../utils/extractApiError';
-import { renderArticleBody } from '../../utils/renderArticleBody';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import articleService, { type ApiCategory } from '@/services/articleService';
+import { extractApiError } from '@/utils/extractApiError';
+import { renderArticleBody } from '@/utils/renderArticleBody';
 import '../../styles/article-body.css';
 import './CreatePost.css';
 

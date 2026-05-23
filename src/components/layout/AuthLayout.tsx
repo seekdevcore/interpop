@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { DevelopedBy } from '../ui/DevelopedBy';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
-import { LegalContent } from '../../pages/Legal/LegalContent';
-import { AboutContent } from '../../pages/About/AboutContent';
-import interpopLogo from '../../assets/interpop-logo.svg';
+import { LegalContent } from '@/pages/Legal/LegalContent';
+import { AboutContent } from '@/pages/About/AboutContent';
+import interpopLogo from '@/assets/interpop-logo.svg';
 import './AuthLayout.css';
 
 interface AuthLayoutProps {

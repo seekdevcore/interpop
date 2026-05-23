@@ -62,7 +62,7 @@ jobs:
           retention-days: 14
 
   frontend:
-    name: Frontend (tsc + eslint + build)
+    name: Frontend (tsc + eslint + vitest + build)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -85,6 +85,9 @@ jobs:
 
       - name: Prettier format check
         run: npm run check-format
+
+      - name: Vitest (frontend tests, gate de cobertura 30%)
+        run: npm run test:cov
 
       - name: Build
         run: npm run build

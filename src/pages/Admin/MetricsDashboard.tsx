@@ -42,7 +42,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import type { AdminMetricsResponse } from '../../services/metricsService';
+import type { AdminMetricsResponse } from '@/services/metricsService';
 
 interface MetricsDashboardProps {
   metrics: AdminMetricsResponse;

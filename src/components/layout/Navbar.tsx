@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { NavbarUserMenu } from './NavbarUserMenu';
-import interpopLogo from '../../assets/interpop-logo.svg';
+import interpopLogo from '@/assets/interpop-logo.svg';
 import './Navbar.css';
 
 /**

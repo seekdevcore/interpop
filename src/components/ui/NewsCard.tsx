@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
-import { categoryVariant } from '../../utils/categoryVariant';
-import { formatDateShort } from '../../utils/formatDate';
-import type { ApiArticle } from '../../services/articleService';
+import { categoryVariant } from '@/utils/categoryVariant';
+import { formatDateShort } from '@/utils/formatDate';
+import type { ApiArticle } from '@/services/articleService';
 import './NewsCard.css';
 
 interface NewsCardProps {

@@ -1,4 +1,4 @@
-import seekLogo from '../../assets/seek-white.svg';
+import seekLogo from '@/assets/seek-white.svg';
 import './DevelopedBy.css';
 
 interface DevelopedByProps {

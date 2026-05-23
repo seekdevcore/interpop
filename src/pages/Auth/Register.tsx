@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthLayout } from '../components/layout/AuthLayout';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Modal } from '../components/ui/Modal';
-import { LegalContent } from './Legal/LegalContent';
+import { AuthLayout } from '@/components/layout/AuthLayout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
+import { LegalContent } from '@/pages/Legal/LegalContent';
 import './Auth.css';
 
 interface RegisterForm {
