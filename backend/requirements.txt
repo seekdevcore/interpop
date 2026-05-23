@@ -35,7 +35,7 @@ click-repl==0.3.0
     # via celery
 colorama==0.4.6 ; sys_platform == 'win32'
     # via click
-cron-descriptor==2.0.8
+cron-descriptor==1.4.5
     # via django-celery-beat
 django==5.1.4
     # via
