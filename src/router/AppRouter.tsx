@@ -15,6 +15,7 @@ import { ForgotPassword } from '@/pages/Auth/ForgotPassword';
 import { ResetPassword } from '@/pages/Auth/ResetPassword';
 import { Perfil } from '../pages/Perfil';
 import { NotFound } from '../pages/NotFound';
+import { Unsubscribe } from '../pages/Unsubscribe';
 import { AdminRoute } from './AdminRoute';
 import { ScrollToHashOrTop } from './ScrollToHashOrTop';
 
@@ -62,6 +63,9 @@ export function AppRouter() {
           <Route path="/" element={<Home />} />
           <Route path="/noticias" element={<News />} />
           <Route path="/newsletter" element={<Newsletter />} />
+          {/* Cancelamento via link do email ({SITE_URL}/newsletter/cancelar/<token>).
+              Sem esta rota o link caía no 404 (violação LGPD/CAN-SPAM). */}
+          <Route path="/newsletter/cancelar/:token" element={<Unsubscribe />} />
           <Route path="/sobre" element={<About />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
