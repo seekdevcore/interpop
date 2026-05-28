@@ -5,11 +5,15 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { LegalContent } from '@/pages/Legal/LegalContent';
+import { useAuth } from '@/contexts/AuthContext';
+import { authService } from '@/services/authService';
+import { extractApiError } from '@/utils/extractApiError';
 import './Auth.css';
 
 interface RegisterForm {
   firstName: string;
   lastName: string;
+  username: string;
   email: string;
   password: string;
   confirm: string;
@@ -20,15 +24,19 @@ type OpenDoc = null | 'termos' | 'privacidade';
 
 export function Register() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [form, setForm] = useState<RegisterForm>({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     password: '',
     confirm: '',
   });
   const [agreed, setAgreed] = useState(false);
   const [openDoc, setOpenDoc] = useState<OpenDoc>(null);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const set =
     (field: keyof RegisterForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -37,12 +45,31 @@ export function Register() {
   const passwordMismatch =
     form.confirm !== '' && form.confirm !== form.password;
 
-  // Gating: signup só ocorre se `agreed` for true E senhas baterem.
-  // Aceitação dos termos é PRÉ-REQUISITO legal — sem aceite, navegação
-  // bloqueada pelo botão disabled.
-  const handleSubmit = (e: React.FormEvent) => {
+  // Cadastro real: POST /auth/register/ (seta cookie httpOnly + emite tokens),
+  // depois refreshUser() carrega o usuário no contexto via /auth/me/, então
+  // navega autenticado pra home. Aceite dos termos + senhas batendo são
+  // pré-requisito (botão disabled), mas revalidamos aqui por segurança.
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passwordMismatch && agreed) navigate('/');
+    if (passwordMismatch || !agreed || submitting) return;
+    setError('');
+    setSubmitting(true);
+    try {
+      await authService.register({
+        email: form.email.trim(),
+        username: form.username.trim(),
+        first_name: form.firstName.trim(),
+        last_name: form.lastName.trim(),
+        password: form.password,
+        password2: form.confirm,
+      });
+      await refreshUser();
+      navigate('/');
+    } catch (err: unknown) {
+      setError(extractApiError(err, 'Não foi possível criar a conta.'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -75,6 +102,17 @@ export function Register() {
             required
           />
         </div>
+
+        <Input
+          id="username"
+          type="text"
+          label="Nome de usuário"
+          placeholder="joaosilva"
+          value={form.username}
+          onChange={set('username')}
+          autoComplete="username"
+          required
+        />
 
         <Input
           id="email"
@@ -136,14 +174,20 @@ export function Register() {
           </button>
         </label>
 
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
+
         <Button
           type="submit"
           variant="primary"
           size="lg"
           fullWidth
-          disabled={!agreed || passwordMismatch}
+          disabled={!agreed || passwordMismatch || submitting}
         >
-          Criar conta
+          {submitting ? 'Criando conta…' : 'Criar conta'}
         </Button>
       </form>
 

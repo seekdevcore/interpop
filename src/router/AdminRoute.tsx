@@ -16,6 +16,29 @@ interface AdminRouteProps {
  * Usuários comuns (role=user) são redirecionados para a home.
  */
 export function AdminRoute({ children }: AdminRouteProps) {
-  const { canPublish } = useAuth();
+  const { canPublish, isLoading } = useAuth();
+
+  // Enquanto o /auth/me/ inicial não resolve, currentUser é null e canPublish
+  // é false. SEM este guard, um reload duro de /admin redirecionava o
+  // admin/editor pra home antes da sessão carregar. Espera o auth resolver.
+  if (isLoading) {
+    return (
+      <div
+        role="status"
+        aria-label="Carregando"
+        style={{
+          minHeight: '60vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--clr-muted)',
+          fontSize: 'var(--text-sm)',
+        }}
+      >
+        Carregando…
+      </div>
+    );
+  }
+
   return canPublish ? <>{children}</> : <Navigate to="/" replace />;
 }
