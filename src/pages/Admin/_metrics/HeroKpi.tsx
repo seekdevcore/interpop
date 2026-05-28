@@ -25,8 +25,11 @@ export function HeroKpi({ label, value, delta, deltaSuffix }: HeroKpiProps) {
 
   return (
     <div className="metrics__hero-card">
-      <p className="metrics__hero-label">{label}</p>
-      <p className="metrics__hero-value">{formatNumber(value)}</p>
+      {/* dl/dt/dd: par rótulo→valor (WAVE não marca dt/dd como "possible heading"). */}
+      <dl className="metrics__hero-dl">
+        <dt className="metrics__hero-label">{label}</dt>
+        <dd className="metrics__hero-value">{formatNumber(value)}</dd>
+      </dl>
       <div className="metrics__hero-meta">
         {delta !== null ? (
           <span className={`metrics__delta metrics__delta--${direction}`}>

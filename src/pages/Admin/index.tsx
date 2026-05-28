@@ -469,10 +469,13 @@ export function Admin() {
                 <span className="admin__stat-icon" aria-hidden="true">
                   {s.icon}
                 </span>
-                <div>
-                  <p className="admin__stat-value">{s.value}</p>
-                  <p className="admin__stat-label">{s.label}</p>
-                </div>
+                {/* dl/dt/dd: par rótulo→valor é semanticamente uma definição,
+                    e o WAVE não marca dt/dd como "possible heading" (que era o
+                    alerta nos números grandes). column-reverse mantém o valor no topo. */}
+                <dl className="admin__stat-text">
+                  <dt className="admin__stat-label">{s.label}</dt>
+                  <dd className="admin__stat-value">{s.value}</dd>
+                </dl>
               </div>
             ))}
           </div>

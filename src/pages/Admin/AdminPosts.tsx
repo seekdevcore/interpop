@@ -145,18 +145,19 @@ export function AdminPosts({ currentUser, isAdmin }: AdminPostsProps) {
 
       {/* Cartões de resumo — padrão referencias_dashboards: agregados no topo */}
       <div className="admin-posts__stats">
-        <div className="admin-posts__stat">
-          <p className="admin-posts__stat-value">{stats.total}</p>
-          <p className="admin-posts__stat-label">No filtro atual</p>
-        </div>
-        <div className="admin-posts__stat">
-          <p className="admin-posts__stat-value">{stats.published}</p>
-          <p className="admin-posts__stat-label">Publicados (página)</p>
-        </div>
-        <div className="admin-posts__stat">
-          <p className="admin-posts__stat-value">{stats.drafts}</p>
-          <p className="admin-posts__stat-label">Rascunhos (página)</p>
-        </div>
+        {/* dl/dt/dd: par rótulo→valor (WAVE não marca dt/dd como "possible heading"). */}
+        <dl className="admin-posts__stat">
+          <dt className="admin-posts__stat-label">No filtro atual</dt>
+          <dd className="admin-posts__stat-value">{stats.total}</dd>
+        </dl>
+        <dl className="admin-posts__stat">
+          <dt className="admin-posts__stat-label">Publicados (página)</dt>
+          <dd className="admin-posts__stat-value">{stats.published}</dd>
+        </dl>
+        <dl className="admin-posts__stat">
+          <dt className="admin-posts__stat-label">Rascunhos (página)</dt>
+          <dd className="admin-posts__stat-value">{stats.drafts}</dd>
+        </dl>
       </div>
 
       {/* Barra de filtros — sempre visível, nunca em modal */}
