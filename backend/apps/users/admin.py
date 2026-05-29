@@ -22,4 +22,8 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'role'),
         }),
     )
-    readonly_fields = ('date_joined', 'last_login')
+    # is_banned é read-only: ban/unban só via service layer (que aplica a
+    # hierarquia can_be_banned_by + mantém o invariante Ban↔is_banned, ADR-012).
+    # Editar aqui puli as 3 camadas e criaria estado inconsistente. Mesma
+    # postura do BanRequestAdmin (read-only).
+    readonly_fields = ('date_joined', 'last_login', 'is_banned')

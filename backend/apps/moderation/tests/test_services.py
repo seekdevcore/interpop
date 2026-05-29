@@ -15,6 +15,7 @@ regression contínua.
 from __future__ import annotations
 
 import pytest
+from rest_framework.exceptions import PermissionDenied
 
 from apps.moderation.models import Ban, BanRequest
 from apps.moderation.services import (
@@ -23,6 +24,15 @@ from apps.moderation.services import (
     reject_ban_request,
     unban_user,
 )
+from apps.users.models import User
+
+
+def _make_admin(suffix: str) -> User:
+    return User.objects.create_user(
+        email=f'admin_{suffix}@interpop.test', password='Interpop#2026',
+        username=f'admin_{suffix}', first_name='Admin', last_name=suffix.title(),
+        role=User.Role.ADMIN,
+    )
 
 
 # ── ban_user ───────────────────────────────────────────────────────────────────
@@ -114,6 +124,56 @@ def test_unban_user_clears_flag_and_records_history(reader_user, admin_user):
     assert result.is_active is False
     assert result.unbanned_by_id == admin_user.id
     assert result.unbanned_at is not None
+
+
+# ── Hierarquia no service (camada 3, independente de serializer/endpoint) ───────
+
+def test_ban_user_blocks_admin_banning_admin(admin_user, db):
+    other_admin = _make_admin('alvo')
+    with pytest.raises(PermissionDenied):
+        ban_user(target=other_admin, admin=admin_user, reason='x')
+    other_admin.refresh_from_db()
+    assert other_admin.is_banned is False
+    assert not Ban.objects.filter(user=other_admin).exists()
+
+
+def test_ban_user_blocks_banning_dev(dev_user, admin_user):
+    with pytest.raises(PermissionDenied):
+        ban_user(target=dev_user, admin=admin_user, reason='x')
+    dev_user.refresh_from_db()
+    assert dev_user.is_banned is False
+
+
+def test_ban_user_allows_dev_banning_admin(dev_user, admin_user):
+    ban = ban_user(target=admin_user, admin=dev_user, reason='abuso')
+    admin_user.refresh_from_db()
+    assert ban.is_active is True
+    assert admin_user.is_banned is True
+
+
+def test_unban_user_blocks_admin_undoing_dev_ban_on_admin(dev_user, admin_user, db):
+    """Um admin comum NÃO pode desfazer o ban que um dev pôs num admin."""
+    other_admin = _make_admin('punido')
+    ban = ban_user(target=other_admin, admin=dev_user, reason='abuso')  # dev bane admin
+    with pytest.raises(PermissionDenied):
+        unban_user(ban, admin=admin_user)                              # admin tenta desfazer
+    other_admin.refresh_from_db()
+    assert other_admin.is_banned is True  # continua banido
+
+
+def test_unban_user_allows_dev_undoing_ban_on_admin(dev_user, admin_user):
+    ban = ban_user(target=admin_user, admin=dev_user, reason='abuso')
+    unban_user(ban, admin=dev_user)
+    admin_user.refresh_from_db()
+    assert admin_user.is_banned is False
+
+
+def test_unban_user_allows_admin_undoing_editor_ban(admin_user, editor_user):
+    """Editor/user não é exclusivo de dev — admin pode desbanir normalmente."""
+    ban = ban_user(target=editor_user, admin=admin_user, reason='spam')
+    unban_user(ban, admin=admin_user)
+    editor_user.refresh_from_db()
+    assert editor_user.is_banned is False
 
 
 # ── BanRequest workflow ───────────────────────────────────────────────────────

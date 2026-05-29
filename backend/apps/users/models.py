@@ -75,10 +75,36 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_immune_to_ban(self) -> bool:
-        """Dev e admin são imunes a banimento por design (hierarquia interna).
-        Defesa em profundidade: além do filtro de queryset no BanSerializer,
-        esta property é checada explicitamente em validate_user_id."""
+        """Imune a SOLICITAÇÃO de ban (BanRequest, feita por editor): dev e
+        admin nunca podem ser alvo de pedido de banimento. O ban DIRETO usa a
+        regra relacional `can_be_banned_by` (dev pode banir admin)."""
         return self.role in (self.Role.DEV, self.Role.ADMIN)
+
+    def can_be_banned_by(self, actor: 'User | None') -> bool:
+        """Quem pode banir quem, na hierarquia dev > admin > editor > user:
+          - dev:        NUNCA banível (superadmin, imune a todos);
+          - admin:      banível APENAS por um dev;
+          - editor/user: banível por admin ou dev.
+        O banidor precisa ser admin/dev e ninguém bane a si mesmo. Esta é a
+        regra do ban DIRETO — relacional (depende do ator, não só do alvo)."""
+        if actor is None or not getattr(actor, 'is_authenticated', False):
+            return False
+        if actor.pk == self.pk:
+            return False
+        if not actor.is_admin:            # só admin/dev banem diretamente
+            return False
+        if self.role == self.Role.DEV:    # dev é imune a todos
+            return False
+        if self.role == self.Role.ADMIN:  # admin só pode ser banido por um dev
+            return actor.is_dev
+        return True                        # editor/user: ok para admin ou dev
+
+    def can_be_unbanned_by(self, actor: 'User | None') -> bool:
+        """Quem pode DESBANIR quem — mesma hierarquia do ban (por role do alvo):
+        admin só é desbanível por dev; editor/user por admin ou dev. Impede que
+        um admin comum DESFAÇA a punição que um dev aplicou sobre um admin
+        (anularia a regra pelo lado inverso)."""
+        return self.can_be_banned_by(actor)
 
 
 class PasswordResetToken(models.Model):
