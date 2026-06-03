@@ -45,6 +45,7 @@ LOCAL_APPS = [
     'apps.moderation',
     'apps.audit',
     'apps.newsletter',
+    'apps.search',  # Fase 1 da busca editorial (DESIGN §2.2, §6)
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
