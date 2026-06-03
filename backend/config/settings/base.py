@@ -374,3 +374,77 @@ CELERY_TASK_MAX_RETRIES = 3
 # mesmo assim. NB: o helper síncrono interno é _dispatch_article_notification_sync.
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TASK_SOFT_TIME_LIMIT = 270
+
+# ── Busca editorial (DESIGN §2.3 + algorithms-architect invariantes) ─────────
+# Parametriza decisões críticas de ranking, throttling, tamanho de query e
+# feature-flag para A/B test e fail-open / fail-close cirúrgico em incidente.
+#
+# Cada constante é referenciada por exatamente UMA invariante do algorithms
+# specialist (_specialist-outputs/02-algorithms-architect.md §8); mudar valor
+# aqui sem entender a invariante = bug semântico silencioso.
+
+# Inv 10 — half-life em days (NÃO literal). exp(-Δt / 86400·DAYS) na CTE
+# `scored`. 60 = editorial Substack/NYT (vs 21 do news-cycle Hacker News).
+SEARCH_RECENCY_HALF_LIFE_DAYS = config(
+    'SEARCH_RECENCY_HALF_LIFE_DAYS', default=60, cast=int,
+)
+
+# Inv 8 — cap de tokens significativos após strip stopwords. Excedeu → 400
+# `query_too_complex` (defesa A2 do algorithms §5: 20 tokens repetidos
+# inflam tsvector bitmap).
+SEARCH_MAX_TOKENS = config('SEARCH_MAX_TOKENS', default=8, cast=int)
+
+# 200 chars limite hard de input. 201+ → 400. Min 2 chars (CA-01).
+SEARCH_MAX_Q_LENGTH = config('SEARCH_MAX_Q_LENGTH', default=200, cast=int)
+SEARCH_MIN_Q_LENGTH = config('SEARCH_MIN_Q_LENGTH', default=2, cast=int)
+
+# Inv 9 — cap de profundidade de paginação. Cursor carrega `depth`; >50 →
+# 400 `refine_query` (defesa A3 do algorithms §5).
+SEARCH_MAX_PAGINATION_DEPTH = config(
+    'SEARCH_MAX_PAGINATION_DEPTH', default=50, cast=int,
+)
+
+# Paginação — DESIGN §2.4. Default 20 por página, máximo 50.
+SEARCH_DEFAULT_PER_PAGE = config('SEARCH_DEFAULT_PER_PAGE', default=20, cast=int)
+SEARCH_MAX_PER_PAGE = config('SEARCH_MAX_PER_PAGE', default=50, cast=int)
+
+# M1 do algorithms §2.3 — CTE candidate-narrowing. LIMIT 500 corta 15k
+# heap fetches para 500 na Zipf-head (defesa de p95).
+SEARCH_CANDIDATES_LIMIT = config(
+    'SEARCH_CANDIDATES_LIMIT', default=500, cast=int,
+)
+
+# Inv 12 — statement_timeout aplicado por TX no SearchService (defesa em
+# profundidade independente do role Postgres — TX-15 / T30.4.X9).
+SEARCH_STATEMENT_TIMEOUT_MS = config(
+    'SEARCH_STATEMENT_TIMEOUT_MS', default=500, cast=int,
+)
+
+# Cache Redis (search:v1:*). TTL 5 min sob padrão (Cache-Control max-age=60
+# no HTTP layer + Redis 300s separados).
+SEARCH_CACHE_TTL_SECONDS = config(
+    'SEARCH_CACHE_TTL_SECONDS', default=300, cast=int,
+)
+
+# Feature flag (TX-13 / T30.1.X4). Default False para permitir merge em prod
+# sem ativar o endpoint até cutover deliberado. 503 + Retry-After quando off.
+SEARCH_FEATURE_ENABLED = config(
+    'SEARCH_FEATURE_ENABLED', default=False, cast=bool,
+)
+
+# HMAC secret para cursor de paginação. Falha hard em prod se vazio (TX-01).
+# Em dev permite fallback para SECRET_KEY (parecido com JWT_SIGNING_KEY).
+SEARCH_CURSOR_HMAC_SECRET = config(
+    'SEARCH_CURSOR_HMAC_SECRET', default=SECRET_KEY,
+)
+
+# ── Throttling do endpoint /api/v1/search/articles/ (ADR-024 + T30.4.1-4) ────
+# Sobrescreve scopes anon/user/auth do DRF apenas para a busca. SearchView
+# usa SearchAnonThrottle, SearchUserThrottle e SearchGlobalThrottle (ADR-036).
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'].update({
+    'search_anon': config('SEARCH_THROTTLE_ANON', default='30/min'),
+    'search_user': config('SEARCH_THROTTLE_USER', default='60/min'),
+    # ADR-036 — throttle global do endpoint para mitigar botnet distribuído
+    # (vetor H-03 SECURITY-REVIEW). Soma à throttle por tier.
+    'search_global': config('SEARCH_THROTTLE_GLOBAL', default='500/min'),
+})
