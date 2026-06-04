@@ -1,0 +1,162 @@
+/* Estados da busca: empty / no-results / rate-limited / error.
+   Componente único de visual unificado — mesma caixa, copy diferente. */
+
+.search-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-8) var(--sp-4);
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  margin-top: var(--sp-4);
+}
+
+.search-state--error {
+  border-color: var(--clr-error);
+  background: var(--clr-error-soft);
+}
+
+.search-state__headline {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--clr-text);
+  margin: 0;
+}
+
+.search-state__hint {
+  font-size: var(--text-base);
+  color: var(--clr-muted);
+  margin: 0;
+}
+
+.search-state__retry {
+  background: var(--clr-primary);
+  color: var(--clr-white);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: background var(--t-fast);
+}
+
+.search-state__retry:hover:not(:disabled) {
+  background: var(--clr-primary-dark);
+}
+
+.search-state__retry:disabled {
+  background: var(--clr-subtle);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ── Skeletons ─────────────────────────────────────────────────────── */
+
+.buscar-skeleton {
+  padding-top: var(--sp-6);
+}
+
+.buscar-skeleton__header {
+  height: 2.5rem;
+  width: 8rem;
+  margin-bottom: var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--clr-skeleton);
+}
+
+.buscar-skeleton__input {
+  height: 56px;
+  margin-bottom: var(--sp-3);
+  border-radius: var(--radius-lg);
+  background: var(--clr-skeleton);
+}
+
+.buscar-skeleton__chips {
+  height: 32px;
+  width: 60%;
+  margin-bottom: var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--clr-skeleton);
+}
+
+.results-skeleton {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.results-skeleton__card {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.results-skeleton__thumb {
+  width: 120px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  background: var(--clr-skeleton);
+}
+
+.results-skeleton__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.results-skeleton__line {
+  height: 14px;
+  border-radius: 4px;
+  background: var(--clr-skeleton);
+}
+
+.results-skeleton__line--lg {
+  width: 80%;
+  height: 20px;
+}
+.results-skeleton__line--md {
+  width: 95%;
+}
+.results-skeleton__line--sm {
+  width: 40%;
+}
+
+/* Shimmer leve — desativado quando o usuário pediu reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .buscar-skeleton__header,
+  .buscar-skeleton__input,
+  .buscar-skeleton__chips,
+  .results-skeleton__thumb,
+  .results-skeleton__line {
+    background: linear-gradient(
+      90deg,
+      var(--clr-skeleton) 0%,
+      var(--clr-skeleton-shimmer) 50%,
+      var(--clr-skeleton) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .results-skeleton__card {
+    grid-template-columns: 80px 1fr;
+  }
+  .results-skeleton__thumb {
+    width: 80px;
+    height: 60px;
+  }
+}

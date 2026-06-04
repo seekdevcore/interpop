@@ -1,0 +1,48 @@
+/* FilterChips — ADR-030-UI: radius-md (NÃO full-rounded pílula).
+   Sem redefinição de --clr-primary etc. */
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  list-style: none;
+  padding: 0;
+  margin: var(--sp-3) 0;
+}
+
+.filter-chips--empty {
+  font-size: var(--text-sm);
+  color: var(--clr-subtle);
+}
+
+.filter-chips__empty-label {
+  font-style: italic;
+}
+
+.filter-chip-item {
+  list-style: none;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--clr-chip-bg);
+  color: var(--clr-chip-on);
+  border: 1px solid var(--clr-chip-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-1) var(--sp-3);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: background var(--t-fast);
+}
+
+.filter-chip:hover,
+.filter-chip:focus-visible {
+  background: var(--clr-chip-bg-hover);
+}
+
+.filter-chip__x {
+  font-size: 1.1rem;
+  line-height: 1;
+}
