@@ -2,7 +2,11 @@ import { useDeferredValue } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
-import { fetchSearch } from '../services/searchService';
+import {
+  fetchSearch,
+  SEARCH_STALE_TIME,
+  SEARCH_GC_TIME,
+} from '../services/searchService';
 import type { SearchResultPage } from '../types';
 import { useDebouncedValue } from './useDebouncedValue';
 import { useSearchParamsState } from './useSearchParamsState';
@@ -89,8 +93,11 @@ export function useSearch() {
       ),
     initialPageParam: undefined as string | undefined,
     getNextPageParam,
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
+    // SSOT em searchService (fix H-02): centraliza staleTime/gcTime.
+    // Coincide com o default do QueryClient em main.tsx; mantemos override
+    // local explícito para deixar a intenção visível no hook.
+    staleTime: SEARCH_STALE_TIME,
+    gcTime: SEARCH_GC_TIME,
     retry: shouldRetry,
     enabled,
   });

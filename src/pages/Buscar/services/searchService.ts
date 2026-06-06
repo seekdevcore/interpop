@@ -21,6 +21,17 @@ import type {
 const ENDPOINT = '/api/v1/search/articles/';
 
 /**
+ * Constantes de cache compartilhadas (T30.1.X14 — fix H-02 do REVIEW-PHASE-3).
+ *
+ * staleTime casa com `Cache-Control: max-age=60` do backend (ADR-023). gcTime
+ * = `stale-while-revalidate=300` no client. Centralizadas aqui para evitar
+ * drift entre `main.tsx` (default global do QueryClient) e `useSearch.ts`
+ * (override do hook) — quando coincidem, são a mesma SSOT.
+ */
+export const SEARCH_STALE_TIME = 60_000;
+export const SEARCH_GC_TIME = 5 * 60_000;
+
+/**
  * Constrói `URLSearchParams` apenas com chaves não-vazias/null/undefined.
  * Mantém ordem estável (q primeiro, filtros depois) — útil para debug e
  * para que o backend computar a mesma chave de cache que o TanStack.

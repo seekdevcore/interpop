@@ -69,6 +69,14 @@ export function HighlightedText({
         });
       },
     });
+    // Cleanup explícito (fix H-03 do REVIEW-PHASE-3): unmark é async
+    // (`done` callback). Em re-renders rápidos (paginação infinita), o
+    // effect anterior pode estar marcando enquanto o novo já começou.
+    // O cleanup garante DOM limpo antes do próximo run — sem isto,
+    // observamos <mark><mark>kpop</mark></mark> aninhado.
+    return () => {
+      instance.unmark();
+    };
     // text é dependência explícita: se o trecho mudar (paginação, refetch),
     // remarca em cima do novo conteúdo.
   }, [text, termsKey, terms]);

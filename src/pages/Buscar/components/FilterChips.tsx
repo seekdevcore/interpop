@@ -40,12 +40,20 @@ function collectActiveFilters(params: URLSearchParams): ActiveFilter[] {
 
   const category = params.get('category');
   if (category) {
-    // Sprint 5: resolver `category=1` para "Música" via lookup. MVP só ID.
-    filters.push({
-      key: 'category',
-      label: `Editoria: ${category}`,
-      paramsToClear: ['category'],
-    });
+    // Fix H-01 do REVIEW-PHASE-3: validar que `category` é int finito
+    // antes de renderizar. Sem isto, `/buscar?category=foo` renderiza
+    // chip "Editoria: foo" — não é XSS (React escapa), mas é UX-bug
+    // latente e arma armadilha para o popover do Sprint 5.
+    // Espelha o guard de `useSearchParamsState.ts:32-37`.
+    const categoryNum = Number(category);
+    if (Number.isFinite(categoryNum) && Number.isInteger(categoryNum)) {
+      // Sprint 5: resolver `category=1` para "Música" via lookup. MVP só ID.
+      filters.push({
+        key: 'category',
+        label: `Editoria: ${category}`,
+        paramsToClear: ['category'],
+      });
+    }
   }
 
   const de = params.get('de');
