@@ -147,14 +147,39 @@ def test_empty_q_stopwords_returns_200_empty(api_client: APIClient) -> None:
     assert resp.data['next_cursor'] is None
 
 
-# ── 5. Cache headers (ADR-023 + T30.4.X11) ───────────────────────────────────
+# ── 5. Cache headers (ADR-023 + T30.4.X11 + F2-B-02) ─────────────────────────
 
 
 @override_settings(SEARCH_FEATURE_ENABLED=True)
 @pytest.mark.django_db
-def test_cache_control_header(api_client: APIClient) -> None:
+def test_cache_control_header_anon_is_public(api_client: APIClient) -> None:
+    """Anônimo recebe `public` — CDN compartilha entre sessões sem auth."""
     resp = api_client.get(f'{URL}?q=kpop')
     assert resp['Cache-Control'] == 'public, max-age=60, stale-while-revalidate=300'
+
+
+@override_settings(SEARCH_FEATURE_ENABLED=True)
+@pytest.mark.django_db
+def test_cache_control_header_authenticated_is_private(
+    authed_client_factory, reader_user
+) -> None:
+    """Fix F2-B-02 do REVIEW-PHASE-2: autenticado recebe `private`.
+
+    Defesa em profundidade contra CDN mergir cache cross-user se a
+    response virar non-pure no futuro (ex.: adicionarem campo `bookmarked`).
+    Vary continua presente como segunda barreira.
+    """
+    client = authed_client_factory(reader_user)
+    resp = client.get(f'{URL}?q=kpop')
+    assert resp.status_code == 200
+    cache_control = resp['Cache-Control']
+    assert cache_control.startswith('private'), (
+        f'autenticado deve receber Cache-Control: private. got: {cache_control!r}'
+    )
+    # private invalida `stale-while-revalidate` (CDN não revalida private).
+    assert 'stale-while-revalidate' not in cache_control
+    # Vary continua presente (defense-in-depth).
+    assert 'Authorization' in resp['Vary']
 
 
 @override_settings(SEARCH_FEATURE_ENABLED=True)

@@ -43,11 +43,23 @@ from .throttles import (
 logger = logging.getLogger('interpop.search.view')
 
 
-# Cache HTTP header (ADR-023). NÃO uses `private` — depende de auth_tier
-# isolation no Redis (ADR-037) + Vary para CDN.
-_CACHE_CONTROL_HEADER: Final[str] = (
+# Cache HTTP headers (ADR-023 + F2-B-02 do REVIEW-PHASE-2).
+#
+# Por que separar anon × user:
+#   - anon → `public`: Cloudflare/Nginx podem servir cache compartilhado.
+#     Vary: Authorization isola por header — mas se o frontend usa cookie
+#     httpOnly (Interpop §4) o header `Authorization` nem é enviado, e
+#     o CDN poderia merge anon+user se a response virasse non-pure no
+#     futuro. `private` no autenticado é defesa-em-profundidade.
+#   - user → `private`: CDN intermediário não cacheia entre usuários;
+#     SWR é dropped (sem ganho — CDN não revalida private). Browser
+#     ainda cacheia em memória local (~max-age).
+# Vary continua o mesmo nos dois — protege contra negotiation/encoding
+# misalignment, mesmo quando a response é private.
+_CACHE_CONTROL_PUBLIC: Final[str] = (
     'public, max-age=60, stale-while-revalidate=300'
 )
+_CACHE_CONTROL_PRIVATE: Final[str] = 'private, max-age=60'
 # Vary: Authorization separa cache de anon/user em CDN (Cloudflare).
 # Accept-Encoding para preservar compressão.
 _VARY_HEADER: Final[str] = 'Authorization, Accept-Encoding'
@@ -93,7 +105,7 @@ class SearchArticlesView(APIView):
         cached = cache.get(cache_key)
         if cached is not None:
             response = Response(cached, status=status.HTTP_200_OK)
-            self._apply_cache_headers(response)
+            self._apply_cache_headers(response, auth_tier=auth_tier)
             response['X-Cache'] = 'HIT'
             return response
 
@@ -122,14 +134,23 @@ class SearchArticlesView(APIView):
         cache.set(cache_key, body, timeout=settings.SEARCH_CACHE_TTL_SECONDS)
 
         response = Response(body, status=status.HTTP_200_OK)
-        self._apply_cache_headers(response)
+        self._apply_cache_headers(response, auth_tier=auth_tier)
         response['X-Cache'] = 'MISS'
         return response
 
     @staticmethod
-    def _apply_cache_headers(response: Response) -> None:
-        """Aplica Cache-Control + Vary + X-Robots-Tag (T30.4.X11)."""
-        response['Cache-Control'] = _CACHE_CONTROL_HEADER
+    def _apply_cache_headers(response: Response, *, auth_tier: str) -> None:
+        """Aplica Cache-Control (auth-aware) + Vary + X-Robots-Tag.
+
+        F2-B-02 do REVIEW-PHASE-2: `Cache-Control` é function de `auth_tier`.
+        `public` só para anônimo; autenticado recebe `private` — CDN não
+        compartilha cache entre usuários mesmo se a response virar non-pure
+        no futuro. Vary continua presente nos dois para defense-in-depth.
+        """
+        if auth_tier == 'user':
+            response['Cache-Control'] = _CACHE_CONTROL_PRIVATE
+        else:
+            response['Cache-Control'] = _CACHE_CONTROL_PUBLIC
         response['Vary'] = _VARY_HEADER
         # Busca não é indexável (T30.4.X11 / L-05 SECURITY-REVIEW).
         response['X-Robots-Tag'] = 'noindex, nofollow'
