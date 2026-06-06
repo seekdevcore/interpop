@@ -31,6 +31,10 @@ const CreatePost = lazy(() =>
 const EditPost = lazy(() =>
   import('../pages/CreatePost').then((m) => ({ default: m.EditPost })),
 );
+// /buscar carrega TanStack Query usage + mark.js (~15KB gz) que a Home
+// não precisa. Lazy mantém o bundle inicial enxuto (ADR-026: CSR no MVP,
+// medir LCP baseline). Chunk de Buscar é puro client-side hoje.
+const Buscar = lazy(() => import('../pages/Buscar'));
 
 /** Spinner mínimo enquanto o chunk lazy carrega. */
 function RouteLoader() {
@@ -70,6 +74,19 @@ export function AppRouter() {
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
           <Route path="/noticia/:slug" element={<Article />} />
+          {/* US30.1: busca editorial full-text. Lazy chunk + Suspense
+              fallback de skeleton (não "Carregando…" genérico) — espera-se
+              hit frequente vindo da navbar futura, então respeitar CLS é
+              crítico. Pagina inteira tem seu próprio ErrorBoundary
+              interno (resilient sub-tree, ADR-030-FE). */}
+          <Route
+            path="/buscar"
+            element={
+              <Suspense fallback={<RouteLoader />}>
+                <Buscar />
+              </Suspense>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Register />} />
           <Route path="/recuperar-senha" element={<ForgotPassword />} />

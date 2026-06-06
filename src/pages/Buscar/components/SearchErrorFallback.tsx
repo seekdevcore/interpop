@@ -1,3 +1,5 @@
+import type { FallbackProps } from 'react-error-boundary';
+
 /**
  * Fallback do <ErrorBoundary> para o sub-tree de resultados (ADR-030-FE).
  *
@@ -10,15 +12,10 @@
  *
  * Mensagem em pt-BR; botão "Tentar novamente" chama `resetErrorBoundary`.
  */
-interface SearchErrorFallbackProps {
-  error: Error;
-  resetErrorBoundary: () => void;
-}
-
 export function SearchErrorFallback({
   error,
   resetErrorBoundary,
-}: SearchErrorFallbackProps) {
+}: FallbackProps) {
   return (
     <div
       className="search-state search-state--error"
@@ -27,7 +24,9 @@ export function SearchErrorFallback({
       id="search-error"
     >
       <h2 className="search-state__headline">Não foi possível buscar agora.</h2>
-      <p className="search-state__hint">{error.message}</p>
+      <p className="search-state__hint">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
       <button
         type="button"
         className="search-state__retry"
