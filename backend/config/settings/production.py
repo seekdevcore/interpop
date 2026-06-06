@@ -1,10 +1,26 @@
 """Production settings — PostgreSQL, HTTPS, strict security headers."""
+from django.core.exceptions import ImproperlyConfigured
 from decouple import Csv, config
 
 from .base import *  # noqa: F401, F403
+from .base import SECRET_KEY, SEARCH_CURSOR_HMAC_SECRET
 from apps.audit.sentry import init_sentry
 
 DEBUG = False
+
+# ── Fix F2-B-03 (REVIEW-PHASE-2) — cursor HMAC secret hard-fail em prod ───────
+# Em base.py o fallback do `SEARCH_CURSOR_HMAC_SECRET` é o `SECRET_KEY`
+# (conveniente para dev). Em produção isso é dívida de segurança: leak do
+# SECRET_KEY (via traceback, dump, dependência comprometida) permite forjar
+# cursor — adversário manipula `depth` e bypassa o cap de 50 páginas (A3
+# do specialist algorithms). Aqui falhamos cedo se o operador esquecer de
+# setar a env var ou se ela coincidir com o SECRET_KEY.
+if not SEARCH_CURSOR_HMAC_SECRET or SEARCH_CURSOR_HMAC_SECRET == SECRET_KEY:
+    raise ImproperlyConfigured(
+        'SEARCH_CURSOR_HMAC_SECRET deve estar setada em produção e ser '
+        'distinta de SECRET_KEY (vetor F2-B-03 do REVIEW-PHASE-2). '
+        'Gere com `python -c "import secrets; print(secrets.token_urlsafe(48))"`.'
+    )
 
 # Sentry — no-op silencioso se SENTRY_DSN não estiver no env.
 # Em prod real: DSN setado, traces 10%, releases taggadas via GIT_SHA.

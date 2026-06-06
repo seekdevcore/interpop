@@ -432,8 +432,11 @@ SEARCH_FEATURE_ENABLED = config(
     'SEARCH_FEATURE_ENABLED', default=False, cast=bool,
 )
 
-# HMAC secret para cursor de paginação. Falha hard em prod se vazio (TX-01).
-# Em dev permite fallback para SECRET_KEY (parecido com JWT_SIGNING_KEY).
+# HMAC secret para cursor de paginação. Em DEV fallback para SECRET_KEY
+# é aceito (parecido com JWT_SIGNING_KEY). Em PROD `production.py` faz
+# `raise ImproperlyConfigured` se vazio OU igual a SECRET_KEY — fecha
+# F2-B-03 do REVIEW-PHASE-2 (leak de SECRET_KEY permite forjar cursor +
+# bypass do cap de paginação A3).
 SEARCH_CURSOR_HMAC_SECRET = config(
     'SEARCH_CURSOR_HMAC_SECRET', default=SECRET_KEY,
 )
