@@ -42,11 +42,15 @@ export function ResultCard({ item, terms }: ResultCardProps) {
   const dateLabel = formatDateShort(item.published_at);
 
   return (
-    <article className="result-card">
-      <div
-        className="result-card__thumb"
-        data-variant={item.category?.slug ?? 'default'}
-      >
+    <article
+      className="result-card"
+      // Fix H-04 do REVIEW-PHASE-3: data-variant no wrapper permite que CSS
+      // colora tanto o placeholder do thumb quanto o badge `.result-card__category`
+      // com o token editorial correspondente (--clr-cat-musica/moda/cinema/
+      // literatura/cultura-digital). Default usa --clr-primary.
+      data-variant={item.category?.slug ?? 'default'}
+    >
+      <div className="result-card__thumb">
         {item.cover_url ? (
           <img
             src={item.cover_url}

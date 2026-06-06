@@ -103,8 +103,47 @@
 }
 
 .result-card__category {
-  color: var(--clr-primary);
+  /* Fix H-04: cor herda do token editorial via data-variant no wrapper.
+     Default usa --clr-primary (navy) quando categoria desconhecida ou ausente. */
+  color: var(--cat-color, var(--clr-primary));
   font-weight: 500;
+}
+
+/* Tokens editoriais por categoria (slugs vindos do backend).
+   Aplicados via custom property `--cat-color` que cascateia para o badge.
+   Tokens validados WCAG AA em global.css:66-75. */
+.result-card[data-variant='musica'] {
+  --cat-color: var(--clr-cat-musica);
+}
+.result-card[data-variant='moda'] {
+  --cat-color: var(--clr-cat-moda);
+}
+.result-card[data-variant='cinema'] {
+  --cat-color: var(--clr-cat-cinema);
+}
+.result-card[data-variant='literatura'] {
+  --cat-color: var(--clr-cat-literatura);
+}
+.result-card[data-variant='cultura-digital'] {
+  --cat-color: var(--clr-cat-cultura-digital);
+}
+
+/* Placeholder do thumb (sem cover) também pega cor editorial:
+   identidade visual quando o artigo não tem cover. */
+.result-card[data-variant='musica'] .result-card__placeholder {
+  color: var(--clr-cat-musica);
+}
+.result-card[data-variant='moda'] .result-card__placeholder {
+  color: var(--clr-cat-moda);
+}
+.result-card[data-variant='cinema'] .result-card__placeholder {
+  color: var(--clr-cat-cinema);
+}
+.result-card[data-variant='literatura'] .result-card__placeholder {
+  color: var(--clr-cat-literatura);
+}
+.result-card[data-variant='cultura-digital'] .result-card__placeholder {
+  color: var(--clr-cat-cultura-digital);
 }
 
 /* Mobile: encolhe thumb e título mas mantém legibilidade. */

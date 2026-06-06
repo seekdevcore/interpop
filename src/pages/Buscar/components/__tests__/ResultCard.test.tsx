@@ -94,6 +94,21 @@ describe('ResultCard — link e metadados', () => {
     // Não deve render "Música" nem similar.
     expect(screen.queryByText('Música')).toBeNull();
   });
+
+  it('aplica data-variant=slug no <article> wrapper (fix H-04: token editorial)', () => {
+    const { container } = renderCard();
+    const article = container.querySelector('article.result-card');
+    expect(article).not.toBeNull();
+    // Slug vem do backend (Category.slug). CSS aplica --clr-cat-* por
+    // este atributo no wrapper — sem isto, badge usava --clr-primary navy.
+    expect(article).toHaveAttribute('data-variant', 'musica');
+  });
+
+  it('data-variant=default quando category é null', () => {
+    const { container } = renderCard({ ...baseItem, category: null });
+    const article = container.querySelector('article.result-card');
+    expect(article).toHaveAttribute('data-variant', 'default');
+  });
 });
 
 describe('ResultCard — highlight integrado', () => {
