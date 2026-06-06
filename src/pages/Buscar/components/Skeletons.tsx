@@ -30,22 +30,24 @@ interface ResultsSkeletonProps {
 }
 
 export function ResultsSkeleton({ count = 6 }: ResultsSkeletonProps) {
+  // a11y (axe-core): `role="status"` no <ul> sobrescreve o role="list"
+  // implícito e os <li> filhos perdem o ancestral de lista válido. Fix:
+  // landmark live region vai num <div> wrapper; o <ul> mantém semântica
+  // de lista intacta. (Achado do REVIEW-PHASE-3 BLOQUEIO-2 + axe.)
   return (
-    <ul
-      className="results-skeleton"
-      role="status"
-      aria-label="Carregando resultados"
-    >
-      {Array.from({ length: count }).map((_, i) => (
-        <li key={i} className="results-skeleton__card">
-          <div className="results-skeleton__thumb" />
-          <div className="results-skeleton__body">
-            <div className="results-skeleton__line results-skeleton__line--lg" />
-            <div className="results-skeleton__line results-skeleton__line--md" />
-            <div className="results-skeleton__line results-skeleton__line--sm" />
-          </div>
-        </li>
-      ))}
-    </ul>
+    <div role="status" aria-label="Carregando resultados">
+      <ul className="results-skeleton" aria-hidden="true">
+        {Array.from({ length: count }).map((_, i) => (
+          <li key={i} className="results-skeleton__card">
+            <div className="results-skeleton__thumb" />
+            <div className="results-skeleton__body">
+              <div className="results-skeleton__line results-skeleton__line--lg" />
+              <div className="results-skeleton__line results-skeleton__line--md" />
+              <div className="results-skeleton__line results-skeleton__line--sm" />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
