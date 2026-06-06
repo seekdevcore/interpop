@@ -80,12 +80,49 @@ PR não merge sem:
 
 ## Histórico de mudanças
 
-| Data       | Mudança                                                                                 | Autor                                                 |
-| ---------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| 2026-06-03 | Materialização inicial — 24 ADRs (15-34)                                                | documentation-engineer (6 ADRs) + main-loop (18 ADRs) |
-| 2026-06-03 | ADRs 035-045 propostas pelos validadores; renumeração testing 035-040 → 040-045         | main-loop                                             |
-| 2026-06-03 | Materialização dos 11 ADRs propostos (035-045) — security (035-039) + testing (040-045) | documentation-engineer (segunda passada)              |
+| Data       | Mudança                                                                                                                                                                                 | Autor                                                 |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 2026-06-03 | Materialização inicial — 24 ADRs (15-34)                                                                                                                                                | documentation-engineer (6 ADRs) + main-loop (18 ADRs) |
+| 2026-06-03 | ADRs 035-045 propostas pelos validadores; renumeração testing 035-040 → 040-045                                                                                                         | main-loop                                             |
+| 2026-06-03 | Materialização dos 11 ADRs propostos (035-045) — security (035-039) + testing (040-045)                                                                                                 | documentation-engineer (segunda passada)              |
+| 2026-06-03 | Fase 1 (DB schema) executada — 5 commits + 4 migrations + 34 tests                                                                                                                      | code-implementer                                      |
+| 2026-06-04 | Fase 2 (Backend leitura) executada — 10 commits + 77 tests + 12 invariantes algorithms cobertos + REVIEW-PHASE-2 (APROVADO COM RESSALVAS)                                               | code-implementer + gsd-code-reviewer                  |
+| 2026-06-04 | TX-18 baseline Lighthouse coletado (4 JSONs prod+dev × desktop+mobile)                                                                                                                  | main-loop                                             |
+| 2026-06-06 | Fase 3 (Frontend MVP) executada — 9 commits + 64 tests + REVIEW-PHASE-3 (APROVADO COM RESSALVAS)                                                                                        | code-implementer + gsd-code-reviewer                  |
+| 2026-06-06 | 6 fixes inline pós-REVIEW-PHASE-3 (2 BLOQUEIOs + 4 HIGHs) + 2 bugs descobertos no caminho (Skeleton landmark + MSW cross-origin) — 6 commits, 78 tests, BLOQUEIOs do PR US30.1 fechados | main-loop                                             |
 
 ---
 
-_Tracker vivo. Atualizar a cada PR que toca implementação._
+## Status de implementação por ADR (atualizado 2026-06-06)
+
+| ADR                                | Status impl         | Evidência                                                          |
+| ---------------------------------- | ------------------- | ------------------------------------------------------------------ |
+| 015-017 (Software)                 | ✅ done             | apps.search bootstrap + boundaries                                 |
+| 018-019 (DB FTS)                   | ✅ done             | migrations 0001+0003                                               |
+| 020 (SQLite fallback)              | ✅ done             | guard em 0001_initial                                              |
+| 021 + 021b + 022 (Algo)            | ✅ done             | SearchService.query (12 invariantes) + caps + query_terms_expanded |
+| 023-025 (Backend)                  | ✅ done             | SearchView + serializers + cursor + total_estimate                 |
+| 026 + 027 (FE infra)               | ✅ done             | CSR + lazy + TanStack + useDebouncedValue + Bug 6 fix              |
+| 028 (a11y combobox)                | ✅ done             | `<form role="search">` + `<input type="search">`                   |
+| 029 (paleta herdada)               | ✅ done             | tokens novos sem fork; `--clr-cat-*` aplicado                      |
+| 030-DB/FE/UI                       | ✅ done             | indexes + ErrorBoundary + chips + thumb-left                       |
+| 031-DB                             | ⏳ doc only         | gatilho documentado (>100GB OR p95>250ms)                          |
+| 031-FE                             | ⏳ pending          | TX-16 — gate Lighthouse CI em backlog                              |
+| 032 (backup lean)                  | ⏳ pending          | Sprint 5 prod runbook                                              |
+| 033 (single-tenant)                | ✅ done             | doc-only                                                           |
+| 034 (vacuum tuning)                | ✅ done             | migration 0004                                                     |
+| 035 (search_log pseudonim. forte)  | ⏳ pending          | Sprint 5 (T30.4.X1)                                                |
+| 036 (throttle global)              | ✅ done             | SearchGlobalThrottle implementado                                  |
+| 037 (cache SHA256+auth_tier)       | ✅ done             | `cache.py:build_cache_key`                                         |
+| 038 (semgrep custom CI)            | ⏳ pending          | Sprint 5                                                           |
+| 039 (trigger ENABLE ALWAYS)        | ✅ done             | migration 0005 + T30.1.5d                                          |
+| 040 (property-based Hypothesis)    | ⏳ pending          | T30.1.X22 Sprint 5                                                 |
+| 041 (contract schemathesis)        | ⏳ pending          | T30.1.TY4 Sprint 5                                                 |
+| 042 (visual regression Playwright) | ⏳ pending          | T30.1.X20 Sprint 5                                                 |
+| 043 (mutation Stryker)             | ⏳ pending          | Sprint 5                                                           |
+| 044 (k6 Zipfiano)                  | ⏳ pending          | Sprint 5                                                           |
+| 045 (axe-playwright + manual NVDA) | ✅ done (axe parte) | a11y.test.tsx 12 checks; manual NVDA via TX-20                     |
+
+---
+
+_Tracker vivo. Atualizar a cada PR que toca implementação. Estado em 2026-06-06: PR US30.1 destravado (0 BLOQUEIOs); 22/35 ADRs done, 13/35 em backlog Sprint 5._

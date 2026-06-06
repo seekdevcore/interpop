@@ -857,3 +857,103 @@ _Atualizado em 2026-06-02 — Apêndice v3 adicionado após refino com 4 special
 ---
 
 _Atualizado em 2026-06-03 — Apêndice v4 adicionado após validação por `cyber-security-architect` + `testing-engineer`. Tasks consolidadas: 144 (vs 96 v2 / 118 v3). ADRs em `adrs/` folder (24 materializadas + 11 pending)._
+
+---
+
+## 📌 APÊNDICE v5 — Tasks entregues pós-REVIEW-PHASE-3 (6 fixes inline)
+
+> Após a Fase 3 do `code-implementer`, o `gsd-code-reviewer` produziu o `REVIEW-PHASE-3.md` (veredito APROVADO COM RESSALVAS — bloqueado para PR US30.1 até 2 BLOQUEIOs + 4 HIGHs serem fixados). O main-loop aplicou todos os 6 fixes em batches atômicos. Esta seção registra a entrega.
+
+### Tasks entregues (commits em `origin/develop`)
+
+| ID                   | Origem                                     | Commit    | Descrição                                                                                                                                          | Status  |
+| -------------------- | ------------------------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| **T30.1.X14**        | H-02 do REVIEW-PHASE-3                     | `25bb5f9` | DRY: `SEARCH_STALE_TIME` + `SEARCH_GC_TIME` em `searchService.ts` (SSOT)                                                                           | ✅ done |
+| **T30.1.X15**        | H-01 do REVIEW-PHASE-3                     | `25bb5f9` | FilterChips valida `Number.isFinite + Number.isInteger` em `category`                                                                              | ✅ done |
+| **T30.1.X16**        | H-03 do REVIEW-PHASE-3                     | `25bb5f9` | HighlightedText: cleanup `return () => instance.unmark()` no useEffect                                                                             | ✅ done |
+| **T30.1.X17**        | H-04 do REVIEW-PHASE-3                     | `d45478f` | ResultCard `data-variant` no `<article>` + CSS `--clr-cat-*` (badge + placeholder) + 2 tests                                                       | ✅ done |
+| **T30.1.X13**        | BLOQUEIO-2 do REVIEW-PHASE-3               | `cbb9001` | `vitest-axe` em `a11y.test.tsx` cobrindo 12 cenários (5 estados + componentes + integração página)                                                 | ✅ done |
+| **T30.1.X12**        | BLOQUEIO-1 do REVIEW-PHASE-3               | `ffa5150` | MSW handlers (`search.ts`, 3 cenários) + `browser.ts` + `npx msw init public/` + wire em `main.tsx` (DEV-only dynamic import) + `Buscar/README.md` | ✅ done |
+| **T30.1.X25** (novo) | bug encontrado pelo axe na execução do X13 | `cbb9001` | Fix `ResultsSkeleton` — `<ul role="status">` quebrava `role="list"` implícito; landmark live region migrada para `<div>` wrapper                   | ✅ done |
+| **T30.1.X26** (novo) | bug encontrado no smoke manual             | `2bdf681` | MSW handler com URL pattern `*/api/v1/...` para capturar cross-origin (axios usa baseURL `:8000`; same-origin path-relative não pegava)            | ✅ done |
+
+### BLOQUEIOs do PR US30.1 → fechados
+
+| BLOQUEIO REVIEW-PHASE-3                 | Status     | Evidência                                                                                                                                                               |
+| --------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🔴 BLOQUEIO-1 (MSW vazio)               | ✅ FECHADO | `src/mocks/handlers/search.ts` (3 cenários), worker em DEV, README documentando workflow, **tree-shake verificado** (`grep` confirma 0 refs em `dist/assets/*.js` prod) |
+| 🔴 BLOQUEIO-2 (axe alegado mas ausente) | ✅ FECHADO | `src/pages/Buscar/__tests__/a11y.test.tsx` (12 axe checks); **bug a11y real encontrado e corrigido** na 1ª execução                                                     |
+| 🟠 H-01 (category validation)           | ✅ FECHADO | `FilterChips.tsx:42-52`                                                                                                                                                 |
+| 🟠 H-02 (DRY staleTime/gcTime)          | ✅ FECHADO | `searchService.ts:23-31` + imports em `main.tsx` e `useSearch.ts`                                                                                                       |
+| 🟠 H-03 (mark.js cleanup)               | ✅ FECHADO | `HighlightedText.tsx:75-79` (cleanup return)                                                                                                                            |
+| 🟠 H-04 (categoria sem token editorial) | ✅ FECHADO | `ResultCard.tsx:48` + `ResultCard.css:105-145` (data-variant cascade)                                                                                                   |
+
+### Smoke manual em browser
+
+Validado pelo usuário em `http://localhost:5173/buscar`:
+
+| URL          | Estado renderizado                                            | MSW status            |
+| ------------ | ------------------------------------------------------------- | --------------------- |
+| `?q=kpop`    | Results — 142 resultados, 10 cards com highlight              | 200 OK                |
+| `?q=qzxzqzx` | EmptyResults — "Nada encontrado para 'qzxzqzx'"               | 200 OK (0 hits)       |
+| `?q=flood`   | RateLimitedState — "Muitas buscas... Aguarde 23s" + countdown | 429 (Retry-After: 23) |
+| `?q=k`       | EmptyState (q < 2)                                            | (sem request)         |
+
+### Métricas finais
+
+| Métrica                                        | v3 (review)  | v5 (entrega)                                       |
+| ---------------------------------------------- | ------------ | -------------------------------------------------- |
+| Tests Buscar                                   | 64 / 9 files | **78 / 10 files** (+12 axe + 2 ResultCard variant) |
+| Coverage `pages/Buscar` (Lines)                | não medido   | **84.15%**                                         |
+| Coverage `pages/Buscar/hooks`                  | não medido   | **100%** lines, 100% funcs                         |
+| Bundle Buscar lazy (gz)                        | 14.5 KB      | **14.54 KB** (delta ~zero)                         |
+| MSW no bundle prod                             | —            | **0 refs** (tree-shake validado)                   |
+| Bug a11y real corrigido (não previsto na spec) | —            | **1** (Skeleton landmark)                          |
+
+### Tasks restantes (Sprint 5)
+
+Permanecem do REVIEW-PHASE-3 — não bloqueiam PR US30.1, ficam no roadmap natural:
+
+| ID          | Origem                                                           | Esforço | Prioridade     |
+| ----------- | ---------------------------------------------------------------- | ------- | -------------- |
+| T30.1.X18   | tests para `useSearchParamsState` (gap de cobertura)             | 1h      | 🟡 P2          |
+| T30.1.X19   | test AbortSignal cancelando `fetchSearch`                        | 1h      | 🟡 P2          |
+| T30.1.X20   | visual regression Playwright 5 estados (ADR-042)                 | 3h      | 🟡 P2 Sprint 5 |
+| T30.1.X21   | E2E Playwright (input → results → load-more → article)           | 3h      | 🟡 P2 Sprint 5 |
+| T30.1.X22   | property-based (fast-check) `useDebouncedValue` + `canonicalKey` | 2h      | 🟡 P2 Sprint 5 |
+| T30.1.X23   | avaliar custom 30-LoC highlighter vs `mark.js` 8 KB gz           | 2h      | ⚪ P3          |
+| T30.1.X24   | i18n extract strings pt-BR para `src/i18n/`                      | 1h      | ⚪ P3          |
+| F-31 / F-32 | filtros funcionais + deep-linking complexo                       | —       | Sprint 5       |
+
+### Sumário consolidado por versão
+
+| Métrica                      | v2  | v3  | v4           | **v5 (atual)**           |
+| ---------------------------- | --- | --- | ------------ | ------------------------ |
+| Tasks US-bound               | 84  | 100 | 114          | **122** (+8 entregues)   |
+| Tasks transversais           | 12  | 18  | 21           | 21                       |
+| ADRs materializadas          | —   | 15  | 24           | 35                       |
+| ADRs pendentes               | —   | —   | 11 (035-045) | 0 (todas materializadas) |
+| Tasks 🔴 Immediate restantes | —   | 5   | 0            | 0                        |
+| BLOQUEIOs do PR US30.1       | —   | —   | —            | **0** ✅                 |
+
+### PR US30.1 — gate hard fechado
+
+- [x] H-01 a H-04 endereçadas (T30.1.X14-X17)
+- [x] BLOQUEIO-1 fechado (T30.1.X12 — MSW)
+- [x] BLOQUEIO-2 fechado (T30.1.X13 — axe-core)
+- [x] Bundle delta ≤ +20 KB gz (atual: 14.54 KB)
+- [x] axe-core clean nos 5 estados (+ bug a11y real corrigido)
+- [x] 12 invariantes algorithms cobertos (Fase 2)
+- [x] Trigger SQL não-bypassado (T30.1.5d / fix `ENABLE ALWAYS`)
+- [x] Smoke manual browser validado (3 cenários MSW)
+- [ ] Cov backend ≥85% local (atual: 85% Fase 2)
+- [ ] Cov frontend ≥80% local (atual: 84% — atingido)
+- [ ] Lighthouse CI passa (TX-16 em backlog)
+- [ ] OpenAPI ↔ TS sem drift (T30.1.TY4 em backlog)
+- [ ] `npm audit --production` sem High/Critical (a rodar antes do PR)
+
+**PR US30.1 PODE ser aberto.** Body do PR cita honestamente o que está coberto e o que ficou para Sprint 5.
+
+---
+
+_Atualizado em 2026-06-06 — Apêndice v5 adicionado após `gsd-code-reviewer` + 6 fixes inline (Batches 1-4) + smoke manual em browser. Tasks consolidadas: 152 (122 US + 21 TX + 9 fixes do review). 0 BLOQUEIOs no PR US30.1._
