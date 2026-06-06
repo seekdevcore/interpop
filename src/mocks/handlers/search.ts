@@ -20,7 +20,13 @@
  */
 import { http, HttpResponse, delay } from 'msw';
 
-const ENDPOINT = '/api/v1/search/articles/';
+// MSW v2 matcha por origem: path relativo `/api/...` só intercepta requests
+// same-origin. Como axios (src/services/api.ts) usa baseURL absoluta
+// `http://localhost:8000`, os requests reais são cross-origin do dev server
+// `:5173`. Padrão `*//api/...` (qualquer protocolo + host) garante captura
+// independentemente de `VITE_API_URL`. Bug descoberto no smoke manual da
+// Fase 3 — todas as 4 chamadas estavam caindo no Django real (503).
+const ENDPOINT = '*/api/v1/search/articles/';
 
 const SAMPLE_AUTHORS = [
   { id: 'a-ana', name: 'Ana Lima' },
