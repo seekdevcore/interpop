@@ -42,7 +42,7 @@ from datetime import datetime
 from typing import Final
 
 from django.conf import settings
-from django.db import connection
+from django.db import connection, transaction
 
 from apps.articles.models import Article
 
@@ -213,6 +213,7 @@ class SearchService:
 
     # ── Postgres path (algorithms §7 SQL completo) ─────────────────────────
 
+    @transaction.atomic
     def _query_postgres(
         self,
         spec: QuerySpec,
@@ -221,9 +222,19 @@ class SearchService:
         cursor: CursorPayload | None,
         t0: float,
     ) -> SearchResultPage:  # pragma: no cover — exercitado em integration
-        """Path Postgres: CTE candidates + scored + cursor tuple compare."""
-        # Inv 12 — statement_timeout por TX (defesa T30.4.X9, independente
-        # do role Postgres).
+        """Path Postgres: CTE candidates + scored + cursor tuple compare.
+
+        Fix F2-B-01 do REVIEW-PHASE-2: o método inteiro está dentro de
+        `@transaction.atomic` para que o `SET LOCAL statement_timeout`
+        aplicado em `_apply_statement_timeout` valha por toda a duração
+        (incluindo o main query, `_expand_stems` e `_explain_estimate`).
+        Sem a TX explícita, cada `with connection.cursor()` aninhado
+        criava sua própria TX implícita em autocommit, e o cap de 500ms
+        ficava ativo só durante a chamada `SET LOCAL` — Invariante #12
+        quebrada em runtime.
+        """
+        # Inv #12 — statement_timeout por TX (defesa T30.4.X9, independente
+        # do role Postgres). Vive dentro da TX criada por @transaction.atomic.
         self._apply_statement_timeout()
 
         page_count = (cursor.depth + 1) if cursor else 1
@@ -339,9 +350,15 @@ class SearchService:
     # ── Internal helpers ───────────────────────────────────────────────────
 
     def _apply_statement_timeout(self) -> None:  # pragma: no cover — Postgres
-        """Inv #12 — SET LOCAL statement_timeout por TX (defesa T30.4.X9).
+        """Inv #12 — SET LOCAL statement_timeout (defesa T30.4.X9).
 
-        Independente do role Postgres (defesa em profundidade).
+        CONTRATO: deve ser chamado de DENTRO de uma TX explícita (`@transaction.atomic`
+        ou `with transaction.atomic():`). `SET LOCAL` aplica ao TX atual e morre no
+        commit/rollback. Em autocommit (sem TX explícita), cada cursor abre uma TX
+        implícita própria — o SET LOCAL aplicado aqui morreria ao sair do `with`
+        e o main query rodaria sem cap. Esse foi o F2-B-01 do REVIEW-PHASE-2.
+
+        Independente do role Postgres (defesa em profundidade — TX-15 ainda em backlog).
         """
         ms = settings.SEARCH_STATEMENT_TIMEOUT_MS
         with connection.cursor() as cur:
