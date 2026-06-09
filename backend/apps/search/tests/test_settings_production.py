@@ -55,7 +55,11 @@ def _run_settings_load(env: dict[str, str]) -> subprocess.CompletedProcess:
 
 
 def _base_env() -> dict[str, str]:
-    """Env mínima para `production.py` carregar sem outros erros."""
+    """Env mínima para `production.py` carregar sem outros erros.
+
+    Inclui `JWT_SIGNING_KEY` distinta de `SECRET_KEY` para não disparar o
+    guard S-02 acidentalmente (cada arquivo testa SEU próprio guard).
+    """
     return {
         **os.environ,
         'DJANGO_SETTINGS_MODULE': 'config.settings.production',
@@ -69,6 +73,7 @@ def _base_env() -> dict[str, str]:
         'EMAIL_HOST': 'smtp.example.com',
         'EMAIL_HOST_USER': 'u',
         'EMAIL_HOST_PASSWORD': 'p',
+        'JWT_SIGNING_KEY': 'distinct-jwt-signing-key-not-secret-key-cafefeed',
     }
 
 

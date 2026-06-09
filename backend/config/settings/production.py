@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from decouple import Csv, config
 
 from .base import *  # noqa: F401, F403
-from .base import SECRET_KEY, SEARCH_CURSOR_HMAC_SECRET
+from .base import SECRET_KEY, SEARCH_CURSOR_HMAC_SECRET, SIMPLE_JWT
 from apps.audit.sentry import init_sentry
 
 DEBUG = False
@@ -21,6 +21,24 @@ if not SEARCH_CURSOR_HMAC_SECRET or SEARCH_CURSOR_HMAC_SECRET == SECRET_KEY:
         'distinta de SECRET_KEY (vetor F2-B-03 do REVIEW-PHASE-2). '
         'Gere com `python -c "import secrets; print(secrets.token_urlsafe(48))"`.'
     )
+
+# ── Fix S-02 (CONCERNS / RF-005) — JWT signing key hard-fail em prod ─────────
+# Mesma família que F2-B-03 acima: `base.py:150` deixa `SIGNING_KEY` cair em
+# `SECRET_KEY` como fallback (conveniente em dev). Em produção isso é vetor
+# crítico — leak de `SECRET_KEY` compromete sessão **e** JWT simultaneamente,
+# permitindo forja de access token e impersonação total (incluindo de roles
+# `dev`, que é imune a ban por design). Defesa em profundidade exige duas
+# chaves distintas: comprometer uma não compromete a outra. Hard-fail força
+# o operador a setar `JWT_SIGNING_KEY` distinta antes de subir produção.
+_JWT_SIGNING_KEY = SIMPLE_JWT.get('SIGNING_KEY')
+if not _JWT_SIGNING_KEY or _JWT_SIGNING_KEY == SECRET_KEY:
+    raise ImproperlyConfigured(
+        'JWT_SIGNING_KEY deve estar setada em produção e ser distinta de '
+        'SECRET_KEY (vetor S-02 do CONCERNS). Comprometer uma chave não '
+        'pode comprometer a outra — defesa em profundidade. Gere com '
+        '`python -c "import secrets; print(secrets.token_urlsafe(50))"`.'
+    )
+del _JWT_SIGNING_KEY
 
 # Sentry — no-op silencioso se SENTRY_DSN não estiver no env.
 # Em prod real: DSN setado, traces 10%, releases taggadas via GIT_SHA.
