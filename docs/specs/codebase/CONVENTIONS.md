@@ -331,6 +331,7 @@ apps/<app>/
 ### State management
 
 - **Server state**: **TanStack Query 5.101**. `QueryClient` único é montado em `src/main.tsx:18-27` com defaults globais:
+
   ```ts
   staleTime: SEARCH_STALE_TIME (60_000ms)   // casa com max-age=60 do backend (ADR-023)
   gcTime: SEARCH_GC_TIME (5 * 60_000ms)     // casa com stale-while-revalidate=300
@@ -340,6 +341,7 @@ apps/<app>/
 
   - **Constantes de cache vivem em `src/pages/Buscar/services/searchService.ts:31-32` como SSOT** — `main.tsx` importa de lá (fix H-02 do REVIEW-PHASE-3 — anti-drift).
   - `useInfiniteQuery` é o padrão para listas paginadas via cursor (ver `useSearch.ts:80-103`).
+
 - **Server state legacy (pré-TanStack)**: páginas Home, Article, Admin, ArticleComments ainda usam padrão antigo `useState + useEffect + service.then` (ver `Home.tsx:25-49`, `Article.tsx:45-77`). Migração para TanStack Query está em backlog (Sprint 4). **Em features NOVAS, usar TanStack Query**.
 - **Client state**:
   - **Auth global** → React Context (`src/contexts/AuthContext.tsx`). Único Context global do app. Tipo: `AuthContextValue` com `currentUser`, `isAdmin`, `isDev`, `canPublish`, `isLoading`, `login`, `logout`, `refreshUser`. Hook consumer: `useAuth()` que lança `throw` se chamado fora do `<AuthProvider>`.
