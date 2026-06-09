@@ -46,6 +46,12 @@ coverage/
 # Documentos internos de planejamento (não versionados)
 docs/planning/
 
+# Entregáveis locais (paletas/screenshots de review + apresentações de cliente):
+# artefatos pesados/gerados, ficam fora do repo.
+docs/design-options/
+docs/design-options.zip
+docs/presentations/
+
 # Reports de teste (histórico só local — evita inflate do repo).
 # Mantém .gitkeep pra preservar diretórios vazios. Decisão registrada em
 # docs/planning/reorganization-proposal-2026-05-21.md §9 item 2.

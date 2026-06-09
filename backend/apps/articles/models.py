@@ -76,9 +76,20 @@ class Article(models.Model):
         return slug
 
     def save(self, *args, **kwargs):
+        from django.db import transaction
+
         if not self.slug:
             self.slug = self._unique_slug()
-        super().save(*args, **kwargs)
+        # Destaque único: marcar este como featured desmarca todos os outros.
+        # Padrão NYT/Substack — só 1 matéria ocupa o hero da home. Sem isso,
+        # Home.tsx (find(is_featured)) pegaria um featured arbitrário quando
+        # houvesse 2+. 2 writes (save + update) → atomic por ADR-012.
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if self.is_featured:
+                Article.objects.filter(is_featured=True).exclude(pk=self.pk).update(
+                    is_featured=False
+                )
 
     def __str__(self):
         return self.title

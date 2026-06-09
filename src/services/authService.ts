@@ -41,11 +41,12 @@ export const authService = {
 
   me: () => api.get<ApiUser>('/api/v1/auth/me/'),
 
-  /** PATCH parcial. Backend aceita: first_name, last_name, bio, avatar.
-   *  `email` e `username` NÃO são editáveis aqui — exigem fluxo separado
-   *  com confirmação por email (fora do MVP). */
+  /** PATCH parcial. Backend aceita: username, first_name, last_name, bio, avatar.
+   *  `email` NÃO é editável aqui — exige fluxo separado com confirmação por
+   *  email (fora do MVP). */
   updateProfile: (
     payload: Partial<{
+      username: string;
       first_name: string;
       last_name: string;
       bio: string;

@@ -4,6 +4,8 @@ import { AuthLayout } from '@/components/layout/AuthLayout';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { authService } from '@/services/authService';
+import { PasswordChecklist } from '@/components/ui/PasswordChecklist';
+import { isPasswordStrong } from '@/utils/passwordRules';
 import './Auth.css';
 
 export function ResetPassword() {
@@ -26,6 +28,10 @@ export function ResetPassword() {
 
     if (form.password !== form.confirm) {
       setError('As senhas não coincidem.');
+      return;
+    }
+    if (!isPasswordStrong(form.password)) {
+      setError('A senha não atende a todos os requisitos de segurança.');
       return;
     }
     if (!token) {
@@ -119,6 +125,8 @@ export function ResetPassword() {
           </button>
         </div>
 
+        <PasswordChecklist value={form.password} />
+
         <Input
           id="confirm"
           type={showPassword ? 'text' : 'password'}
@@ -140,7 +148,11 @@ export function ResetPassword() {
           variant="primary"
           size="lg"
           fullWidth
-          disabled={loading || !form.password || !form.confirm}
+          disabled={
+            loading ||
+            !isPasswordStrong(form.password) ||
+            form.password !== form.confirm
+          }
         >
           {loading ? 'Salvando…' : 'Salvar nova senha'}
         </Button>

@@ -270,12 +270,13 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps) {
                 )}
               </PieChart>
             </ResponsiveContainer>
-            <div className="dash__donut-center">
-              <p className="dash__donut-value">{totalArticles}</p>
-              <p className="dash__donut-label">
+            <dl className="dash__donut-center">
+              {/* dt=rótulo, dd=valor (evita "possible heading" no número central). */}
+              <dt className="dash__donut-label">
                 publicaç{totalArticles === 1 ? 'ão' : 'ões'}
-              </p>
-            </div>
+              </dt>
+              <dd className="dash__donut-value">{totalArticles}</dd>
+            </dl>
           </div>
           {visibleCategories.length > 0 && (
             <ul className="dash__legend">

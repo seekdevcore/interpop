@@ -10,6 +10,7 @@ Python's `\w` is unicode-aware by default, so `[-\w]+` matches letters in
 any script plus digits and underscore — a drop-in superset of Django's slug
 character class.
 """
+from django.urls import register_converter
 
 
 class UnicodeSlugConverter:
@@ -20,3 +21,11 @@ class UnicodeSlugConverter:
 
     def to_url(self, value: str) -> str:
         return value
+
+
+# Registra o conversor uma única vez, no import deste módulo. Antes articles/urls.py
+# E comments/urls.py chamavam register_converter('uslug') cada → a 2ª chamada disparava
+# RemovedInDjango60Warning (override de conversor já registrado). Um módulo Python roda
+# só 1x (cache em sys.modules), então registrar aqui garante registro único, qualquer
+# que seja a ordem de import dos urlconfs.
+register_converter(UnicodeSlugConverter, 'uslug')

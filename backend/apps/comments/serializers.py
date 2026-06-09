@@ -35,11 +35,11 @@ class CommentSerializer(serializers.ModelSerializer):
         ]
 
     def get_replies_count(self, obj) -> int:
-        # replies is prefetched — no extra query
-        try:
-            return len(obj.replies.all())
-        except Exception:
-            return 0
+        # `replies` vem prefetchado (Prefetch em CommentListCreateView) — len()
+        # usa o cache, zero query extra. Sem try/except: se o prefetch quebrar
+        # num refactor, queremos o erro VISÍVEL, não um 0 silencioso mascarando
+        # bug (o except Exception engolia TudoDoesNotExist/AttributeError).
+        return len(obj.replies.all())
 
     def validate_parent_id(self, value):
         if value is None:

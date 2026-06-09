@@ -115,7 +115,8 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--clr-primary);
-  margin-bottom: var(--sp-5);
+  /* margin explícito: zera o default do <h2> (mantém só o espaço inferior). */
+  margin: 0 0 var(--sp-5);
 }
 
 .home-featured__dot {
@@ -247,15 +248,45 @@
   transition: all var(--t-fast);
 }
 
-.home-filters__cat:hover {
-  border-color: var(--clr-primary);
-  color: var(--clr-primary);
+/* Hover só no chip NÃO-ativo: prévia da cor da editoria (borda + texto),
+   fundo continua branco. O :not é essencial — sem ele o seletor :hover
+   (especificidade 0,2,0) vence .home-filters__cat--active (0,1,0) e pinta o
+   TEXTO com a mesma cor do fundo ativo → palavra sumia ("botão todo escuro"). */
+.home-filters__cat:not(.home-filters__cat--active):hover {
+  border-color: var(--chip-color, var(--clr-primary));
+  color: var(--chip-color, var(--clr-primary));
+}
+
+/* Cor por categoria — espelha o sistema --clr-cat-* dos badges dos cards.
+   Chip ativo de "Cinema" fica âmbar (igual ao badge CINEMA), "Moda" terracota,
+   etc. "Todos" não tem data-category → cai no fallback navy.
+   Todas as 5 cores passam WCAG AA (>=5:1) com texto branco — verificado. */
+.home-filters__cat[data-category='musica'] {
+  --chip-color: var(--clr-cat-musica);
+}
+.home-filters__cat[data-category='moda'] {
+  --chip-color: var(--clr-cat-moda);
+}
+.home-filters__cat[data-category='cinema'] {
+  --chip-color: var(--clr-cat-cinema);
+}
+.home-filters__cat[data-category='literatura'] {
+  --chip-color: var(--clr-cat-literatura);
+}
+.home-filters__cat[data-category='cultura-digital'] {
+  --chip-color: var(--clr-cat-cultura-digital);
 }
 
 .home-filters__cat--active {
-  background: var(--clr-primary);
-  border-color: var(--clr-primary);
+  background: var(--chip-color, var(--clr-primary));
+  border-color: var(--chip-color, var(--clr-primary));
   color: var(--clr-white);
+}
+
+/* Feedback de hover no chip ativo: escurece levemente o fundo sólido sem
+   tocar na cor do texto — o branco continua legível (contraste só aumenta). */
+.home-filters__cat--active:hover {
+  filter: brightness(0.92);
 }
 
 /* ─── Grid ─── */

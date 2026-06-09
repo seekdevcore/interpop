@@ -1,9 +1,31 @@
+import re
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from .models import PasswordResetToken, User
+
+# Handle público: letras, números, ponto, hífen ou underline (ex.: Intetsu_Gabe).
+# Case é PRESERVADO (não força lowercase) — unicidade é checada case-insensitive.
+USERNAME_RE = re.compile(r'^[A-Za-z0-9_.-]+$')
+
+
+def _validate_username(value, *, exclude_pk=None):
+    value = value.strip()
+    if not value:
+        raise serializers.ValidationError('O nome de usuário não pode ser vazio.')
+    if not USERNAME_RE.match(value):
+        raise serializers.ValidationError(
+            'Use apenas letras, números, ponto, hífen ou underline (sem espaços).'
+        )
+    qs = User.objects.filter(username__iexact=value)
+    if exclude_pk is not None:
+        qs = qs.exclude(pk=exclude_pk)
+    if qs.exists():
+        raise serializers.ValidationError('Este nome de usuário já está em uso.')
+    return value
 
 
 # ── Public user representation ───────────────────────────────────────────────
@@ -66,9 +88,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value.lower()
 
     def validate_username(self, value):
-        if User.objects.filter(username__iexact=value).exists():
-            raise serializers.ValidationError('Este nome de usuário já está em uso.')
-        return value.lower()
+        return _validate_username(value)
 
     def validate(self, data):
         if data['password'] != data.pop('password2'):
@@ -108,9 +128,16 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
+    # Declarado explicitamente para (1) trocar o UniqueValidator automático do
+    # DRF (case-sensitive) por checagem iexact e (2) preservar o case digitado.
+    username = serializers.CharField(max_length=150, required=False)
+
     class Meta:
         model  = User
-        fields = ['first_name', 'last_name', 'bio', 'avatar']
+        fields = ['username', 'first_name', 'last_name', 'bio', 'avatar']
+
+    def validate_username(self, value):
+        return _validate_username(value, exclude_pk=self.instance.pk if self.instance else None)
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

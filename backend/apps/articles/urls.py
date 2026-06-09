@@ -1,8 +1,5 @@
-from django.urls import path, register_converter
-from .converters import UnicodeSlugConverter
+from django.urls import path
 from .views import ArticleDetailView, ArticleListView, ArticleViewCountView, CategoryListView
-
-register_converter(UnicodeSlugConverter, 'uslug')
 
 urlpatterns = [
     path('categories/',                CategoryListView.as_view(),     name='category-list'),

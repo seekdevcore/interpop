@@ -72,7 +72,7 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
     : isAdmin
       ? { label: '🛡️ Admin', cls: 'navbar-menu__role-badge--admin' }
       : currentUser.role === 'editor'
-        ? { label: '✍️ Redator', cls: 'navbar-menu__role-badge--editor' }
+        ? { label: '✍️ Editor', cls: 'navbar-menu__role-badge--editor' }
         : null;
 
   return (
@@ -117,6 +117,11 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
           <p className="navbar-menu__header-name">
             {currentUser.first_name} {currentUser.last_name}
           </p>
+          {currentUser.username && (
+            <p className="navbar-menu__header-username">
+              @{currentUser.username}
+            </p>
+          )}
           {currentUser.email && (
             <p className="navbar-menu__header-email">{currentUser.email}</p>
           )}

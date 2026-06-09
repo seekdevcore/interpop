@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.audit.utils import get_client_ip
-from apps.users.permissions import IsPublisherOrReadOnly
+from apps.users.permissions import IsOwnerOrAdmin, IsPublisherOrReadOnly
 from .models import Article, Category
 from .serializers import (
     ArticleDetailSerializer,
@@ -36,9 +36,14 @@ class ArticleListView(generics.ListCreateAPIView):
     ordering_fields    = ['published_at', 'view_count', 'created_at']
 
     def get_queryset(self):
+        # .annotate(Count(...)) injeta GROUP BY → Django marca o queryset como
+        # "unordered" (QuerySet.ordered=False) mesmo com Meta.ordering, pois
+        # ordem default de query agregada é considerada não-confiável. Sem um
+        # order_by EXPLÍCITO o paginador do DRF dispara UnorderedObjectListWarning
+        # e pode paginar inconsistente. Repete a ordem do Meta de Article.
         qs = Article.objects.select_related('author', 'category').annotate(
             comment_count=Count('comments', filter=Q(comments__is_deleted=False))
-        )
+        ).order_by('-published_at', '-created_at')
         # Editorial team (admin + editor) enxerga drafts — convenção CMS
         # (WordPress/Ghost): toda equipe vê o estado editorial. Edição/exclusão
         # continua restrita ao próprio autor ou admin (regra no frontend +
@@ -61,7 +66,11 @@ class ArticleListView(generics.ListCreateAPIView):
 
 
 class ArticleDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsPublisherOrReadOnly]
+    # IsPublisherOrReadOnly: anon lê (GET), publisher escreve (nível de view).
+    # IsOwnerOrAdmin (object-level): só o AUTOR ou admin/dev pode PATCH/DELETE.
+    # Sem o segundo, qualquer editor editava/deletava artigo de QUALQUER outro
+    # editor via API (a restrição existia só no frontend — trivial de burlar).
+    permission_classes = [IsPublisherOrReadOnly, IsOwnerOrAdmin]
     lookup_field       = 'slug'
     queryset           = Article.objects.select_related('author', 'category')
 

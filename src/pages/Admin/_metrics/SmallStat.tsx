@@ -12,9 +12,10 @@ interface SmallStatProps {
 
 export function SmallStat({ label, value }: SmallStatProps) {
   return (
-    <div className="metrics__small-card">
-      <p className="metrics__small-value">{formatNumber(value)}</p>
-      <p className="metrics__small-label">{label}</p>
-    </div>
+    <dl className="metrics__small-card">
+      {/* dt=rótulo, dd=valor (evita o alerta "possible heading" do WAVE). */}
+      <dt className="metrics__small-label">{label}</dt>
+      <dd className="metrics__small-value">{formatNumber(value)}</dd>
+    </dl>
   );
 }

@@ -154,7 +154,15 @@ class AdminMetricsView(APIView):
                     filter=Q(comments__is_deleted=False),
                     distinct=True,
                 ),
-                like_count=Count('comments__likes', distinct=True),
+                # Mesmo filtro de is_deleted que comment_count: curtidas em
+                # comentários soft-deleted (ocultos da tela) não devem entrar
+                # no engagement. distinct evita a inflação do JOIN cartesiano
+                # comments × likes.
+                like_count=Count(
+                    'comments__likes',
+                    filter=Q(comments__is_deleted=False),
+                    distinct=True,
+                ),
             )
             .order_by('-view_count')
             .values('slug', 'title', 'view_count', 'comment_count', 'like_count', 'published_at')

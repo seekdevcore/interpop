@@ -65,5 +65,10 @@ REST_FRAMEWORK = {
         'anon': '10000/hour',
         'user': '10000/hour',
         'auth': '100/minute',
+        # Busca editorial — relaxa em dev para smoke manual sem 429
+        # (em prod, valores base.py: 30/min anon, 60/min user, 500/min global)
+        'search_anon': '10000/hour',
+        'search_user': '10000/hour',
+        'search_global': '20000/hour',
     },
 }

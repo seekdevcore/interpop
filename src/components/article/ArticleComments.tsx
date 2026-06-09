@@ -29,6 +29,11 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [commentError, setCommentError] = useState('');
+  // Paginação: a API serve 20 comentários de topo por página. Sem isto, só a
+  // 1ª página carregava e o resto ficava inacessível. `nextPage` = número da
+  // próxima página (null = acabou).
+  const [nextPage, setNextPage] = useState<number | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -37,9 +42,32 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
       .then((r) => {
         setComments(r.data.results);
         setTotalComments(r.data.count);
+        setNextPage(r.data.next ? 2 : null);
       })
       .catch(() => {});
   }, [slug]);
+
+  const handleLoadMore = useCallback(async () => {
+    if (nextPage === null || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data } = await commentService.list(slug, {
+        page: String(nextPage),
+      });
+      // Dedup por id: publicar um comentário novo desloca o offset do servidor
+      // (ordem por -created_at), então a página seguinte pode repetir um item
+      // que já está na lista. Mantemos só os realmente novos.
+      setComments((prev) => {
+        const seen = new Set(prev.map((c) => c.id));
+        return [...prev, ...data.results.filter((c) => !seen.has(c.id))];
+      });
+      setNextPage(data.next ? nextPage + 1 : null);
+    } catch {
+      // Silencioso: o botão continua disponível para nova tentativa.
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [nextPage, loadingMore, slug]);
 
   const handleSubmitComment = useCallback(async () => {
     if (!commentText.trim() || submitting) return;
@@ -59,14 +87,24 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
     }
   }, [commentText, slug, submitting]);
 
-  const handleDelete = useCallback((id: string) => {
-    const removeFromList = (list: ApiComment[]): ApiComment[] =>
-      list
-        .filter((c) => c.id !== id)
-        .map((c) => ({ ...c, replies: removeFromList(c.replies ?? []) }));
-    setComments((prev) => removeFromList(prev));
-    setTotalComments((n) => Math.max(0, n - 1));
-  }, []);
+  const handleDelete = useCallback(
+    (id: string) => {
+      // Conta quantos comentários SOMEM de fato. Deletar um pai remove o pai
+      // + todas as respostas dele (nesting é de no máximo 1 nível). Antes
+      // decrementava só 1 → contador "Comentários (N)" dessincronizava do
+      // que aparece na tela. Alvo no topo: 1 + replies; alvo é reply: 1.
+      const top = comments.find((c) => c.id === id);
+      const removed = top ? 1 + (top.replies?.length ?? 0) : 1;
+
+      const removeFromList = (list: ApiComment[]): ApiComment[] =>
+        list
+          .filter((c) => c.id !== id)
+          .map((c) => ({ ...c, replies: removeFromList(c.replies ?? []) }));
+      setComments((prev) => removeFromList(prev));
+      setTotalComments((n) => Math.max(0, n - removed));
+    },
+    [comments],
+  );
 
   const handleReplyAdded = useCallback(
     (parentId: string, reply: ApiComment) => {
@@ -154,18 +192,32 @@ export function ArticleComments({ slug, currentUser }: ArticleCommentsProps) {
       )}
 
       {comments.length > 0 ? (
-        <ol className="article-comments-list">
-          {comments.map((c) => (
-            <CommentItem
-              key={c.id}
-              comment={c}
-              articleSlug={slug}
-              onDelete={handleDelete}
-              onReplyAdded={handleReplyAdded}
-              onLikeToggled={handleLikeToggled}
-            />
-          ))}
-        </ol>
+        <>
+          <ol className="article-comments-list">
+            {comments.map((c) => (
+              <CommentItem
+                key={c.id}
+                comment={c}
+                articleSlug={slug}
+                onDelete={handleDelete}
+                onReplyAdded={handleReplyAdded}
+                onLikeToggled={handleLikeToggled}
+              />
+            ))}
+          </ol>
+          {nextPage !== null && (
+            <div className="article-comments__more">
+              <Button
+                variant="outline"
+                size="md"
+                disabled={loadingMore}
+                onClick={handleLoadMore}
+              >
+                {loadingMore ? 'Carregando…' : 'Ver mais comentários'}
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <p className="article-comments__empty">Seja o primeiro a comentar.</p>
       )}

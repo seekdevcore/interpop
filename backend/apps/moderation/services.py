@@ -12,6 +12,7 @@ Improvement-system.md §11.1.
 """
 from django.db import transaction
 from django.utils import timezone
+from rest_framework.exceptions import PermissionDenied
 from apps.users.models import User
 from .models import Ban, BanRequest
 
@@ -28,6 +29,13 @@ def ban_user(target: User, admin: User, reason: str, trigger_message: str = '') 
     de cada ciclo no futuro, a saída é migrar `Ban.user` p/ ForeignKey +
     UniqueConstraint(condition=Q(is_active=True)).
     """
+    # Camada 3 (defesa em profundidade, no service): última barreira da
+    # hierarquia de ban, mesmo se alguém chamar ban_user fora do serializer.
+    # dev imune a todos; admin só banível por dev; só admin/dev banem.
+    if not target.can_be_banned_by(admin):
+        raise PermissionDenied(
+            'Hierarquia de banimento: dev é imune; admin só pode ser banido por um dev.'
+        )
     ban, _created = Ban.objects.update_or_create(
         user=target,
         defaults={
@@ -45,6 +53,13 @@ def ban_user(target: User, admin: User, reason: str, trigger_message: str = '') 
 
 @transaction.atomic
 def unban_user(ban: Ban, admin: User) -> Ban:
+    # Hierarquia também no unban: um admin comum NÃO desfaz o ban que um dev
+    # aplicou sobre um admin (senão a regra "admin só é controlado por dev"
+    # seria anulada pelo lado inverso). Mesma regra relacional do ban.
+    if not ban.user.can_be_unbanned_by(admin):
+        raise PermissionDenied(
+            'Hierarquia: apenas um dev pode desbanir um admin.'
+        )
     ban.is_active   = False
     ban.unbanned_by = admin
     ban.unbanned_at = timezone.now()

@@ -17,9 +17,12 @@ import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
 import { authService, type ApiUser } from '../services/authService';
 import { extractApiError } from '../utils/extractApiError';
+import { PasswordChecklist } from '../components/ui/PasswordChecklist';
+import { isPasswordStrong } from '../utils/passwordRules';
 import './Perfil.css';
 
 interface InfoForm {
+  username: string;
   first_name: string;
   last_name: string;
   bio: string;
@@ -37,6 +40,7 @@ export function Perfil() {
   // Estado local que sincroniza com currentUser. Permite editar sem alterar
   // o context imediatamente — só atualiza ao salvar com sucesso.
   const [info, setInfo] = useState<InfoForm>({
+    username: '',
     first_name: '',
     last_name: '',
     bio: '',
@@ -71,6 +75,7 @@ export function Perfil() {
   useEffect(() => {
     if (currentUser) {
       setInfo({
+        username: currentUser.username ?? '',
         first_name: currentUser.first_name,
         last_name: currentUser.last_name,
         bio: currentUser.bio ?? '',
@@ -113,6 +118,7 @@ export function Perfil() {
     setInfoFeedback(null);
     try {
       const updated = await authService.updateProfile({
+        username: info.username.trim(),
         first_name: info.first_name.trim(),
         last_name: info.last_name.trim(),
         bio: info.bio.trim(),
@@ -124,6 +130,7 @@ export function Perfil() {
       // Atualiza valor local com retorno do backend (canônico)
       const u = updated.data as ApiUser;
       setInfo({
+        username: u.username ?? '',
         first_name: u.first_name,
         last_name: u.last_name,
         bio: u.bio ?? '',
@@ -190,10 +197,10 @@ export function Perfil() {
       setPwFeedback({ type: 'error', msg: 'As senhas novas não coincidem.' });
       return;
     }
-    if (pwForm.next.length < 8) {
+    if (!isPasswordStrong(pwForm.next)) {
       setPwFeedback({
         type: 'error',
-        msg: 'A nova senha precisa ter pelo menos 8 caracteres.',
+        msg: 'A nova senha não atende a todos os requisitos de segurança.',
       });
       return;
     }
@@ -266,6 +273,22 @@ export function Perfil() {
                 />
               </div>
 
+              <Input
+                id="perfil-username"
+                label="Nome de usuário"
+                value={info.username}
+                onChange={(e) =>
+                  setInfo((f) => ({ ...f, username: e.target.value }))
+                }
+                autoComplete="username"
+                required
+              />
+              <p className="perfil-card__hint">
+                Identificador público único. Aparece como @
+                {info.username || 'seu_usuario'} abaixo do seu nome em
+                comentários e artigos.
+              </p>
+
               <div className="input-field">
                 <label htmlFor="bio" className="input-label">
                   Bio <span className="perfil-card__optional">(opcional)</span>
@@ -313,7 +336,12 @@ export function Perfil() {
               <Button
                 type="submit"
                 variant="primary"
-                disabled={infoSaving || !info.first_name || !info.last_name}
+                disabled={
+                  infoSaving ||
+                  !info.username.trim() ||
+                  !info.first_name ||
+                  !info.last_name
+                }
               >
                 {infoSaving ? 'Salvando…' : 'Salvar informações'}
               </Button>
@@ -383,8 +411,8 @@ export function Perfil() {
             <header className="perfil-card__header">
               <h2 id="pw-heading">Alterar senha</h2>
               <p>
-                Por segurança, exige sua senha atual. Mínimo 8 caracteres na
-                nova senha.
+                Por segurança, exige sua senha atual. A nova senha precisa
+                cumprir todos os requisitos abaixo.
               </p>
             </header>
 
@@ -411,6 +439,7 @@ export function Perfil() {
                 autoComplete="new-password"
                 required
               />
+              <PasswordChecklist value={pwForm.next} />
               <Input
                 id="perfil-pw-new2"
                 label="Confirmar nova senha"
@@ -438,7 +467,10 @@ export function Perfil() {
                 type="submit"
                 variant="primary"
                 disabled={
-                  pwSaving || !pwForm.current || !pwForm.next || !pwForm.next2
+                  pwSaving ||
+                  !pwForm.current ||
+                  !isPasswordStrong(pwForm.next) ||
+                  pwForm.next !== pwForm.next2
                 }
               >
                 {pwSaving ? 'Alterando…' : 'Alterar senha'}

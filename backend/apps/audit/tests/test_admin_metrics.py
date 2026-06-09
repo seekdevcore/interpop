@@ -308,6 +308,31 @@ def test_per_article_only_published(
     assert 'Visible Pub' in titles
 
 
+def test_per_article_like_count_excludes_likes_on_deleted_comments(
+    admin_user, editor_user, reader_user, make_article, authed_client_factory,
+):
+    """REGRESSÃO: like_count NÃO conta curtidas de comentários soft-deleted.
+
+    comment_count já exclui deletados (filter is_deleted=False); like_count
+    precisa ser consistente, senão engagement_rate infla com curtidas em
+    conteúdo OCULTO (comment deletado some da tela mas seu like contava)."""
+    article = make_article(editor_user, title='DelLikes', view_count=100)
+
+    alive = Comment.objects.create(article=article, author=reader_user, content='vivo')
+    CommentLike.objects.create(comment=alive, user=reader_user)  # like válido
+
+    dead = Comment.objects.create(
+        article=article, author=reader_user, content='morto', is_deleted=True,
+    )
+    CommentLike.objects.create(comment=dead, user=editor_user)  # like em comment oculto
+
+    api = authed_client_factory(admin_user)
+    body = api.get(METRICS_URL).json()
+    row = next(a for a in body['per_article'] if a['title'] == 'DelLikes')
+    assert row['comment_count'] == 1  # só o "vivo"
+    assert row['like_count'] == 1     # like do comment deletado NÃO conta
+
+
 # ── category_breakdown ───────────────────────────────────────────────────────
 
 

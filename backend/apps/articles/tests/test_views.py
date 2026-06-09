@@ -54,6 +54,20 @@ def make_article(db, category):
     return _make
 
 
+@pytest.fixture
+def tiny_image():
+    """SimpleUploadedFile com PNG 1x1 válido — ImageField (Pillow) exige
+    imagem real, não bytes arbitrários. Usado nos testes de create que agora
+    exigem cover_image obrigatória."""
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    import io
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new('RGB', (16, 9), color=(20, 20, 76)).save(buf, format='PNG')
+    return SimpleUploadedFile('cover.png', buf.getvalue(), content_type='image/png')
+
+
 @pytest.fixture(autouse=True)
 def _clear_cache():
     """View_count usa cache.add — limpa entre testes pra evitar contaminação."""
@@ -109,7 +123,7 @@ def test_list_articles_reader_does_not_see_drafts(
 ])
 def test_create_article_permission_matrix(
     request, category, api_client, authed_client_factory,
-    fixture_name, expected_status,
+    tiny_image, fixture_name, expected_status,
 ):
     if fixture_name:
         user = request.getfixturevalue(fixture_name)
@@ -123,11 +137,109 @@ def test_create_article_permission_matrix(
         'body': 'A reasonably sized body for the test to pass any min-length validation.',
         'category_id': category.id,
         'status': 'draft',
-    })
+        'cover_caption': 'Foto: Agência Teste',  # agora obrigatória
+        'cover_image': tiny_image,               # agora obrigatória no create
+    }, format='multipart')
     assert resp.status_code == expected_status, (
         f'{fixture_name or "anon"} → expected {expected_status}, got {resp.status_code}: '
         f'{resp.content[:200]}'
     )
+
+
+# ── Validação obrigatória: cover_caption + cover_image (create) ───────────────
+
+def test_create_article_requires_cover_caption(
+    category, editor_user, authed_client_factory, tiny_image,
+):
+    """Legenda da capa é obrigatória na criação (padrão G1/Folha — crédito
+    da foto). POST sem cover_caption → 400."""
+    client = authed_client_factory(editor_user)
+    resp = client.post(ARTICLES_URL, data={
+        'title': 'Sem legenda',
+        'excerpt': 'Excerpt.',
+        'body': 'Body suficiente para passar validação.',
+        'category_id': category.id,
+        'status': 'draft',
+        'cover_image': tiny_image,
+        # cover_caption ausente
+    }, format='multipart')
+    assert resp.status_code == 400
+    assert 'cover_caption' in resp.json()
+
+
+def test_create_article_rejects_blank_cover_caption(
+    category, editor_user, authed_client_factory, tiny_image,
+):
+    """Legenda em branco (string vazia) também é rejeitada — não basta o
+    campo existir, precisa ter conteúdo."""
+    client = authed_client_factory(editor_user)
+    resp = client.post(ARTICLES_URL, data={
+        'title': 'Legenda vazia',
+        'excerpt': 'Excerpt.',
+        'body': 'Body suficiente para passar validação.',
+        'category_id': category.id,
+        'status': 'draft',
+        'cover_caption': '   ',  # só espaços
+        'cover_image': tiny_image,
+    }, format='multipart')
+    assert resp.status_code == 400
+    assert 'cover_caption' in resp.json()
+
+
+def test_create_article_requires_cover_image(
+    category, editor_user, authed_client_factory,
+):
+    """Imagem de capa obrigatória na criação — legenda sem imagem é
+    incoerente. POST sem cover_image → 400."""
+    client = authed_client_factory(editor_user)
+    resp = client.post(ARTICLES_URL, data={
+        'title': 'Sem capa',
+        'excerpt': 'Excerpt.',
+        'body': 'Body suficiente para passar validação.',
+        'category_id': category.id,
+        'status': 'draft',
+        'cover_caption': 'Foto: Agência',
+        # cover_image ausente
+    }, format='multipart')
+    assert resp.status_code == 400
+    assert 'cover_image' in resp.json()
+
+
+def test_update_article_does_not_require_cover_image_resend(
+    make_article, editor_user, authed_client_factory,
+):
+    """REGRESSÃO: editar artigo existente NÃO deve exigir reenvio da imagem
+    (a capa já existe). PATCH só do título deve passar."""
+    art = make_article(editor_user, title='Para editar', cover_caption='Foto: X')
+    client = authed_client_factory(editor_user)
+    resp = client.patch(
+        f'/api/v1/articles/{art.slug}/',
+        data={'title': 'Título editado'},
+        format='multipart',
+    )
+    assert resp.status_code == 200, resp.content[:200]
+
+
+# ── is_featured: destaque único ───────────────────────────────────────────────
+
+def test_marking_article_featured_unsets_previous(make_article, editor_user):
+    """Padrão NYT/Substack — só 1 hero. Marcar um novo artigo como featured
+    desmarca o anterior automaticamente (model.save)."""
+    first = make_article(editor_user, title='Primeiro destaque', is_featured=True)
+    assert first.is_featured is True
+
+    second = make_article(editor_user, title='Segundo destaque', is_featured=True)
+
+    first.refresh_from_db()
+    assert first.is_featured is False, 'destaque antigo deveria ter sido desmarcado'
+    assert second.is_featured is True
+
+
+def test_only_one_featured_after_multiple_marks(make_article, editor_user):
+    """Invariante dura: nunca mais de 1 featured no banco, mesmo após N marcações."""
+    for i in range(5):
+        make_article(editor_user, title=f'Art {i}', is_featured=True)
+    assert Article.objects.filter(is_featured=True).count() == 1
 
 
 # ── Update + Delete (object-level: dono ou admin) ─────────────────────────────
@@ -150,15 +262,11 @@ def test_editor_can_update_own_article(
 def test_editor_cannot_update_other_editors_article(
     make_article, editor_user, db, authed_client_factory,
 ):
-    """Editor B não pode mexer no artigo de Editor A. Só dono ou admin.
-
-    NOTA: a permission class IsPublisherOrReadOnly autoriza apenas a NÍVEL
-    DE VIEW (qualquer publisher pode PATCH); a restrição owner-only para
-    edição de outros é APENAS no frontend (ArticleAdminActions). Backend
-    hoje permite editor mexer no artigo de outro editor — débito conhecido
-    (A6/A9 §11.2 — refactor de permissões granulares). Este teste captura
-    o COMPORTAMENTO ATUAL: passa 200, NÃO 403. Quando IsOwnerOrAdmin entrar
-    no detail view, ajustar pra 403."""
+    """SEGURANÇA: Editor B NÃO pode editar artigo de Editor A — só dono ou
+    admin/dev. Antes, IsPublisherOrReadOnly só restringia a nível de view
+    (qualquer publisher fazia PATCH) e a proteção owner-only existia APENAS
+    no frontend — trivial de burlar via curl. Fix: IsOwnerOrAdmin no
+    ArticleDetailView (object-level). Este teste é a regression do escalonamento."""
     from apps.users.models import User
     other_editor = User.objects.create_user(
         username='outro.editor', email='outro@interpop.test',
@@ -173,9 +281,29 @@ def test_editor_cannot_update_other_editors_article(
         data={'title': 'Edit by other editor'},
         format='json',
     )
-    # Comportamento atual: 200 (sem IsOwnerOrAdmin no detail). Quando o
-    # refactor entrar, virar 403 (e este teste passa a ser regression).
-    assert resp.status_code in (200, 403)
+    assert resp.status_code == 403, (
+        'ESCALONAMENTO: editor conseguiu editar artigo de outro editor. '
+        'IsOwnerOrAdmin deveria bloquear (403).'
+    )
+    art.refresh_from_db()
+    assert art.title == 'Not Mine', 'título não deveria ter mudado'
+
+
+def test_editor_cannot_delete_other_editors_article(
+    make_article, editor_user, db, authed_client_factory,
+):
+    """Mesma proteção no DELETE — editor não apaga artigo alheio."""
+    from apps.users.models import User
+    other = User.objects.create_user(
+        username='outro2.editor', email='outro2@interpop.test',
+        password='SenhaForte!2026', first_name='Outro2', last_name='Editor',
+        role=User.Role.EDITOR,
+    )
+    art = make_article(other, title='Keep Mine')
+    client = authed_client_factory(editor_user)
+    resp = client.delete(f'/api/v1/articles/{art.slug}/')
+    assert resp.status_code == 403
+    assert Article.objects.filter(pk=art.pk).exists()
 
 
 def test_admin_can_update_any_article(

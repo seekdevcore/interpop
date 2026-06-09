@@ -31,7 +31,12 @@ export function Home() {
     articleService
       .list({ status: 'published', page: '1' })
       .then(({ data }) => {
-        const feat = data.results.find((a) => a.is_featured) ?? null;
+        // Híbrido (padrão NYT/Substack): usa o artigo marcado como destaque
+        // pela curadoria; se NENHUM estiver marcado (esquecimento comum em
+        // equipe pequena), cai pro mais recente publicado — a home nunca fica
+        // sem hero. results já vem ordenado por -published_at do backend.
+        const feat =
+          data.results.find((a) => a.is_featured) ?? data.results[0] ?? null;
         setFeatured(feat);
         // Carousel shows the latest N non-featured articles. The featured
         // article already has its own dedicated section, so excluding it
@@ -80,12 +85,14 @@ export function Home() {
 
       {/* Featured */}
       {featured && (
-        <section className="home-featured" aria-label="Destaque">
+        <section className="home-featured" aria-labelledby="featured-heading">
           <div className="container">
-            <div className="home-featured__label">
+            {/* h2 (não div): dá heading real à seção e evita o salto h1→h3 do
+                título do card destaque (WAVE: "skipped heading level"). */}
+            <h2 className="home-featured__label" id="featured-heading">
               <span className="home-featured__dot" />
               Destaque
-            </div>
+            </h2>
             <NewsCard article={featured} variant="featured" />
           </div>
         </section>

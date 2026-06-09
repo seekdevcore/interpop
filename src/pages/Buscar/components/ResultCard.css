@@ -1,0 +1,176 @@
+/* ResultCard — thumb-LEFT 120×80 (ADR-030-UI).
+   NÃO redefine --clr-primary / --font-serif / --clr-accent (ADR-029). */
+
+.result-card {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.result-card:last-child {
+  border-bottom: 0;
+}
+
+.result-card__thumb {
+  /* Reserva espaço ANTES do download da imagem — anti-CLS.
+     Sem estes dois, o card "saltaria" 80px quando a imagem chegasse. */
+  width: 120px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--clr-primary-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-primary);
+}
+
+.result-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.result-card__placeholder {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-3xl);
+  color: var(--clr-primary);
+  line-height: 1;
+  user-select: none;
+}
+
+.result-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0; /* permite text-overflow no excerpt */
+}
+
+.result-card__title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem; /* 22px — spec UI/UX */
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--clr-text);
+  margin: 0;
+}
+
+.result-card__title a {
+  color: inherit;
+  transition: color var(--t-fast);
+}
+
+.result-card__title a:hover,
+.result-card__title a:focus-visible {
+  color: var(--clr-primary);
+}
+
+/* mark.js insere <mark> nativo — estilamos a tag global, não a classe. */
+.result-card__title mark,
+.result-card__excerpt mark {
+  background: var(--clr-highlight-bg);
+  color: var(--clr-highlight-on);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.result-card__excerpt {
+  font-family: var(--font-serif);
+  font-size: 0.9375rem; /* 15px */
+  color: var(--clr-muted);
+  line-height: 1.5;
+  margin: 0;
+
+  /* 2-line clamp: mantém densidade de SERP, evita scroll horizontal. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.result-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+  color: var(--clr-subtle);
+}
+
+.result-card__category {
+  /* Fix H-04: cor herda do token editorial via data-variant no wrapper.
+     Default usa --clr-primary (navy) quando categoria desconhecida ou ausente. */
+  color: var(--cat-color, var(--clr-primary));
+  font-weight: 500;
+}
+
+/* Tokens editoriais por categoria (slugs vindos do backend).
+   Aplicados via custom property `--cat-color` que cascateia para o badge.
+   Tokens validados WCAG AA em global.css:66-75. */
+.result-card[data-variant='musica'] {
+  --cat-color: var(--clr-cat-musica);
+}
+.result-card[data-variant='moda'] {
+  --cat-color: var(--clr-cat-moda);
+}
+.result-card[data-variant='cinema'] {
+  --cat-color: var(--clr-cat-cinema);
+}
+.result-card[data-variant='literatura'] {
+  --cat-color: var(--clr-cat-literatura);
+}
+.result-card[data-variant='cultura-digital'] {
+  --cat-color: var(--clr-cat-cultura-digital);
+}
+
+/* Placeholder do thumb (sem cover) também pega cor editorial:
+   identidade visual quando o artigo não tem cover. */
+.result-card[data-variant='musica'] .result-card__placeholder {
+  color: var(--clr-cat-musica);
+}
+.result-card[data-variant='moda'] .result-card__placeholder {
+  color: var(--clr-cat-moda);
+}
+.result-card[data-variant='cinema'] .result-card__placeholder {
+  color: var(--clr-cat-cinema);
+}
+.result-card[data-variant='literatura'] .result-card__placeholder {
+  color: var(--clr-cat-literatura);
+}
+.result-card[data-variant='cultura-digital'] .result-card__placeholder {
+  color: var(--clr-cat-cultura-digital);
+}
+
+/* Mobile: encolhe thumb e título mas mantém legibilidade. */
+@media (max-width: 640px) {
+  .result-card {
+    grid-template-columns: 80px 1fr;
+    gap: var(--sp-3);
+  }
+
+  .result-card__thumb {
+    width: 80px;
+    height: 60px;
+  }
+
+  .result-card__thumb img {
+    /* width/height attrs do <img> permanecem 120x80 — o CSS sobrescreve
+       o tamanho visual mas o browser ainda usou os attrs para reservar
+       o aspect ratio inicial. */
+    width: 100%;
+    height: 100%;
+  }
+
+  .result-card__title {
+    font-size: 1.125rem; /* 18px */
+  }
+
+  .result-card__placeholder {
+    font-size: var(--text-2xl);
+  }
+}

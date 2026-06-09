@@ -35,6 +35,10 @@ urlpatterns = [
     path('api/v1/', include('apps.moderation.urls')),
     path('api/v1/', include('apps.newsletter.urls')),
     path('api/v1/', include('apps.audit.urls')),
+    # Busca editorial — endpoint próprio sob /api/v1/search/ (ADR-023).
+    # Extensível para /search/comments/, /search/suggest/ futuros sem
+    # refactor de URL.
+    path('api/v1/search/', include('apps.search.urls')),
 ]
 
 if settings.DEBUG:

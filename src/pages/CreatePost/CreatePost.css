@@ -506,3 +506,29 @@
     max-height: none;
   }
 }
+
+/* ─── Toggle de destaque (is_featured) ─── */
+.create-post__toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--clr-text);
+  line-height: 1.4;
+}
+.create-post__toggle input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--clr-primary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.create-post__toggle-hint {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--clr-muted);
+  margin-top: 2px;
+}

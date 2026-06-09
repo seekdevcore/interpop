@@ -5,6 +5,7 @@ import commentService from '@/services/commentService';
 import { Avatar } from './Avatar';
 import { Button } from './Button';
 import { formatDateTime } from '@/utils/formatDate';
+import { extractApiError } from '@/utils/extractApiError';
 import './CommentItem.css';
 
 interface CommentItemProps {
@@ -29,6 +30,9 @@ export function CommentItem({
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [liking, setLiking] = useState(false);
+  // Antes os 3 handlers engoliam o erro (catch vazio): se curtir/responder/
+  // excluir falhasse, o usuário clicava e NADA acontecia, sem pista do porquê.
+  const [actionError, setActionError] = useState('');
 
   // `isAdmin` (vem do AuthContext) já cobre admin E dev — dev é admin++.
   const canDelete =
@@ -37,11 +41,12 @@ export function CommentItem({
   const handleLike = useCallback(async () => {
     if (!currentUser || liking) return;
     setLiking(true);
+    setActionError('');
     try {
       const { data } = await commentService.toggleLike(comment.id);
       onLikeToggled(comment.id, data.liked, data.likes_count);
     } catch {
-      // silently ignore
+      setActionError('Não foi possível registrar a curtida. Tente novamente.');
     } finally {
       setLiking(false);
     }
@@ -50,6 +55,7 @@ export function CommentItem({
   const handleReplySubmit = useCallback(async () => {
     if (!replyText.trim() || submitting) return;
     setSubmitting(true);
+    setActionError('');
     try {
       const { data } = await commentService.add(
         articleSlug,
@@ -59,8 +65,10 @@ export function CommentItem({
       onReplyAdded(comment.id, data);
       setReplyText('');
       setShowReplyForm(false);
-    } catch {
-      // silently ignore
+    } catch (err: unknown) {
+      setActionError(
+        extractApiError(err, 'Não foi possível enviar a resposta.'),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -68,11 +76,14 @@ export function CommentItem({
 
   const handleDelete = useCallback(async () => {
     if (!window.confirm('Excluir este comentário?')) return;
+    setActionError('');
     try {
       await commentService.remove(comment.id);
       onDelete(comment.id);
-    } catch {
-      // silently ignore
+    } catch (err: unknown) {
+      setActionError(
+        extractApiError(err, 'Não foi possível excluir o comentário.'),
+      );
     }
   }, [comment.id, onDelete]);
 
@@ -172,6 +183,12 @@ export function CommentItem({
               </Button>
             </div>
           </div>
+        )}
+
+        {actionError && (
+          <p className="comment-item__error" role="alert">
+            {actionError}
+          </p>
         )}
 
         {comment.replies && comment.replies.length > 0 && (

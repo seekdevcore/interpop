@@ -9,6 +9,9 @@ import './NewsCard.css';
 interface NewsCardProps {
   article: ApiArticle;
   variant?: 'default' | 'featured' | 'compact';
+  /** Nível do título do card. Em /noticias os cards vêm direto sob o h1 da
+   *  página → h2 (evita salto h1→h3). Na Home ficam sob h2 de seção → h3 (default). */
+  titleAs?: 'h2' | 'h3';
 }
 
 // P3: placeholder SVG inline (data URI) substitui dependência externa
@@ -24,10 +27,15 @@ const PLACEHOLDER_SVG =
       '</svg>',
   );
 
-export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
+export function NewsCard({
+  article,
+  variant = 'default',
+  titleAs = 'h3',
+}: NewsCardProps) {
   const catVariant = categoryVariant(
     article.category?.slug ?? article.category?.name,
   );
+  const Title = titleAs;
 
   return (
     <Link
@@ -49,7 +57,7 @@ export function NewsCard({ article, variant = 'default' }: NewsCardProps) {
         )}
       </div>
       <div className="news-card__body">
-        <h3 className="news-card__title">{article.title}</h3>
+        <Title className="news-card__title">{article.title}</Title>
         {variant !== 'compact' && (
           <p className="news-card__excerpt">{article.excerpt}</p>
         )}

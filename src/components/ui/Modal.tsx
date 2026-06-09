@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Button } from './Button';
 import './Modal.css';
 
@@ -24,6 +24,9 @@ export function Modal({
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  // id único por instância — antes era hardcoded "modal-title", então 2 modais
+  // montados juntos colidiam (id duplicado + aria-labelledby ambíguo).
+  const titleId = useId();
 
   // Focus management + Esc + scroll lock (C5 / WCAG 2.4.3 do Improvement-system §11.4).
   // - Ao abrir: memoriza foco anterior + move foco pro primeiro focusable do modal.
@@ -92,7 +95,7 @@ export function Modal({
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
     >
       <div
         ref={modalRef}
@@ -100,7 +103,7 @@ export function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal__header">
-          <h2 id="modal-title">{title}</h2>
+          <h2 id={titleId}>{title}</h2>
           <Button
             variant="ghost"
             size="sm"

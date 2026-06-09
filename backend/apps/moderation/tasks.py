@@ -40,12 +40,15 @@ def notify_admins_on_new_ban_request(self, ban_request_id: str) -> None:
         logger.warning('BanRequest %s not found — likely rejected before task ran', ban_request_id)
         return
 
+    # Inclui DEV (dono): por design dev é "admin++" e decide BanRequest. Sem
+    # ele, se o único superusuário for role=dev, NINGUÉM recebe a notificação.
     admins = list(
-        User.objects.filter(role=User.Role.ADMIN, is_active=True)
-        .values_list('email', flat=True)
+        User.objects.filter(
+            role__in=[User.Role.ADMIN, User.Role.DEV], is_active=True
+        ).values_list('email', flat=True)
     )
     if not admins:
-        logger.info('No active admins to notify of BanRequest %s', ban_request_id)
+        logger.info('No active admins/devs to notify of BanRequest %s', ban_request_id)
         return
 
     requester = (

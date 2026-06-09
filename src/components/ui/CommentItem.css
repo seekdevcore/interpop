@@ -72,6 +72,15 @@
   gap: 0.875rem;
 }
 
+.comment-item__error {
+  margin: 0.5rem 0 0;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  color: #991b1b;
+  background: #fee2e2;
+  border-radius: var(--radius-md, 0.375rem);
+}
+
 .comment-item__like {
   display: inline-flex;
   align-items: center;

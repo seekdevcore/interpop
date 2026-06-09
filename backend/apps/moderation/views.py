@@ -16,7 +16,7 @@ from .services import (
 # ─── Ban direto (admin only) ─────────────────────────────────────────────
 
 class BanListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser, IsNotBanned]
     serializer_class   = BanSerializer
     queryset           = Ban.objects.filter(is_active=True).select_related(
         'user', 'banned_by', 'unbanned_by'
@@ -37,7 +37,7 @@ class BanListCreateView(generics.ListCreateAPIView):
 
 
 class BanDestroyView(generics.RetrieveDestroyAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser, IsNotBanned]
     serializer_class   = BanSerializer
     queryset           = Ban.objects.filter(is_active=True).select_related('user', 'banned_by')
     lookup_field       = 'pk'
@@ -79,7 +79,7 @@ class BanRequestDecideView(APIView):
     Body: { "action": "approve" | "reject", "decision_note": "..." (opcional) }
     Aprovar cria Ban real (User.is_banned=True). Rejeitar só muda status.
     """
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser, IsNotBanned]
 
     def post(self, request, pk):
         try:

@@ -18,6 +18,7 @@ export interface ApiArticle {
   cover_caption?: string;
   author: {
     id: string;
+    username: string;
     full_name: string;
     avatar: string | null;
     avatar_initial: string;

@@ -340,6 +340,14 @@
   font-weight: 700;
   margin-bottom: 2px;
 }
+/* @handle logo abaixo do nome exibido: navy da marca (alto contraste, ~13:1),
+   um pouco menor que o nome e separado da role. */
+.article-author-card__username {
+  font-size: var(--text-sm);
+  color: var(--clr-primary);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
 .article-author-card__role {
   font-size: var(--text-xs);
   color: var(--clr-primary);
@@ -532,4 +540,10 @@
   list-style: none;
   padding: 0;
   margin: var(--sp-6, 1.5rem) 0 0;
+}
+
+.article-comments__more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-5, 1.25rem);
 }

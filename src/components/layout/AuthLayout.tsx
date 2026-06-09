@@ -110,7 +110,7 @@ export function AuthLayout({ children, heading, subheading }: AuthLayoutProps) {
           </Button>
         }
       >
-        <AboutContent onNavigate={close} />
+        <AboutContent onNavigate={close} headingLevel="h3" />
       </Modal>
 
       <Modal

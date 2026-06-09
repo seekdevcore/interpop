@@ -151,7 +151,11 @@ export function Article() {
           <nav className="article-breadcrumb" aria-label="Localização atual">
             <Link to="/">Início</Link>
             <span aria-hidden="true">›</span>
-            {article.category && <Link to="/">{article.category.name}</Link>}
+            {article.category && (
+              <Link to={`/noticias?categoria=${article.category.slug}`}>
+                {article.category.name}
+              </Link>
+            )}
             {article.category && <span aria-hidden="true">›</span>}
             <span aria-current="page">Artigo</span>
           </nav>
@@ -237,6 +241,11 @@ export function Article() {
               <p className="article-author-card__name">
                 {article.author.full_name}
               </p>
+              {article.author.username && (
+                <p className="article-author-card__username">
+                  @{article.author.username}
+                </p>
+              )}
               <p className="article-author-card__role">
                 {article.author.role === 'admin' ||
                 article.author.role === 'dev'

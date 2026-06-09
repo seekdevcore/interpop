@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout';
 import { NewsCard } from '../components/ui/NewsCard';
 import { Button } from '../components/ui/Button';
+import { categoryVariant } from '../utils/categoryVariant';
 import articleService, {
   type ApiArticle,
   type ApiCategory,
@@ -195,6 +196,7 @@ export function News() {
                   key={cat.slug}
                   onClick={() => handleCategoryChange(cat.slug)}
                   className={`home-filters__cat ${activeCategory === cat.slug ? 'home-filters__cat--active' : ''}`}
+                  data-category={categoryVariant(cat.slug)}
                   aria-pressed={activeCategory === cat.slug}
                 >
                   {cat.name}
@@ -216,7 +218,7 @@ export function News() {
           ) : articles.length > 0 ? (
             <div className="home-grid">
               {articles.map((article) => (
-                <NewsCard key={article.id} article={article} />
+                <NewsCard key={article.id} article={article} titleAs="h2" />
               ))}
             </div>
           ) : (

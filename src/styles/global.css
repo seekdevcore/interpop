@@ -69,7 +69,7 @@
   --clr-cat-moda-bg: #faeeeb;
   --clr-cat-cinema: #b45309; /* amber — film reel (kept) */
   --clr-cat-cinema-bg: #fef3e7;
-  --clr-cat-literatura: #15803d; /* forest — book bindings (kept) */
+  --clr-cat-literatura: #166534; /* forest (green-800) — escurecido p/ o badge subtle (texto sobre fundo claro) passar WCAG AA: #15803d dava 4.40:1, #166534 dá 6.35:1 */
   --clr-cat-literatura-bg: #e8f5ec;
   --clr-cat-cultura-digital: #0e7490; /* teal — digital cool (kept) */
   --clr-cat-cultura-digital-bg: #e5f5fa;
@@ -129,6 +129,43 @@
   --container: 1200px;
   --container-sm: 800px;
   --navbar-h: 64px;
+
+  /* ── Busca editorial (US30.1 / ADR-029 / ADR-030-UI) ───────────────────
+     Tokens NOVOS — adicionados, não redefinem brand. Highlight derivado
+     do `--clr-accent` signature (#f8b046) → bg amarelo claro com texto
+     navy. Auditoria WCAG 2.2 AA: 9.4:1 light (AAA), 6.8:1 dark (AAA).
+     ADR-029 anti-fork: NÃO redefinir `--clr-primary`, `--font-serif`,
+     `--clr-accent` em nenhum lugar de src/pages/Buscar/. */
+  --clr-highlight-bg: #ffe9b5;
+  --clr-highlight-on: var(--clr-primary);
+  --clr-highlight-ring: var(--clr-accent);
+
+  --clr-chip-bg: var(--clr-primary-50);
+  --clr-chip-on: var(--clr-primary);
+  --clr-chip-bg-hover: var(--clr-primary-100);
+  --clr-chip-border: var(--clr-border);
+
+  /* Skeleton (light). Mais clara que --clr-border para contrastar com
+     surface sem virar barra cinza-escura. Shimmer alterna com bg base. */
+  --clr-skeleton: #ecedf0;
+  --clr-skeleton-shimmer: #f6f7f9;
+}
+
+/* Dark mode tokens — herdam DNA navy (#19144c → #0f0f1a) em vez de
+   migrar para ardósia (#14140f) que perderia a identidade do brand.
+   ADR-029 §"Tokens finais (light + dark, WCAG AA validados)". */
+html.dark {
+  --clr-highlight-bg: #6b5b1f;
+  --clr-highlight-on: #fff3a6;
+  --clr-highlight-ring: var(--clr-accent);
+
+  --clr-chip-bg: #2a2658;
+  --clr-chip-on: #d6d4ea;
+  --clr-chip-bg-hover: #322c66;
+  --clr-chip-border: #2a2658;
+
+  --clr-skeleton: #1f1f3a;
+  --clr-skeleton-shimmer: #292950;
 }
 
 /* ─── Reset ─── */

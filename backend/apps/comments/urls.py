@@ -1,11 +1,10 @@
-from django.urls import path, register_converter
+from django.urls import path
 
-from apps.articles.converters import UnicodeSlugConverter
 from .views import CommentDestroyView, CommentListCreateView, CommentLikeToggleView
 
-# Same unicode-aware slug converter as the articles app — required so that
-# article slugs containing accented characters (à, ç, é, …) resolve here too.
-register_converter(UnicodeSlugConverter, 'uslug')
+# O conversor 'uslug' (slug unicode, p/ slugs acentuados) é registrado uma única
+# vez em ArticlesConfig.ready(). Registro é global no Django, então aqui basta
+# usar <uslug:…> — sem re-registrar (evita RemovedInDjango60Warning).
 
 urlpatterns = [
     path('articles/<uslug:slug>/comments/', CommentListCreateView.as_view(), name='comment-list'),

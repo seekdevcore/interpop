@@ -204,11 +204,20 @@
   line-height: 1;
 }
 
+/* dl semântico (dt=rótulo, dd=valor). column-reverse mantém o valor no topo
+   visualmente, sem violar a ordem dt→dd do HTML. */
+.admin__stat-text {
+  margin: 0;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
 .admin__stat-value {
   font-size: var(--text-2xl);
   font-weight: 800;
   color: var(--clr-text);
   line-height: 1;
+  margin: 0;
 }
 
 .admin__stat-label {
@@ -689,6 +698,14 @@
   border-color: var(--clr-primary-100);
 }
 
+/* dl agrupa rótulo (dt) + valor (dd); mantém o gap do card entre label e valor. */
+.metrics__hero-dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
 .metrics__hero-label {
   font-size: var(--text-xs);
   font-weight: 700;
@@ -705,6 +722,7 @@
   line-height: 1;
   color: var(--clr-text);
   font-variant-numeric: tabular-nums;
+  margin: 0;
 }
 
 .metrics__hero-meta {
@@ -763,6 +781,10 @@
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
   padding: var(--sp-4);
+  /* dl: column-reverse mantém o valor no topo (dt→dd no DOM). */
+  margin: 0;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .metrics__small-value {
@@ -772,7 +794,7 @@
   letter-spacing: -0.015em;
   color: var(--clr-text);
   font-variant-numeric: tabular-nums;
-  margin-bottom: var(--sp-1);
+  margin: 0 0 var(--sp-1);
 }
 
 .metrics__small-label {
@@ -1050,6 +1072,11 @@
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
+  /* dl: column-reverse mantém o valor acima do rótulo (dt→dd no DOM). */
+  margin: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
 }
 
 .dash__donut-value {
@@ -1060,6 +1087,7 @@
   line-height: 1;
   color: var(--clr-text);
   font-variant-numeric: tabular-nums;
+  margin: 0;
 }
 
 .dash__donut-label {
@@ -1441,6 +1469,10 @@
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg);
   padding: var(--sp-4) var(--sp-5);
+  /* dl: column-reverse mantém o valor no topo (dt→dd no DOM). */
+  margin: 0;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .admin-posts__stat-value {

@@ -110,10 +110,6 @@
   flex-wrap: wrap;
 }
 
-.about-content__cta a {
-  color: inherit;
-}
-
 .about-content__contact-link {
   font-size: var(--text-sm);
   font-weight: 600;
