@@ -95,14 +95,26 @@ def _dispatch_article_notification_sync(
     if subscribers is None:
         subscribers = NewsletterSubscriber.objects.filter(is_active=True)
 
+    # BUG-1 fix: cover_image.url retorna caminho RELATIVO `/media/...` que
+    # clientes de email NÃO resolvem contra base — todos os subscribers
+    # viam placeholder broken-image. Aqui montamos URL ABSOLUTA com SITE_URL
+    # e passamos via ctx. Template usa `cover_image_absolute_url` em vez de
+    # `article.cover_image.url`.
+    cover_image_absolute_url = (
+        f"{site_url}{article.cover_image.url}"
+        if getattr(article, 'cover_image', None) and article.cover_image
+        else None
+    )
+
     sent = 0
     failed = 0
     for sub in subscribers:
         ctx = {
-            'article':         article,
-            'article_url':     article_url,
-            'site_url':        site_url,
-            'unsubscribe_url': _unsubscribe_url(sub),
+            'article':                  article,
+            'article_url':              article_url,
+            'site_url':                 site_url,
+            'cover_image_absolute_url': cover_image_absolute_url,
+            'unsubscribe_url':          _unsubscribe_url(sub),
         }
         try:
             html = render_to_string('newsletter/emails/article_notification.html', ctx)

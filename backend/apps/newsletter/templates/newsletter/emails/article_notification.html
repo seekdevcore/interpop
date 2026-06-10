@@ -22,13 +22,16 @@
     {% if article.published_at %} · {{ article.published_at|date:"d \d\e F \d\e Y" }}{% endif %}
   </p>
 
-  {% if article.cover_image %}
+  {% if cover_image_absolute_url %}
+    {# BUG-1 fix: usar cover_image_absolute_url (montada no service com
+       SITE_URL prepended) em vez de article.cover_image.url, que é
+       relativa (/media/...) e clientes de email NÃO resolvem #}
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 24px 0;">
       <tr>
         <td style="border-radius:8px;overflow:hidden;">
           <a href="{{ article_url }}" style="display:block;">
             <img
-              src="{{ article.cover_image.url }}"
+              src="{{ cover_image_absolute_url }}"
               alt="{{ article.title }}"
               width="520"
               style="display:block;width:100%;max-width:520px;height:auto;border-radius:8px;"
