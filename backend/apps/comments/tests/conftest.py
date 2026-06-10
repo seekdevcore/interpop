@@ -13,6 +13,20 @@ import pytest
 from apps.articles.models import Article, Category
 
 
+@pytest.fixture(autouse=True)
+def _clear_throttle_cache():
+    """Limpa cache do DRF throttle entre testes.
+
+    Sem isso, o histórico de hits do ScopedRateThrottle (S-07, scope
+    'comments_create') vaza entre testes — um POST em test_A consome
+    cota e test_B vê 429 antes do esperado.
+    """
+    from django.core.cache import cache
+    cache.clear()
+    yield
+    cache.clear()
+
+
 @pytest.fixture
 def category(db):
     obj, _ = Category.objects.get_or_create(

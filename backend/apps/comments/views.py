@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.articles.models import Article
@@ -25,10 +26,20 @@ def _reply_qs(user):
 class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
 
+    # S-07 (CONCERNS / F-20 CA12): anti-flood em POST. Scope 'comments_create'
+    # configurado em base.py com 10/min. `get_throttles()` retorna lista vazia
+    # em GET — listagem permanece sob throttle global 'user'/'anon' default.
+    throttle_scope = 'comments_create'
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
         return [IsAuthenticated(), IsNotBanned()]
+
+    def get_throttles(self):
+        if self.request.method == 'POST':
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
 
     def get_article(self):
         return generics.get_object_or_404(Article, slug=self.kwargs['slug'], status='published')

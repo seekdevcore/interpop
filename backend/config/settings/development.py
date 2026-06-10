@@ -70,5 +70,9 @@ REST_FRAMEWORK = {
         'search_anon': '10000/hour',
         'search_user': '10000/hour',
         'search_global': '20000/hour',
+        # S-07 (CONCERNS / F-20): scope dedicado anti-flood em POST /comments/.
+        # Em prod: 10/min (base.py). Em dev: relaxa para smoke manual sem 429
+        # — TESTES de throttle sobrescrevem com settings fixture.
+        'comments_create': '10000/hour',
     },
 }

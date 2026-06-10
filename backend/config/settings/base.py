@@ -194,6 +194,12 @@ REST_FRAMEWORK = {
         'anon': '100/hour',
         'user': '1000/hour',
         'auth': '10/minute',
+        # S-07 (CONCERNS / F-20): anti-flood em POST /comments/.
+        # 'user'=1000/hour é alto demais para anti-flood imediato em artigo
+        # viral. Scope dedicado via ScopedRateThrottle aplicado SÓ em POST
+        # (GET list permanece ilimitado). Limite generoso para legítimo
+        # (1 a cada 6s), agressivo contra abuso (bot ultrapassa em segundos).
+        'comments_create': '10/minute',
     },
 }
 

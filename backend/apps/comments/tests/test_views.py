@@ -1,4 +1,12 @@
-"""
+"""Test do throttle `comments_create` (S-07 do CONCERNS).
+
+Sem ScopedRateThrottle dedicado em POST de comments, leitor autenticado
+podia floodar artigo viral até saturar moderação reativa (DEFAULT_THROTTLE_RATES
+'user'=1000/hour — alto demais para anti-flood imediato). Pattern já vivo
+em apps/users/views.py:32. Fix aqui adiciona scope 'comments_create' com
+limite anti-flood (default 10/min — generoso para legítimo, agressivo
+contra abuso).
+
 Testes E2E do app comments — CRUD via API + permissões + edge cases.
 
 Cobertura prioritária (D1 do reorganization-proposal):
@@ -330,3 +338,76 @@ def test_like_on_soft_deleted_comment_returns_404(
     api = authed_client_factory(reader_user)
     resp = api.post(_like_url(c.pk))
     assert resp.status_code == 404
+
+
+# ── S-07: ScopedRateThrottle comments_create (anti-flood em artigo viral) ────
+
+
+@pytest.mark.django_db
+def test_throttle_comments_create_blocks_flood(
+    article, reader_user, authed_client_factory, monkeypatch,
+):
+    """Fix S-07: 10/min anti-flood. 11º POST mesma sessão → 429.
+
+    Pattern de pais (users/views.py:32): ScopedRateThrottle + scope nomeado.
+    Limite 10/min é generoso para leitor legítimo (1 a cada 6s) e agressivo
+    contra abuso (10× é >suficiente para sinalizar bot).
+
+    Monkeypatch direto em `ScopedRateThrottle.THROTTLE_RATES`: o atributo
+    é de classe, capturado em import-time de `api_settings.DEFAULT_THROTTLE_RATES`.
+    Override via `settings.REST_FRAMEWORK` NÃO propaga após import — só
+    funciona patching no objeto da classe (revertido auto no fim do teste).
+    """
+    from rest_framework.throttling import ScopedRateThrottle
+    monkeypatch.setattr(
+        ScopedRateThrottle,
+        'THROTTLE_RATES',
+        {**ScopedRateThrottle.THROTTLE_RATES, 'comments_create': '10/min'},
+    )
+
+    api = authed_client_factory(reader_user)
+    url = _comments_url(article.slug)
+
+    # Primeiros 10 POSTs devem passar (201).
+    for i in range(10):
+        resp = api.post(url, {'content': f'msg {i}'}, format='json')
+        assert resp.status_code == 201, (
+            f'POST {i+1} esperava 201, veio {resp.status_code}: {resp.content}'
+        )
+
+    # 11º POST disparta 429 Too Many Requests
+    resp_429 = api.post(url, {'content': 'flood msg 11'}, format='json')
+    assert resp_429.status_code == 429, (
+        f'POST 11 esperava 429 (throttle), veio {resp_429.status_code}: {resp_429.content}'
+    )
+    # DRF inclui Retry-After header em 429
+    assert 'Retry-After' in resp_429, 'Retry-After header ausente no 429'
+
+
+@pytest.mark.django_db
+def test_throttle_comments_create_does_not_affect_get_list(
+    article, reader_user, authed_client_factory, monkeypatch,
+):
+    """Throttle aplica APENAS em POST. GET list permanece ilimitado.
+
+    Garante que get_throttles() retorna lista vazia em GET — leitor que
+    abre 10 artigos rápido NÃO deve ser bloqueado por throttle de criação.
+    """
+    from rest_framework.throttling import ScopedRateThrottle
+    monkeypatch.setattr(
+        ScopedRateThrottle,
+        'THROTTLE_RATES',
+        # Propositalmente BAIXO (2/min) — se GET acidentalmente invocasse
+        # ScopedRateThrottle, 3º GET já daria 429.
+        {**ScopedRateThrottle.THROTTLE_RATES, 'comments_create': '2/min'},
+    )
+
+    api = authed_client_factory(reader_user)
+    url = _comments_url(article.slug)
+
+    # 20 GETs — todos devem passar (throttle só afeta POST)
+    for i in range(20):
+        resp = api.get(url)
+        assert resp.status_code == 200, (
+            f'GET {i+1} esperava 200, veio {resp.status_code}'
+        )
