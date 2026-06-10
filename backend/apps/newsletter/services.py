@@ -36,27 +36,35 @@ def _unsubscribe_url(subscriber: NewsletterSubscriber) -> str:
 def send_welcome(subscriber: NewsletterSubscriber) -> bool:
     """Send the welcome / confirmation email to a single subscriber.
 
-    Returns True on success, False on any failure (errors are swallowed so
-    a misconfigured SMTP server can never break the public subscribe flow).
+    Returns True on success. Exceções (SMTP, template, qualquer) PROPAGAM
+    para o caller — que é o wrapper Celery `send_welcome_email` em
+    `tasks.py:57` com `autoretry_for=(Exception,)` + `max_retries=3` +
+    backoff. Falhas SMTP transientes ganham até 3 tentativas; falhas
+    permanentes vão pro DLQ + Sentry.
+
+    Fix BUG-2 (CONCERNS / F-40 CA12): antes esta função tinha
+    `try/except Exception: return False` que silenciosamente matava
+    o `autoretry_for` do Celery — falhas SMTP nunca davam retry e
+    subscriber nunca recebia welcome (e ninguém sabia). O view sempre
+    chamou esta função via `.delay()` (async, ver `views.py:22`), então
+    NUNCA quebrou o fluxo de subscribe do usuário — o argumento original
+    do swallow ("não quebrar subscribe público") era falso/historic.
     """
     ctx = {
         'site_url':        _site_url(),
         'unsubscribe_url': _unsubscribe_url(subscriber),
     }
-    try:
-        html = render_to_string('newsletter/emails/welcome.html', ctx)
-        text = render_to_string('newsletter/emails/welcome.txt',  ctx)
-        msg = EmailMultiAlternatives(
-            subject='Bem-vindo(a) ao Interpop',
-            body=text,
-            from_email=_from_email(),
-            to=[subscriber.email],
-        )
-        msg.attach_alternative(html, 'text/html')
-        msg.send(fail_silently=False)
-        return True
-    except Exception:
-        return False
+    html = render_to_string('newsletter/emails/welcome.html', ctx)
+    text = render_to_string('newsletter/emails/welcome.txt',  ctx)
+    msg = EmailMultiAlternatives(
+        subject='Bem-vindo(a) ao Interpop',
+        body=text,
+        from_email=_from_email(),
+        to=[subscriber.email],
+    )
+    msg.attach_alternative(html, 'text/html')
+    msg.send(fail_silently=False)
+    return True
 
 
 def _dispatch_article_notification_sync(
