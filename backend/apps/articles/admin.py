@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.utils import timezone
 
 from apps.newsletter.tasks import send_article_notification
 
@@ -26,6 +27,20 @@ class ArticleAdmin(admin.ModelAdmin):
     # admin (1k subscribers em SendGrid = ~30s travados antes). Worker Celery
     # processa em background; admin recebe acknowledge imediato.
     actions = ['resend_notification']
+
+    def save_model(self, request, obj, form, change):
+        # OPS-1 (CONCERNS / F-10): ao publicar via admin, popular
+        # published_at automaticamente. Editor frequentemente esquecia
+        # do campo (null=True, blank=True) — artigo virava 'published'
+        # com published_at=None, quebrando:
+        #   - ordering '-published_at' (joga para o fim)
+        #   - template `|date:"d \d\e F"` (renderiza vazio)
+        #   - ranking de busca cai no fallback `-created_at`
+        # NÃO sobrescreve valor existente: respeita agendamento manual
+        # e edição de artigo já publicado.
+        if obj.status == Article.Status.PUBLISHED and obj.published_at is None:
+            obj.published_at = timezone.now()
+        super().save_model(request, obj, form, change)
 
     @admin.action(description='Reenviar notificação aos assinantes (manual)')
     def resend_notification(self, request, queryset):
