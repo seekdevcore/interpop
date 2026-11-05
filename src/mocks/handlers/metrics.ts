@@ -176,7 +176,7 @@ function periodStats(since: number, until: number, step: Step) {
 
 export const metricsHandlers = [
   route('get', '/admin/metrics/', ({ request }) => {
-    // IsAuthenticated + IsAdminUser, sem IsNotBanned (admin banido ainda vê)
+    // mesmas permissões da view: IsAuthenticated + IsAdminUser
     const auth = authenticate({ allow: isAdmin, allowBanned: true });
     if (auth.error) return auth.error;
     const period = new URL(request.url).searchParams.get('period') ?? 'week';

@@ -2,11 +2,8 @@
  * Demo: `/api/v1/categories/` e `/api/v1/articles/*`
  * (backend/apps/articles/{views,serializers}.py).
  *
- * Desvio consciente: o backend real devolve rascunho no detalhe para
- * qualquer um (achado de segurança registrado no PR); o demo responde 404
- * para quem não é editor+, que é o comportamento que a tela espera.
- * Escrita de artigo não checa `IsNotBanned` — igual ao backend (outro
- * achado do PR): editor banido ainda publica.
+ * Rascunho no detalhe: 404 para quem não é editor+, que é o comportamento
+ * que a tela espera.
  */
 import { demoDb } from '@/mocks/demo/db';
 import type { DemoArticle, DemoUser } from '@/mocks/demo/fixtures';

@@ -5,8 +5,7 @@
  * - qualquer senha entra em qualquer conta (o designer não precisa decorar);
  * - troca de senha aceita qualquer senha atual não vazia;
  * - redefinição aceita qualquer UUID como token (não há e-mail para receber);
- * - `GET /auth/users/` exige editor+ (o backend real deixa aberto — achado
- *   de segurança registrado no PR).
+ * - `GET /auth/users/` exige editor+.
  */
 import { demoDb } from '@/mocks/demo/db';
 import type { DemoUser } from '@/mocks/demo/fixtures';

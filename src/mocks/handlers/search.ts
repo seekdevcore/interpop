@@ -15,7 +15,7 @@
  *   - `q=flood`   → 429 com `retry_after: 23` (corpo e header);
  *   - `q=qzxzqzx` → 0 resultados.
  *
- * Desvio do backend registrado no PR: o serializer real devolve
+ * Desvio do backend: o serializer real devolve
  * `author: {id, display_name, slug}`; o frontend lê `author.name`. O mock
  * segue o tipo do frontend (src/pages/Buscar/types.ts).
  */
