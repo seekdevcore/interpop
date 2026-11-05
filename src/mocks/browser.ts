@@ -1,21 +1,17 @@
 /**
- * Service Worker MSW para dev local (fix BLOQUEIO-1 do REVIEW-PHASE-3).
+ * Service Worker do MSW no navegador.
  *
- * Estratégia:
- *   - Em PROD, este arquivo NÃO é importado (main.tsx faz dynamic import
- *     só sob `import.meta.env.DEV`).
- *   - Em DEV, o worker intercepta `fetch` em nível de browser — funciona
- *     com axios sem nenhuma config (axios usa `fetch` ou `XMLHttpRequest`,
- *     ambos passam pelo SW).
- *   - `onUnhandledRequest: 'bypass'` deixa requests não-mockados (HMR,
- *     fonts, etc.) passarem direto. Útil enquanto migramos endpoints
- *     gradualmente para mock.
+ * - `npm run dev`: só a busca é mockada (`handlers`); `?msw=off` desliga.
+ * - `--mode demo` (site do Render para o design): a API inteira
+ *   (`demoHandlers`), sem backend.
+ * - Build de produção: este arquivo nem entra no bundle (main.tsx só o
+ *   importa em DEV ou demo; `scripts/check-msw-bundle.mjs` confere no CI).
  *
- * Pré-requisito de instalação: rodar `npx msw init public/ --save` UMA
- * vez para gerar `public/mockServiceWorker.js`. Documentado em
- * `src/pages/Buscar/README.md`.
+ * `public/mockServiceWorker.js` vem de `npx msw init public/ --save`.
  */
 import { setupWorker } from 'msw/browser';
-import { handlers } from './handlers';
+import { demoHandlers, handlers } from './handlers';
 
-export const worker = setupWorker(...handlers);
+export const worker = setupWorker(
+  ...(import.meta.env.MODE === 'demo' ? demoHandlers : handlers),
+);
