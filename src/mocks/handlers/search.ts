@@ -1,136 +1,163 @@
 /**
- * MSW handlers para `/api/v1/search/articles/` (fix BLOQUEIO-1 do
- * REVIEW-PHASE-3 + T30.1.X12).
+ * MSW: `GET /api/v1/search/articles/` (backend/apps/search, ADR-023).
  *
- * Por que existe: dev local roda Vite na 5173; backend Django roda na
- * 8000 (não embedded). Sem backend ativo, `/buscar` mostra Error.
- * Estes handlers entregam fixtures plausíveis baseadas no contract da
- * Fase 2 (DESIGN-v3 §2.4 + ADR-022 query_terms_expanded) — suficiente
- * para validar UX dos 5 estados sem subir Django.
+ * Busca sobre o banco do demo (src/mocks/demo/db.ts), então todo resultado
+ * aponta para um artigo que existe e abre. Roda no dev local (único mock
+ * ativo ali, porque o Django local não liga a busca: SEARCH_FEATURE_ENABLED
+ * = False → 503) e no site demo.
  *
- * Cenários simulados (controlados pela query `q`):
- *   - `q=kpop` → 142 hits, 10 retornados, com `query_terms_expanded`
- *     para o highlight casar plurais pt-BR.
- *   - `q=qzxzqzx` (qualquer query sem matches) → 0 hits.
- *   - `q=flood` → 429 (rate limit), `retry_after: 23` no payload e header.
- *   - default → success com 10 hits genéricos.
+ * Aproximação do full-text do Postgres: cada termo precisa aparecer em
+ * título, resumo ou corpo, sem diferenciar acento nem caixa; título pesa
+ * mais; empate desfeito pela data. `query_terms_expanded` devolve os termos
+ * sem acento (o mark.js do <HighlightedText> já ignora diacríticos).
  *
- * Sprint 5: cenários por filtro (autor, editoria, range datas), cursor
- * pagination simulada, latência artificial para visualizar Skeleton.
+ * Cenários fixos, mantidos para a UX dos estados de erro/vazio:
+ *   - `q=flood`   → 429 com `retry_after: 23` (corpo e header);
+ *   - `q=qzxzqzx` → 0 resultados.
+ *
+ * Desvio do backend: o serializer real devolve
+ * `author: {id, display_name, slug}`; o frontend lê `author.name`. O mock
+ * segue o tipo do frontend (src/pages/Buscar/types.ts).
  */
-import { http, HttpResponse, delay } from 'msw';
+import { HttpResponse } from 'msw';
+import { demoDb } from '@/mocks/demo/db';
+import { route } from '@/mocks/demo/http';
+import { fullName } from '@/mocks/demo/serializers';
 
-// MSW v2 matcha por origem: path relativo `/api/...` só intercepta requests
-// same-origin. Como axios (src/services/api.ts) usa baseURL absoluta
-// `http://localhost:8000`, os requests reais são cross-origin do dev server
-// `:5173`. Padrão `*//api/...` (qualquer protocolo + host) garante captura
-// independentemente de `VITE_API_URL`. Bug descoberto no smoke manual da
-// Fase 3 — todas as 4 chamadas estavam caindo no Django real (503).
-const ENDPOINT = '*/api/v1/search/articles/';
+const VARY = 'Authorization, Accept-Encoding';
+const MIN_Q = 2;
+const MAX_Q = 200;
+const MAX_PER_PAGE = 50;
 
-const SAMPLE_AUTHORS = [
-  { id: 'a-ana', name: 'Ana Lima' },
-  { id: 'a-bia', name: 'Bia Mota' },
-  { id: 'a-carlos', name: 'Carlos Rocha' },
-] as const;
+const fold = (s: string) =>
+  s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
-const SAMPLE_CATEGORIES = [
-  { id: 1, name: 'Música', slug: 'musica' },
-  { id: 2, name: 'Moda', slug: 'moda' },
-  { id: 3, name: 'Cinema', slug: 'cinema' },
-  { id: 4, name: 'Literatura', slug: 'literatura' },
-  { id: 5, name: 'Cultura Digital', slug: 'cultura-digital' },
-] as const;
+function cacheHeaders() {
+  return {
+    'Cache-Control': demoDb.currentUser()
+      ? 'private, max-age=60'
+      : 'public, max-age=60, stale-while-revalidate=300',
+    Vary: VARY,
+    'X-Cache': 'MISS',
+    'X-Robots-Tag': 'noindex, nofollow',
+  };
+}
 
-function makeResults(query: string, n: number) {
-  return Array.from({ length: n }).map((_, i) => {
-    const category = SAMPLE_CATEGORIES[i % SAMPLE_CATEGORIES.length];
-    const author = SAMPLE_AUTHORS[i % SAMPLE_AUTHORS.length];
-    return {
-      id: `mock-${i + 1}`,
-      title: `O ${query} hoje: análise editorial ${i + 1}`,
-      slug: `${query}-hoje-${i + 1}`,
-      excerpt: `Análise crítica sobre o cenário de ${query} na cultura pop. Texto editorial enxuto para demonstrar a UX da busca.`,
-      published_at: new Date(
-        Date.now() - i * 86_400_000 * 3, // 3 dias entre cada
-      ).toISOString(),
-      author,
-      category,
-      cover_url: null, // força placeholder editorial (data-variant)
-      score: 1 - i * 0.05,
-    };
-  });
+const errorBody = (error: string, detail: string, status: number) =>
+  HttpResponse.json({ error, detail }, { status });
+
+/** Cursor opaco: offset em base64 (o real é HMAC; o cliente não o lê). */
+const encodeCursor = (offset: number) => btoa(`o:${offset}`);
+function decodeCursor(cursor: string) {
+  try {
+    const m = /^o:(\d+)$/.exec(atob(cursor));
+    return m ? Number(m[1]) : null;
+  } catch {
+    return null;
+  }
 }
 
 export const searchHandlers = [
-  http.get(ENDPOINT, async ({ request }) => {
-    const url = new URL(request.url);
-    const q = url.searchParams.get('q') ?? '';
+  route('get', '/search/articles/', ({ request }) => {
+    const started = Date.now();
+    const p = new URL(request.url).searchParams;
+    const q = (p.get('q') ?? '').trim();
 
-    // Latência artificial para visualizar Skeleton em dev (sem isso o
-    // mock responde em 0ms e a transição empty→loading→results é
-    // invisível). 300ms casa com o budget de p50 do DESIGN §0.
-    await delay(300);
-
-    // Cenário: 429 rate limit (forçado por `q=flood`)
-    if (q.toLowerCase() === 'flood') {
+    if (q.toLowerCase() === 'flood')
       return HttpResponse.json(
-        {
-          error: 'rate_limit_exceeded',
-          retry_after: 23,
-        },
+        { error: 'rate_limit_exceeded', retry_after: 23 },
         {
           status: 429,
-          headers: {
-            'Retry-After': '23',
-            'X-Cache': 'BYPASS',
-            Vary: 'Authorization, Accept-Encoding',
-          },
+          headers: { 'Retry-After': '23', 'X-Cache': 'BYPASS', Vary: VARY },
         },
       );
-    }
 
-    // Cenário: 0 hits
-    if (q.toLowerCase() === 'qzxzqzx') {
-      return HttpResponse.json(
-        {
-          results: [],
-          next_cursor: null,
-          total_estimate: 0,
-          query_terms_expanded: [q.toLowerCase()],
-          took_ms: 12,
-        },
-        {
-          headers: {
-            'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
-            Vary: 'Authorization, Accept-Encoding',
-            'X-Cache': 'MISS',
-          },
-        },
+    if (q.length < MIN_Q)
+      return errorBody('query_too_short', `mínimo ${MIN_Q} caracteres`, 400);
+    if (q.length > MAX_Q)
+      return errorBody('query_too_long', `máximo ${MAX_Q} caracteres`, 400);
+
+    const terms = Array.from(new Set(fold(q).split(/\s+/).filter(Boolean)));
+
+    let offset = 0;
+    const cursor = p.get('cursor');
+    if (cursor) {
+      const decoded = decodeCursor(cursor);
+      if (decoded === null)
+        return errorBody(
+          'cursor_invalid',
+          'Cursor inválido. Recomece a paginação.',
+          400,
+        );
+      offset = decoded;
+    }
+    const perPage = Math.min(
+      MAX_PER_PAGE,
+      Math.max(1, Number(p.get('per_page')) || 20),
+    );
+
+    const author = p.get('author');
+    const category = p.get('category');
+    const de = p.get('de') ? Date.parse(p.get('de')!) : null;
+    const ate = p.get('ate') ? Date.parse(p.get('ate')!) : null;
+    const { articles, categories } = demoDb.state;
+
+    const hits = articles
+      .filter((a) => a.status === 'published' && a.published_at)
+      .filter((a) => !author || a.author_id === author)
+      .filter(
+        (a) =>
+          !category ||
+          String(a.category_id) === category ||
+          categories.find((c) => c.id === a.category_id)?.slug === category,
+      )
+      .filter((a) => {
+        const t = Date.parse(a.published_at!);
+        return (de === null || t >= de) && (ate === null || t <= ate);
+      })
+      .map((a) => {
+        const title = fold(a.title);
+        const rest = fold(`${a.excerpt} ${a.body}`);
+        const found = terms.every((t) => title.includes(t) || rest.includes(t));
+        const inTitle = terms.filter((t) => title.includes(t)).length;
+        return {
+          a,
+          found,
+          score: (inTitle * 2 + terms.length) / (terms.length * 3),
+        };
+      })
+      .filter((h) => h.found)
+      .sort(
+        (x, y) =>
+          y.score - x.score ||
+          y.a.published_at!.localeCompare(x.a.published_at!),
       );
-    }
 
-    // Cenário: success genérico (10 hits)
-    const results = makeResults(q || 'kpop', 10);
+    const page = hits.slice(offset, offset + perPage);
+    const next = offset + perPage < hits.length ? offset + perPage : null;
+
     return HttpResponse.json(
       {
-        results,
-        next_cursor: null, // sem paginação no MVP (cap 50 páginas → S5)
-        total_estimate: q.toLowerCase() === 'kpop' ? 142 : 10,
-        // `query_terms_expanded` simulado (stems pt-BR via ts_lexize no
-        // backend real). Inclui forma reduzida do termo + variantes.
-        query_terms_expanded: q
-          ? Array.from(new Set([q.toLowerCase(), q.toLowerCase().slice(0, 4)]))
-          : [],
-        took_ms: 47,
+        results: page.map(({ a, score }) => {
+          const user = demoDb.findUser(a.author_id);
+          return {
+            id: a.id,
+            title: a.title,
+            slug: a.slug,
+            excerpt: a.excerpt,
+            published_at: a.published_at,
+            author: { id: a.author_id, name: user ? fullName(user) : '' },
+            category: categories.find((c) => c.id === a.category_id) ?? null,
+            cover_url: a.cover_image,
+            score: Math.round(score * 1000) / 1000,
+          };
+        }),
+        next_cursor: next === null ? null : encodeCursor(next),
+        total_estimate: hits.length,
+        query_terms_expanded: terms,
+        took_ms: Math.max(8, Date.now() - started + 18),
       },
-      {
-        headers: {
-          'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
-          Vary: 'Authorization, Accept-Encoding',
-          'X-Cache': 'MISS',
-        },
-      },
+      { headers: cacheHeaders() },
     );
   }),
 ];

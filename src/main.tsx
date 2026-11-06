@@ -26,18 +26,30 @@ const queryClient = new QueryClient({
   },
 });
 
-// MSW (T30.1.X12 / fix BLOQUEIO-1): em DEV intercepta `/api/v1/search/articles/`
-// com handlers em `src/mocks/`. Em PROD não importa, então o tree-shaking do
-// Vite remove `msw` do bundle (verificado via `npm run build`).
-// `?msw=off` na URL desliga o worker (útil para apontar para Django local).
+// MSW (T30.1.X12 / fix BLOQUEIO-1), três modos:
+// - DEV: só a busca é mockada (o Django local não liga a busca);
+//   `?msw=off` desliga o worker.
+// - demo (`--mode demo`, site do Render): a API /api/v1/* inteira é
+//   mockada no navegador, mais o painel "Entrar como / Resetar dados".
+// - produção: `DEV` e `MODE` viram constantes no build, o ramo inteiro é
+//   código morto e o tree-shaking tira `msw` do bundle (o CI confere com
+//   scripts/check-msw-bundle.mjs).
+const DEMO = import.meta.env.MODE === 'demo';
+
 async function enableMocks() {
-  if (!import.meta.env.DEV) return;
-  if (new URLSearchParams(window.location.search).get('msw') === 'off') return;
+  if (!import.meta.env.DEV && !DEMO) return;
+  if (!DEMO && new URLSearchParams(window.location.search).get('msw') === 'off')
+    return;
   const { worker } = await import('./mocks/browser');
   await worker.start({
     onUnhandledRequest: 'bypass',
     serviceWorker: { url: '/mockServiceWorker.js' },
+    quiet: DEMO,
   });
+  if (DEMO) {
+    const { mountDemoPanel } = await import('./mocks/demo/badge/mount');
+    mountDemoPanel();
+  }
 }
 
 enableMocks().then(() => {

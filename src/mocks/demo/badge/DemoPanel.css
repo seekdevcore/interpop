@@ -1,0 +1,170 @@
+/*
+ * Painel do modo demo. Só existe no build demo (Render).
+ * WCAG 2.2 AA: alvos >= 44px (2.5.8 pede 24), foco em dois tons visível
+ * sobre fundo claro ou escuro (2.4.7 / 2.4.13), texto >= 4.5:1, recolhido
+ * por padrão para não cobrir conteúdo focado (2.4.11). Canto inferior
+ * direito: o esquerdo cobria o "Sair" da sidebar do /admin e o widget
+ * VLibras fica no meio da borda direita.
+ */
+.demo-panel {
+  position: fixed;
+  right: var(--sp-4, 16px);
+  bottom: var(--sp-4, 16px);
+  z-index: var(--z-toast, 9000);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--sp-2, 8px);
+  max-width: calc(100vw - 2 * var(--sp-4, 16px));
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.demo-panel button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.demo-panel button:focus-visible {
+  outline: 2px solid var(--clr-primary, #1a1660);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--clr-surface, #fff);
+}
+
+.demo-panel__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+  min-height: 44px;
+  padding: 0 var(--sp-4, 16px);
+  border: 0;
+  border-radius: var(--radius-full, 999px);
+  background: var(--clr-primary-dark, #100d36);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+}
+
+.demo-panel__toggle:hover {
+  background: var(--clr-primary-light, #2d2675);
+}
+
+.demo-panel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--clr-accent, #f8b046);
+}
+
+.demo-panel__role {
+  font-weight: 400;
+}
+
+.demo-panel__body {
+  width: 300px;
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  padding: var(--sp-4, 16px);
+  border: 1px solid var(--clr-border, #e8eaed);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--clr-surface, #fff);
+  color: var(--clr-text, #111827);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.18);
+}
+
+.demo-panel__body[hidden] {
+  display: none;
+}
+
+.demo-panel__note {
+  margin: 0 0 var(--sp-2, 8px);
+  color: var(--clr-muted, #4b5563);
+}
+
+.demo-panel__status {
+  margin: 0 0 var(--sp-3, 12px);
+}
+
+.demo-panel__heading {
+  margin: 0 0 var(--sp-2, 8px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--clr-muted, #4b5563);
+}
+
+.demo-panel__accounts {
+  display: grid;
+  gap: var(--sp-1, 4px);
+  margin: 0 0 var(--sp-3, 12px);
+  padding: 0;
+  list-style: none;
+}
+
+.demo-panel__account {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2, 8px);
+  padding: 0 var(--sp-3, 12px);
+  border: 1px solid var(--clr-border, #e8eaed);
+  border-radius: var(--radius-md, 8px);
+  background: var(--clr-bg, #f7f8fa);
+  color: var(--clr-text, #111827);
+  text-align: left;
+}
+
+.demo-panel__account:hover:not(:disabled) {
+  border-color: var(--clr-primary, #1a1660);
+}
+
+.demo-panel__account:disabled {
+  cursor: default;
+  background: var(--clr-surface, #fff);
+  border-style: dashed;
+}
+
+.demo-panel__account-name {
+  font-weight: 600;
+}
+
+.demo-panel__account-role {
+  color: var(--clr-muted, #4b5563);
+  white-space: nowrap;
+}
+
+.demo-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2, 8px);
+}
+
+.demo-panel__action {
+  min-height: 44px;
+  padding: 0 var(--sp-4, 16px);
+  border: 1px solid var(--clr-border, #e8eaed);
+  border-radius: var(--radius-md, 8px);
+  background: var(--clr-surface, #fff);
+  color: var(--clr-text, #111827);
+  font-weight: 600;
+}
+
+.demo-panel__action--danger {
+  border-color: var(--clr-error, #dc2626);
+  color: #b91c1c;
+}
+
+.demo-panel__action:hover {
+  background: var(--clr-bg, #f7f8fa);
+}
+
+@media print {
+  .demo-panel {
+    display: none;
+  }
+}

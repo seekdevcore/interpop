@@ -42,16 +42,18 @@ npm run dev     # http://localhost:5173/buscar
 
 O worker registra automaticamente em DEV. No console do browser: `[MSW] Mocking enabled.`.
 
-### Cenários simulados (`q=...`)
+### O que o mock responde
 
-| Query            | Resposta                       | Uso                              |
-| ---------------- | ------------------------------ | -------------------------------- |
-| `kpop` (default) | 10 hits, `total_estimate: 142` | UX feliz                         |
-| `qzxzqzx`        | 0 hits, EmptyResults           | Validar branch "Nada encontrado" |
-| `flood`          | 429 + `Retry-After: 23`        | Validar RateLimitedState         |
-| qualquer outra   | 10 hits genéricos              | Default                          |
+A busca roda sobre o banco fictício do modo demo (`src/mocks/demo/db.ts`), então todo resultado aponta para um artigo que existe e abre. Cada termo precisa aparecer no título, resumo ou corpo, sem diferenciar acento nem caixa; título pesa mais. Detalhes no cabeçalho de `src/mocks/handlers/search.ts`.
 
-Latência artificial: 300ms (casa com p50 do DESIGN §0). Sem isso, transição empty→loading→results é invisível.
+Cenários fixos para os estados de erro e vazio:
+
+| Query     | Resposta                | Uso                              |
+| --------- | ----------------------- | -------------------------------- |
+| `qzxzqzx` | 0 hits, EmptyResults    | Validar branch "Nada encontrado" |
+| `flood`   | 429 + `Retry-After: 23` | Validar RateLimitedState         |
+
+Latência artificial: o `delay()` do MSW (100–400 ms no navegador). Sem ela, a transição empty→loading→results é invisível.
 
 ### Desligar MSW (apontar para Django local)
 
@@ -63,7 +65,7 @@ Reverte ao backend real em `VITE_API_URL` (default `http://localhost:8000`).
 
 ### Produção
 
-`main.tsx` faz dynamic `import('./mocks/browser')` **apenas** em `import.meta.env.DEV`. Em produção, Vite tree-shakes e `msw` não entra no bundle (verificado via `npm run build` — sem chunk `mocks-*` em `dist/`).
+`main.tsx` faz dynamic `import('./mocks/browser')` só em `import.meta.env.DEV` ou no modo demo (`--mode demo`, site do Render, ver `docs/runbooks/RB-05-demo-render.md`). No build de produção as duas condições são constantes falsas, o Vite remove o import e `msw` não entra no bundle. O CI confere isso com `node scripts/check-msw-bundle.mjs --expect absent`.
 
 ## ADRs honrados
 

@@ -92,6 +92,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # O MSW (mock da API no navegador) só pode existir no build demo. Se
+      # entrar no de produção, um service worker esconderia o backend real.
+      - name: MSW fora do bundle de produção
+        run: node scripts/check-msw-bundle.mjs --expect absent
+
       - name: Upload dist (artifact para inspeção visual de bundle size)
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
@@ -99,6 +104,14 @@ jobs:
           name: frontend-dist-${{ github.sha }}
           path: dist
           retention-days: 7
+
+      # Site demo do Render (render.yaml): mesmo build que o Render roda, com
+      # o MSW obrigatório. Vem depois do upload porque sobrescreve dist/.
+      - name: Build demo (Render)
+        run: npm run build:demo
+
+      - name: MSW presente no bundle demo
+        run: node scripts/check-msw-bundle.mjs --expect present
 
   # Security scan vive em .github/workflows/security.yml (S15+S16 do
   # Improvement-system §11.6) — gitleaks, pip-audit, npm-audit, bandit,
