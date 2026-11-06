@@ -2,13 +2,18 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <!-- Favicon SVG do Interpop (caixa navy + "i" itálica). Path renomeado
-         de /favicon.svg para /interpop-icon.svg para forçar revalidação de
-         cache em browsers que ainda mostravam o ícone genérico do Vite. -->
-    <link rel="icon" type="image/svg+xml" href="/interpop-icon.svg" />
-    <link rel="apple-touch-icon" href="/interpop-icon.svg" />
-    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Favicons do Interpop: "p!" branco em caixa navy, com os glifos reais
+         do fim da logo ("interpop!"), só paths, sem depender de fonte.
+         O SVG fica em /interpop-icon.svg (e não /favicon.svg) para escapar
+         do cache do ícone do Vite; o ?v=2 renova o cache do ícone anterior.
+         PNG/ICO são rasterizados a partir do mesmo desenho. -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/interpop-icon.svg?v=2" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Interpop" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta
       name="description"
       content="Interpop — análise crítica do Soft Power e da hegemonia global a partir da cultura pop, da mídia e das relações internacionais."
