@@ -268,7 +268,13 @@ src/
     └── seek-white.svg
 
 public/                            # Servido em /
-├── interpop-icon.svg              # favicon SVG
+├── interpop-icon.svg              # favicon SVG (fonte de todos os PNG/ICO abaixo)
+├── favicon.ico                    # 16/32/48 px, para /favicon.ico e browsers antigos
+├── favicon-96x96.png              # favicon PNG
+├── apple-touch-icon.png           # 180 px, sem transparência (iOS)
+├── web-app-manifest-192x192.png   # ícone PWA, purpose "any"
+├── web-app-manifest-512x512.png   # ícone PWA, purpose "any"
+├── web-app-manifest-maskable-512x512.png  # ícone PWA full-bleed, purpose "maskable"
 ├── site.webmanifest               # PWA manifest (theme-color #19144c)
 └── mockServiceWorker.js           # Gerado via `npx msw init public/` — registrado em DEV
 ```
