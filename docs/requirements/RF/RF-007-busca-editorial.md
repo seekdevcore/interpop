@@ -43,11 +43,12 @@ Sem busca, leitor depende de:
 
 Este requisito é executado pelos seguintes Epics e Features:
 
-| Epic                                                                  | Feature(s)                                                                                | Status      |
-| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------- |
-| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-30 Busca por texto livre](../../backlog/features/F-30-busca-texto-livre.md)            | ✅ Done     |
-| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-31 Filtros](../../backlog/features/F-31-filtros-busca.md)                              | ⏳ Sprint 5 |
-| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-32 Deep-linking + compartilhamento](../../backlog/features/F-32-deep-linking-busca.md) | ⏳ Sprint 5 |
+| Epic                                                                  | Feature(s)                                                                                 | Status        |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------- |
+| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-30 Busca por texto livre](../../backlog/features/F-30-busca-texto-livre.md)             | ✅ Done       |
+| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-31 Filtros](../../backlog/features/F-31-filtros-busca.md)                               | ⏳ Sprint 5   |
+| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-32 Deep-linking + compartilhamento](../../backlog/features/F-32-deep-linking-busca.md)  | ⏳ Sprint 5   |
+| [EP-10 Busca editorial](../../backlog/epics/EP-10-busca-editorial.md) | [F-33 Página Notícias unificada](../../backlog/features/F-33-pagina-noticias-unificada.md) | ⏳ a planejar |
 
 ---
 
@@ -87,12 +88,13 @@ Detalhe completo em [`docs/specs/busca-editorial/adrs/INDEX.md`](../../specs/bus
 
 ## Histórico
 
-| Data       | Evento                                                                                                                           |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-02 | RF identificado durante spec multi-agente (DESIGN v3)                                                                            |
-| 2026-06-04 | F-30 implementada, atendendo CA01-CA15                                                                                           |
-| 2026-06-09 | F-30 mergeada em main (PR #37 → `2bdf73b`); 3 CAs (perf k6, Lighthouse CI, retention cron) marcados para automatizar no Sprint 5 |
-| Sprint 5   | Previsto: F-31 + F-32 entregam §filtros e §deep-link                                                                             |
+| Data       | Evento                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-02 | RF identificado durante spec multi-agente (DESIGN v3)                                                                                 |
+| 2026-06-04 | F-30 implementada, atendendo CA01-CA15                                                                                                |
+| 2026-06-09 | F-30 mergeada em main (PR #37 → `2bdf73b`); 3 CAs (perf k6, Lighthouse CI, retention cron) marcados para automatizar no Sprint 5      |
+| Sprint 5   | Previsto: F-31 + F-32 entregam §filtros e §deep-link                                                                                  |
+| 2026-11-06 | Decisão do usuário: busca única na página Notícias (`/noticias`) → F-33 + ADR-047; BUG-02 (acento com tecla morta) aberto contra F-30 |
 
 ---
 

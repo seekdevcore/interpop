@@ -43,7 +43,12 @@ backlog/
 ├── features/                1 arquivo por Feature — descrição + CAs + USs (com BDD) + Tasks
 │   ├── F-30-busca-texto-livre.md
 │   ├── F-31-filtros-busca.md
-│   └── F-32-deep-linking-busca.md
+│   ├── F-32-deep-linking-busca.md
+│   └── F-33-pagina-noticias-unificada.md
+│
+├── bugs/                    1 arquivo por Bug — observado × esperado, causa, rastreabilidade, teste de regressão
+│   ├── BUG-01-sessao-expira-em-15-minutos.md
+│   └── BUG-02-busca-nao-aceita-acento-tecla-morta.md
 │
 ├── sprints/                 1 arquivo por Sprint — execução temporal (mapping US/Tasks)
 │   ├── sprint-4-busca-editorial.md
@@ -78,6 +83,7 @@ backlog/
 | Requisito Funcional     | `RF-NNN`                       | `RF-007`                   |
 | Requisito Não-Funcional | `RNF-NN`                       | `RNF-perf`                 |
 | Sprint                  | `sprint-N-slug`                | `sprint-4-busca-editorial` |
+| Bug (defeito)           | `BUG-NN`                       | `BUG-02`                   |
 
 ### Prioridade (em todos os níveis)
 

@@ -14,6 +14,8 @@ Leitor entra em `/buscar`, digita um termo (mínimo 2 caracteres) e vê uma list
 
 Esta Feature é a **fundação** da descoberta editorial — Features futuras (F-31 filtros, F-32 deep-linking) constroem em cima dela.
 
+> **Nota — 2026-11-06 (decisão do usuário).** A página `/buscar` desta Feature passa a ser a página "Notícias" em `/noticias`, e `/buscar` vira redirecionamento para `/noticias` preservando os parâmetros. Entrega em [F-33 Página Notícias unificada](F-33-pagina-noticias-unificada.md); decisão em [ADR-047](../../specs/busca-editorial/adrs/ADR-047-pagina-noticias-unica-superficie-de-busca.md). Os CAs e cenários abaixo descrevem o que foi entregue em `2bdf73b` e ficam como estão (histórico); CA09 e CA11 passam a valer para `/noticias` após F-33. Defeito aberto contra esta Feature: [BUG-02](../bugs/BUG-02-busca-nao-aceita-acento-tecla-morta.md) (acento com tecla morta).
+
 ---
 
 ## Requisitos atendidos (rastreabilidade ↑)
@@ -239,7 +241,7 @@ Cenário: Payload XSS é tratado como texto puro
 | → Sprint(s)                | [Sprint 4](../sprints/sprint-4-busca-editorial.md) (entrega), [Sprint 5](../sprints/sprint-5-filtros-deep-linking.md) (refino + Tasks restantes)                                                                                                                  |
 | → Specs técnicas           | [DESIGN.md v3](../../specs/busca-editorial/DESIGN.md) + ADRs 015-045                                                                                                                                                                                              |
 | → Features filhas          | n/a (F-30 é Feature, não Epic)                                                                                                                                                                                                                                    |
-| ← Features irmãs sob EP-10 | [F-31 Filtros](F-31-filtros-busca.md), [F-32 Deep-linking](F-32-deep-linking-busca.md)                                                                                                                                                                            |
+| ← Features irmãs sob EP-10 | [F-31 Filtros](F-31-filtros-busca.md), [F-32 Deep-linking](F-32-deep-linking-busca.md), [F-33 Página Notícias unificada](F-33-pagina-noticias-unificada.md)                                                                                                       |
 
 ---
 
