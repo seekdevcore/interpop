@@ -28,14 +28,16 @@ Esta Feature **estende** F-30 — não a substitui. A shell `<FilterChips>` já 
 
 ## Critérios de Aceitação (CAs — escopo Sprint 5)
 
-| ID       | Critério                                                                                  | Como verificar                                        | Status |
-| -------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------ |
-| **CA16** | Autor selecionável por popover com search-as-you-type (lista paginada)                    | Test integração FilterAuthor                          | ⏳     |
-| **CA17** | Editoria selecionável por dropdown com as 5 categorias canônicas + ícones                 | Test FilterCategory                                   | ⏳     |
-| **CA18** | Intervalo de datas selecionável por dois date-pickers (de/até) com validação              | Test FilterDateRange + FormValidation                 | ⏳     |
-| **CA19** | Chip de cada filtro ativo aparece com botão "remover" (`×`)                               | Test FilterChips (extensão de chip vazio do Sprint 4) | ⏳     |
-| **CA20** | Mobile (≤ 640px) abre filtros em `<dialog>` HTML respeitando `dvh` + safe-area + keyboard | Test responsive + manual iOS/Android                  | ⏳     |
-| **CA21** | Limpar todos os filtros com 1 clique mantém o termo `q`                                   | Test FilterChips clear-all                            | ⏳     |
+| ID       | Critério                                                                                                                                                                                          | Como verificar                                        | Status    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------- |
+| **CA16** | Autor selecionável por popover com search-as-you-type (lista paginada)                                                                                                                            | Test integração FilterAuthor                          | ⏳        |
+| **CA17** | ~~Editoria selecionável por dropdown com as 5 categorias canônicas + ícones~~ → **alterado em 2026-11-06**: substituído pelos chips de editoria de [F-33 CA30](F-33-pagina-noticias-unificada.md) | Ver F-33 CA30                                         | ↪️ Movido |
+| **CA18** | Intervalo de datas selecionável por dois date-pickers (de/até) com validação                                                                                                                      | Test FilterDateRange + FormValidation                 | ⏳        |
+| **CA19** | Chip de cada filtro ativo aparece com botão "remover" (`×`)                                                                                                                                       | Test FilterChips (extensão de chip vazio do Sprint 4) | ⏳        |
+| **CA20** | Mobile (≤ 640px) abre filtros em `<dialog>` HTML respeitando `dvh` + safe-area + keyboard                                                                                                         | Test responsive + manual iOS/Android                  | ⏳        |
+| **CA21** | Limpar todos os filtros com 1 clique mantém o termo `q`                                                                                                                                           | Test FilterChips clear-all                            | ⏳        |
+
+> **Alteração de escopo — 2026-11-06 (decisão confirmada pelo usuário).** O seletor de editoria deixa de ser uma lista suspensa (CA17 original, implementado parcialmente na branch `feat/f-31-filtros-busca`, não mergeada em `main` nem em `develop`) e passa a ser uma fileira de chips "Todos" + 5 editorias, entregue em [F-33 Página Notícias unificada](F-33-pagina-noticias-unificada.md) (CA30). Motivo: com 6 opções, chips visíveis vencem a lista suspensa (um clique só, nenhuma opção escondida). O texto original do CA17 fica riscado acima para preservar o histórico. US31.2 e T31.3 seguem a mesma alteração. Autor (CA16), datas (CA18) e o restante de F-31 não mudam. Decisão: [ADR-047](../../specs/busca-editorial/adrs/ADR-047-pagina-noticias-unica-superficie-de-busca.md).
 
 ---
 
@@ -59,7 +61,7 @@ Esta Feature **estende** F-30 — não a substitui. A shell `<FilterChips>` já 
 
 - **Prioridade**: 🟠 Alta
 - **CAs cobertos**: CA17, CA19, CA21
-- **Status**: ⏳ Pending Sprint 5
+- **Status**: ↪️ Escopo de editoria movido para [F-33](F-33-pagina-noticias-unificada.md) (US33.1/US33.2) em 2026-11-06
 
 ### US31.3 — Leitor filtra busca por intervalo de datas
 
@@ -87,15 +89,15 @@ Esta Feature **estende** F-30 — não a substitui. A shell `<FilterChips>` já 
 
 ## Tasks previstas (alocação Sprint 5 — refinar antes do start)
 
-| ID    | Descrição                                                                                                             | Prioridade |
-| ----- | --------------------------------------------------------------------------------------------------------------------- | ---------- |
-| T31.1 | Backend — endpoint aceita combinação `q + author + category + de/ate` (já parcialmente implementado em SearchService) | 🟠         |
-| T31.2 | `<FilterAuthor>` popover com lookup + search-as-you-type (axios search autores)                                       | 🟠         |
-| T31.3 | `<FilterCategory>` dropdown com 5 categorias hardcoded (depois service)                                               | 🟠         |
-| T31.4 | `<FilterDateRange>` com date-pickers nativos `<input type="date">` + validação                                        | 🟡         |
-| T31.5 | Mobile `<dialog>` HTML sheet com dvh + safe-area + close-on-input-focus                                               | 🟠         |
-| T31.6 | Tests integração combinando filtros (Hypothesis combinatorial)                                                        | 🟡         |
-| T31.7 | A11y E2E axe-playwright com filtros ativos                                                                            | 🟠         |
+| ID    | Descrição                                                                                                                   | Prioridade |
+| ----- | --------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| T31.1 | Backend — endpoint aceita combinação `q + author + category + de/ate` (já parcialmente implementado em SearchService)       | 🟠         |
+| T31.2 | `<FilterAuthor>` popover com lookup + search-as-you-type (axios search autores)                                             | 🟠         |
+| T31.3 | ~~`<FilterCategory>` dropdown com 5 categorias hardcoded (depois service)~~ → substituída por T33.1.3 (chips) em 2026-11-06 | ↪️         |
+| T31.4 | `<FilterDateRange>` com date-pickers nativos `<input type="date">` + validação                                              | 🟡         |
+| T31.5 | Mobile `<dialog>` HTML sheet com dvh + safe-area + close-on-input-focus                                                     | 🟠         |
+| T31.6 | Tests integração combinando filtros (Hypothesis combinatorial)                                                              | 🟡         |
+| T31.7 | A11y E2E axe-playwright com filtros ativos                                                                                  | 🟠         |
 
 ---
 
@@ -109,13 +111,13 @@ Esta Feature **estende** F-30 — não a substitui. A shell `<FilterChips>` já 
 
 ## Cross-references resumidas
 
-| Direção                    | Onde                                                                                                                                                                                      |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ↑ Requisitos atendidos     | [RF-007 §filtros](../../requirements/RF/RF-007-busca-editorial.md), [RNF-perf](../../requirements/RNF/RNF-perf.md), [RNF-a11y](../../requirements/RNF/RNF-a11y.md)                        |
-| ↑ Epic pai                 | [EP-10](../epics/EP-10-busca-editorial.md)                                                                                                                                                |
-| → Sprint(s)                | [Sprint 5](../sprints/sprint-5-filtros-deep-linking.md)                                                                                                                                   |
-| → Specs técnicas           | [DESIGN.md v3 §2.6 mobile dialog](../../specs/busca-editorial/DESIGN.md) + ADRs 030-UI, 030-DB                                                                                            |
-| ← Features irmãs sob EP-10 | [F-30 Texto livre](F-30-busca-texto-livre.md) (dependência hard), [F-32 Deep-linking](F-32-deep-linking-busca.md) (dependência soft — deep-linking precisa de filtros para fazer sentido) |
+| Direção                    | Onde                                                                                                                                                                                                                                                                                                  |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ↑ Requisitos atendidos     | [RF-007 §filtros](../../requirements/RF/RF-007-busca-editorial.md), [RNF-perf](../../requirements/RNF/RNF-perf.md), [RNF-a11y](../../requirements/RNF/RNF-a11y.md)                                                                                                                                    |
+| ↑ Epic pai                 | [EP-10](../epics/EP-10-busca-editorial.md)                                                                                                                                                                                                                                                            |
+| → Sprint(s)                | [Sprint 5](../sprints/sprint-5-filtros-deep-linking.md)                                                                                                                                                                                                                                               |
+| → Specs técnicas           | [DESIGN.md v3 §2.6 mobile dialog](../../specs/busca-editorial/DESIGN.md) + ADRs 030-UI, 030-DB                                                                                                                                                                                                        |
+| ← Features irmãs sob EP-10 | [F-30 Texto livre](F-30-busca-texto-livre.md) (dependência hard), [F-32 Deep-linking](F-32-deep-linking-busca.md) (dependência soft — deep-linking precisa de filtros para fazer sentido), [F-33 Página Notícias unificada](F-33-pagina-noticias-unificada.md) (recebe o filtro de editoria, ex-CA17) |
 
 ---
 

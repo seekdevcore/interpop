@@ -49,12 +49,13 @@
 
 ### Frontend (`frontend-architect`)
 
-| ADR                                                                   | Decisão                                                                    | Status     |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------- |
-| [ADR-026](./ADR-026-csr-no-mvp-medir-lcp-baseline.md)                 | CSR no MVP; medir LCP baseline antes; SSR re-avaliado em v2                | Accepted   |
-| [ADR-027](./ADR-027-tanstack-query-usedebounced-deferred-url-ssot.md) | TanStack Query + `useDebouncedValue` 250ms + `useDeferredValue` + URL SSOT | Accepted ✱ |
-| [ADR-030-FE](./ADR-030-FE-resilient-subtree-error-boundary.md)        | Resilient sub-tree `ErrorBoundary` local em `<SearchResults>`              | Accepted ⊕ |
-| [ADR-031-FE](./ADR-031-FE-lighthouse-ci-gate-buscar.md)               | Lighthouse CI gate em `/buscar?q=kpop` bloqueia PR                         | Accepted ⊕ |
+| ADR                                                                   | Decisão                                                                    | Status              |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------- |
+| [ADR-026](./ADR-026-csr-no-mvp-medir-lcp-baseline.md)                 | CSR no MVP; medir LCP baseline antes; SSR re-avaliado em v2                | Accepted            |
+| [ADR-027](./ADR-027-tanstack-query-usedebounced-deferred-url-ssot.md) | TanStack Query + `useDebouncedValue` 250ms + `useDeferredValue` + URL SSOT | Accepted ✱          |
+| [ADR-030-FE](./ADR-030-FE-resilient-subtree-error-boundary.md)        | Resilient sub-tree `ErrorBoundary` local em `<SearchResults>`              | Accepted ⊕          |
+| [ADR-031-FE](./ADR-031-FE-lighthouse-ci-gate-buscar.md)               | Lighthouse CI gate em `/buscar?q=kpop` bloqueia PR                         | Accepted ⊕          |
+| [ADR-047](./ADR-047-pagina-noticias-unica-superficie-de-busca.md)     | `/noticias` é a única superfície de busca; `/buscar` redireciona (F-33)    | Aceita (2026-11-06) |
 
 ### UI/UX (`ui-ux-architect`)
 

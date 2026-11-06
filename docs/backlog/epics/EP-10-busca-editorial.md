@@ -1,7 +1,7 @@
 # EP-10 — Busca editorial
 
 > **Tipo**: Epic
-> **Status**: 🚧 Sprint 4 (F-30 ✅ Done · F-31/F-32 ⏳ Sprint 5)
+> **Status**: 🚧 Sprint 4 (F-30 ✅ Done · F-31/F-32 ⏳ Sprint 5 · F-33 ⏳ a planejar)
 > **Prioridade global**: 🟠 Alta
 > **Owner**: Gabriel Marques
 > **Criado em**: Sprint 4 (2026-06-02) · **Encerramento previsto**: Sprint 5
@@ -36,11 +36,18 @@ Este Epic executa os seguintes requisitos:
 
 ## Features sob este Epic (rastreabilidade ↓)
 
-| ID   | Nome                                | Sprint | Status                             | Arquivo                                        |
-| ---- | ----------------------------------- | ------ | ---------------------------------- | ---------------------------------------------- |
-| F-30 | Busca por texto livre               | 4      | ✅ Done (PR #37, commit `2bdf73b`) | [F-30](../features/F-30-busca-texto-livre.md)  |
-| F-31 | Filtros (autor, editoria, datas)    | 5      | ⏳ Pending                         | [F-31](../features/F-31-filtros-busca.md)      |
-| F-32 | URL deep-linking + compartilhamento | 5      | ⏳ Pending                         | [F-32](../features/F-32-deep-linking-busca.md) |
+| ID   | Nome                                        | Sprint     | Status                             | Arquivo                                               |
+| ---- | ------------------------------------------- | ---------- | ---------------------------------- | ----------------------------------------------------- |
+| F-30 | Busca por texto livre                       | 4          | ✅ Done (PR #37, commit `2bdf73b`) | [F-30](../features/F-30-busca-texto-livre.md)         |
+| F-31 | Filtros (autor, editoria, datas)            | 5          | ⏳ Pending                         | [F-31](../features/F-31-filtros-busca.md)             |
+| F-32 | URL deep-linking + compartilhamento         | 5          | ⏳ Pending                         | [F-32](../features/F-32-deep-linking-busca.md)        |
+| F-33 | Página Notícias unificada (arquivo + busca) | a planejar | ⏳ Pending (bloqueada por BUG-02)  | [F-33](../features/F-33-pagina-noticias-unificada.md) |
+
+### Bugs abertos sob este Epic
+
+| ID     | Título                                                       | Severidade | Status    | Arquivo                                                         |
+| ------ | ------------------------------------------------------------ | ---------- | --------- | --------------------------------------------------------------- |
+| BUG-02 | Busca não aceita letras acentuadas digitadas com tecla morta | 🟠 Alta    | ⏳ Aberto | [BUG-02](../bugs/BUG-02-busca-nao-aceita-acento-tecla-morta.md) |
 
 ---
 
@@ -67,6 +74,7 @@ Este Epic executa os seguintes requisitos:
 - **UI**: ADR-029 (paleta herdada), ADR-030-UI (chips radius-md + thumb-left)
 - **Segurança**: ADR-035-039 (pseudonim. forte, throttle global, cache key, semgrep, trigger bypass test)
 - **Testing**: ADR-040-045 (Hypothesis, schemathesis, Playwright visual, Stryker, k6, axe)
+- **Produto**: ADR-047 (`/noticias` como única superfície de busca; `/buscar` redireciona) — F-33
 
 ---
 
@@ -81,13 +89,14 @@ Este Epic executa os seguintes requisitos:
 
 ## Histórico de mudanças
 
-| Data       | Evento                                                                      |
-| ---------- | --------------------------------------------------------------------------- |
-| 2026-06-02 | Epic criado em spec multi-agente (6 specialists + 2 validators + DESIGN v3) |
-| 2026-06-03 | 35 ADRs materializadas + BACKLOG v5                                         |
-| 2026-06-04 | F-30 implementada e revisada (Phases 1/2/3)                                 |
-| 2026-06-06 | F2-B-01/02/03 fechados; PR #37 ready                                        |
-| 2026-06-09 | PR #37 squash-merged em main como `2bdf73b`; F-30 ✅ Done                   |
+| Data       | Evento                                                                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-02 | Epic criado em spec multi-agente (6 specialists + 2 validators + DESIGN v3)                                                                                |
+| 2026-06-03 | 35 ADRs materializadas + BACKLOG v5                                                                                                                        |
+| 2026-06-04 | F-30 implementada e revisada (Phases 1/2/3)                                                                                                                |
+| 2026-06-06 | F2-B-01/02/03 fechados; PR #37 ready                                                                                                                       |
+| 2026-06-09 | PR #37 squash-merged em main como `2bdf73b`; F-30 ✅ Done                                                                                                  |
+| 2026-11-06 | Decisão do usuário: busca única em `/noticias` → F-33 + ADR-047; BUG-02 (acento com tecla morta) registrado; demo segue com as duas buscas temporariamente |
 
 ---
 
