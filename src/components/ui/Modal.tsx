@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 import { Button } from './Button';
 import './Modal.css';
 
@@ -110,7 +111,7 @@ export function Modal({
             onClick={onClose}
             aria-label="Fechar"
           >
-            ✕
+            <X size={18} />
           </Button>
         </div>
         <div className="modal__body">{children}</div>

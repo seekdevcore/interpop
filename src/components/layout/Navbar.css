@@ -308,7 +308,9 @@
 }
 
 .navbar-menu__role-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--text-xs);
   font-weight: 600;
   padding: 2px var(--sp-2);
@@ -369,8 +371,13 @@
   background: #fef2f2;
 }
 
-.navbar-menu__item span[aria-hidden] {
-  font-size: 1.1em;
-  width: 20px;
-  text-align: center;
+/* Ícone do item (lucide-react, 16px). Cinza para não competir com o texto;
+   no item de perigo acompanha o vermelho do texto. */
+.navbar-menu__item svg {
+  flex-shrink: 0;
+  color: var(--clr-muted);
+}
+
+.navbar-menu__item--danger svg {
+  color: inherit;
 }
