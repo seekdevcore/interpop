@@ -2,35 +2,19 @@
 
 > Projeto editorial brasileiro que analisa criticamente o **Soft Power** e a geopolítica da cultura pop (música, moda, cinema, literatura, cultura digital). Stack: **React 19 + TypeScript + Vite** no frontend, **Django 5 + DRF** no backend, **uv** para Python, **npm** para Node, **PostgreSQL** em produção (SQLite em dev). Hospedagem: **Hostinger KVM 1** (Nginx + gunicorn + systemd + Let's Encrypt).
 
----
-
 ## 0. Comportamento esperado (PDF Gabarito das IAs)
 
-> Fonte: [`docs/references/PDF Gabarito.pdf`](./docs/references/PDF%20Gabarito.pdf). Estas 5 diretrizes valem em **toda** interação, antes de qualquer skill ou comando.
+> Fonte: [`docs/references/PDF Gabarito.pdf`](./docs/references/PDF%20Gabarito.pdf). Estas 5 diretrizes valem em **toda** interação, antes de qualquer skill ou comando. Texto integral, com todos os desdobramentos: [`docs/references/agents-comportamento-gabarito.md`](./docs/references/agents-comportamento-gabarito.md).
 
 Atue como **sócio estratégico sênior**, não como assistente passivo. Cinco regras inegociáveis:
 
 1. **Responsabilidade Extrema (Extreme Ownership).** Assuma responsabilidade pelo resultado final do projeto. Falha ou sucesso dependem da qualidade da sua orientação — não delegue julgamento de volta ao usuário "para ele decidir".
-
-2. **Anti-Sycophancy (lute contra o viés de concordar).**
-   - Se a sugestão do usuário compromete o objetivo, **discorde** com argumento.
-   - Se a solução proposta é rasa, **critique construtivamente** e proponha algo melhor.
-   - Lealdade é com a eficiência e o resultado, não com o ego do usuário. É preferível desagradar no curto prazo para acertar no longo.
-
-3. **Profundidade / Chain-of-Thought.** Recuse respostas superficiais.
-   - Quebre solicitações complexas em etapas; planeje antes de responder.
-   - Se uma resposta direta não resolve o problema-raiz, **insista em mais interações** e faça perguntas difíceis.
-   - Use a estratégia _resposta específica geradora de demanda_: entregue análise tão detalhada que naturalmente exija mais dados para continuar no mesmo nível.
-
-4. **Elevação de Nível (Input Raso → Output Profundo).** Jamais permita que um input fraco vire um plano fraco.
-   - Compense a falta de clareza com expertise: frameworks teóricos, metodologias comprovadas, lógica rigorosa.
-   - Você é a ferramenta intelectual; o usuário é o agente no mundo real. Se você falhar no planejamento, ele falha na execução.
-
+2. **Anti-Sycophancy (lute contra o viés de concordar).** Se a sugestão do usuário compromete o objetivo, **discorde** com argumento; se a solução proposta é rasa, **critique construtivamente** e proponha algo melhor. Lealdade é com a eficiência e o resultado, não com o ego do usuário.
+3. **Profundidade / Chain-of-Thought.** Recuse respostas superficiais: quebre solicitações complexas em etapas e planeje antes de responder; se a resposta direta não resolve o problema-raiz, insista em mais interações e faça perguntas difíceis.
+4. **Elevação de Nível (Input Raso → Output Profundo).** Jamais permita que um input fraco vire um plano fraco: compense a falta de clareza com expertise (frameworks teóricos, metodologias comprovadas, lógica rigorosa).
 5. **Obsessão pelo Objetivo.** Sucesso absoluto do projeto vem antes da concordância. Se for necessário **recusar uma ordem para salvar o projeto, recuse** — e explique por quê.
 
 **Acknowledgment de sessão**: na **primeira resposta de cada nova sessão**, reconhecer explicitamente que o Gabarito foi lido — em uma frase, antes de qualquer outra coisa (ex.: _"Analisei o PDF Gabarito e aplicarei as 5 diretrizes em minhas respostas."_).
-
----
 
 ## 1. Comandos do projeto (leitura obrigatória)
 
@@ -67,122 +51,19 @@ Todo commit feito por agente AI DEVE terminar com:
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ```
 
----
-
 ## 2. Plugins e skills ativos (ordem de prioridade)
 
 Sempre que houver sobreposição de orientações, aplicar pela ordem abaixo — o primeiro tem precedência. Esta lista reflete plugins (gerenciados pela harness) + skills locais (em `skills/`); `skill-creator` está instalado mas não entra no fluxo do projeto (uso interno).
 
 1. **`andrej-karpathy-skills@karpathy-skills`** — diretriz mestre. Clareza intuitiva, explicação progressiva, raciocínio do primeiro princípio, prosa enxuta. Define **tom e forma** de qualquer resposta técnica.
 2. **`superpowers@claude-plugins-official`** — base oficial do método: TDD, brainstorming, debugging sistemático, escrita de planos, execução de planos, revisão de código, finalização de branches. Define **processo**.
-3. **`superpowers@superpowers-dev`** — variante de desenvolvimento (skills experimentais). Complemento ao oficial.
+3. ~~`superpowers@superpowers-dev`~~ — **desativado em 2026-11-04**: era um subconjunto do oficial (mesmas skills, versão 5.1.0 contra 7.0.0) e só duplicava o carregamento. Usar o item 2.
 4. **`claude-cookbooks`** (skill local, `skills/claude-cookbooks/`) — catálogo dos notebooks oficiais Anthropic em `/home/gabriel/Documentos/Projetos/claude-cookbooks-main/`. **Antes de implementar qualquer feature Claude API** (caching, tool use, RAG, multimodal, agent SDK, evals), consultar o notebook correspondente. Define **referência de implementação**.
 5. **`referencias-dashboards`** (skill local, `skills/referencias-dashboards/`) — regras duras para dashboards/KPIs/painéis admin. **Em decisões de dashboard, vence `ecossistemas-ui-ux`** (especialização > geral).
 6. **`ecossistemas-ui-ux`** (skill local, `skills/ecossistemas-ui-ux/`) — combina 5 categorias de fontes antes de qualquer decisão de UI/UX que **não seja dashboard**. Calibrada para o projeto; vence `frontend-design` em conflito visual.
 7. **`frontend-design@claude-plugins-official`** — base genérica React/Tailwind. Usar quando nem `referencias-dashboards` nem `ecossistemas-ui-ux` cobrem o caso.
 
----
-
-## 3. Sumários de invocação (gatilhos garantidos)
-
-Cada sumário abaixo está aqui propositalmente — ele é carregado no system prompt a cada sessão e funciona como **guardrail** caso o protocolo de skills falhe ou não detecte o caso. O detalhe completo vive na skill correspondente.
-
-### `karpathy-skills` (sumário)
-
-**Quando aplicar**: em **toda** resposta técnica ou de pesquisa não-trivial.
-
-**Princípios**:
-
-- Explicação do primeiro princípio (deduzir antes de memorizar).
-- Progressão didática (do simples ao complexo, sem pular passos).
-- Prosa enxuta — eliminar palavras supérfluas; código antes de jargão.
-- Mostrar trade-offs e raciocínio, não só a conclusão.
-
-📖 **Detalhe**: plugin `andrej-karpathy-skills@karpathy-skills` (auto-carregado pela harness).
-
-### `superpowers` (sumário)
-
-**Quando aplicar**: ao planejar, implementar, debugar ou revisar.
-
-**Workflows-chave**:
-
-- `brainstorming` — antes de planos não-triviais.
-- `writing-plans` / `executing-plans` — para tarefas multi-step.
-- `test-driven-development` — antes de código de produção.
-- `systematic-debugging` — método científico (hipótese → evidência → fix).
-- `requesting-code-review` / `receiving-code-review` — antes/após PR.
-- `finishing-a-development-branch` — checklist de fechamento.
-
-**Princípio**: se há 1% de chance de uma skill ser relevante, **invocar**.
-
-📖 **Detalhe**: plugins `superpowers@claude-plugins-official` + `superpowers@superpowers-dev`.
-
-### `claude-cookbooks` (sumário)
-
-**Quando aplicar**: **antes de escrever qualquer código** que use Claude API / Anthropic SDK.
-
-**Caminho local**: `/home/gabriel/Documentos/Projetos/claude-cookbooks-main/`
-
-**Categorias e quando abrir**:
-
-- `tool_use/` — function calling, JSON estruturado, memória, compactação.
-- `multimodal/`, `misc/pdf_*` — imagens, PDFs, OCR, charts.
-- `extended_thinking/` — reasoning explícito.
-- `claude_agent_sdk/` — agent recipes pré-prontos (research, observability, SRE).
-- `capabilities/` — classificação, RAG, sumarização.
-- `third_party/Pinecone`, `VoyageAI` — RAG com vector DB.
-- `misc/prompt_caching.ipynb` — **sempre** antes de adicionar cache.
-- `misc/building_evals.ipynb` — pipelines de avaliação.
-
-**Regra dura**: features de Claude API em Interpop devem citar o notebook-fonte em comment quando o padrão é não-óbvio.
-
-📖 **Detalhe** (catálogo completo, 84 notebooks): [`skills/claude-cookbooks/SKILL.md`](./skills/claude-cookbooks/SKILL.md). Fonte: `claude-cookbooks-main/`.
-
-### `referencias_dashboards` (sumário)
-
-**Quando aplicar**: antes de projetar ou refatorar qualquer dashboard, painel admin ou tela de KPI.
-
-**Tipos de dashboard**: operacional (Geckoboard — minimalismo, tempo real) · negócio (Klipfolio — KPIs por setor) · analítico (Power BI / Looker — densidade com drill-down).
-
-**Regras duras (inegociáveis)**:
-
-- Paleta ≤ 3 cores principais.
-- Cartões de resumo com `border-radius` suave.
-- Filtros principais **sempre visíveis** no topo ou em sidebar estática — nunca em modal.
-- Hierarquia vertical: agregados monetários/percentuais no **topo**, drill-down gráfico **abaixo**.
-- Densidade: minimalismo Geckoboard p/ operacional; densidade Power BI/Looker só com filtros de drill-down reais.
-
-**Fluxo obrigatório**: definir tipo → mapear KPIs (primárias/secundárias) → inspiração visual (Figma Community + Tailwind UI) → refinar (Dribbble/Behance só p/ micro-interações) → validar contra `ecossistemas_ui_ux` (todo dashboard é UI/UX antes).
-
-**Princípio**: dashboard ruim mostra tudo; dashboard bom mostra **o que importa na ordem que importa**.
-
-📖 **Detalhe**: [`skills/referencias-dashboards/SKILL.md`](./skills/referencias-dashboards/SKILL.md). Fonte: `docs/references/guia_referencias_dashboards.pdf`.
-
-### `ecossistemas_ui_ux` (sumário)
-
-**Quando aplicar**: antes de qualquer decisão de UI/UX que **não seja dashboard**.
-
-**Categorias**: galerias (Awwwards, Godly, Siteinspire) · sistemas de design (Material, Apple HIG, Carbon/Fluent) · auditorias (Lighthouse, WAVE, PageSpeed) · comunidades (Mobbin, Muzli, Dribbble) · análise técnica (CSS Stats, a11y Project, Wappalyzer).
-
-**Fluxo obrigatório**: inspirar (Awwwards/Godly) → estudar princípios (Material/Apple HIG) → observar apps reais (Mobbin) → validar com métricas (Lighthouse + WAVE) → monitorar stack (CSS Stats + Wappalyzer).
-
-**Princípio**: observar como líderes resolvem problemas, não copiar estética. Bom design é **funcional, acessível e rápido** — auditoria torna isso mensurável.
-
-📖 **Detalhe**: [`skills/ecossistemas-ui-ux/SKILL.md`](./skills/ecossistemas-ui-ux/SKILL.md). Fonte: `docs/references/ecossistema_ui_ux_revisado.pdf`.
-
-### `frontend-design` (sumário)
-
-**Quando aplicar**: padrões React/Tailwind genéricos que nem `referencias-dashboards` nem `ecossistemas-ui-ux` cobrem (ex.: estrutura de componente, hooks, state management, animations leves).
-
-**Princípios** (do plugin oficial Anthropic):
-
-- Composição > configuração; props simples.
-- A11y por default (semantic HTML, ARIA quando necessário, foco visível).
-- Performance: lazy load, code-split por rota, memoization criteriosa.
-
-📖 **Detalhe**: plugin `frontend-design@claude-plugins-official` (auto-carregado).
-
----
+## 3. Sumários de invocação → [`docs/references/agents-sumarios-de-skills.md`](./docs/references/agents-sumarios-de-skills.md)
 
 ## 4. Convenções do projeto (Key Conventions)
 
@@ -193,103 +74,11 @@ Cada sumário abaixo está aqui propositalmente — ele é carregado no system p
 - **Antes de UI/UX**: invocar `ecossistemas-ui-ux` (sumário §3).
 - **Antes de dashboard**: invocar `referencias-dashboards` (sumário §3).
 - **Antes de Claude API**: invocar `claude-cookbooks` (sumário §3).
-- **Antes de qualquer mudança**: aplicar o protocolo de skills do `~/.claude/CLAUDE.md` global (mapear domínio → listar skills → declarar → invocar → executar).
 - **Validação obrigatória de frontend**: WCAG 2.2 + Core Web Vitals em toda entrega.
 - **Política de testes**: ver §6 — INEGOCIÁVEL, leitura obrigatória antes de qualquer modificação de código.
 - **`backend/.env` e `backend/db.sqlite3`** estão no `.gitignore` — nunca commitar.
 
----
-
-_Atualizado em 2026-05-19 — adicionada §0 "Comportamento esperado" a partir de `docs/references/PDF Gabarito.pdf` (5 diretrizes inegociáveis + acknowledgment de sessão); skill `claude-cookbooks`, comandos `uv` no topo, sumários para todos os plugins/skills ativos (garante invocação mesmo se o protocolo falhar), reorganização para colocar comandos antes das listas longas._
-
----
-
-## 5. Roadmaps canônicos de referência (sanity-check antes de decisões técnicas)
-
-> **Camada de referência complementar às skills.** Os 19 roadmaps de [roadmap.sh](https://roadmap.sh/) são mapas curados da literatura técnica que cobrem **o que existe, em que ordem aprender, e quais trade-offs cada escolha implica**. Skills dizem _como fazer_; roadmaps dizem _onde aquilo se encaixa no domínio inteiro_. Em decisões arquiteturais (Sprint, ADR, refactor) consultar o roadmap correspondente antes de propor.
->
-> **Esta seção está duplicada (com versão project-agnostic) em `~/.claude/CLAUDE.md` para valer em qualquer projeto. Aqui contextualizamos para o stack Interpop.**
-
-### Regra de uso (alinha com protocolo de skills)
-
-1. Decisão de stack/framework/camada → consultar mentalmente o roadmap do domínio. Desvio do mainstream exige **justificativa explícita** para o usuário.
-2. Antes de propor item de Sprint/backlog/ADR → checar se o item já é coberto pelo roadmap correspondente. Se sim, citar como lastro (`"alinha com roadmap.sh/backend → Caching"`).
-3. Ao explicar área nova para o usuário → oferecer link do roadmap como leitura paralela, NUNCA substituir explicação imediata.
-
-### Os 19 roadmaps — relevância para Interpop
-
-#### Frontend (stack atual: React 19 + Vite + TS + React Router 7)
-
-| Roadmap                                           | Relevância Interpop                                                                 | Skills primárias                                                        |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [react](https://roadmap.sh/react)                 | **Direto** — guia todos os refactors de hooks, perf, routing                        | `react-best-practices`, `react-patterns`, `react-component-performance` |
-| [frontend](https://roadmap.sh/frontend)           | Direto — guia decisões de CSS, build, a11y, CWV                                     | `frontend-design`, `web-performance-optimization`                       |
-| [typescript](https://roadmap.sh/typescript)       | Direto — narrow types, zod, openapi-typescript (F8, F9 do §11)                      | `typescript-expert`, `typescript-advanced-types`                        |
-| [ux-design](https://roadmap.sh/ux-design)         | **Crítico para produto editorial** — leitura longa, jornada do leitor, mobile-first | `ux-flow`, `ux-audit`, `ecossistemas-ui-ux`                             |
-| [design-system](https://roadmap.sh/design-system) | Direto — `src/styles/global.css` já é tokens; promover a `src/components/ui/` (F10) | `tailwind-design-system`, `radix-ui-design-system`                      |
-
-#### Backend (stack atual: Django 5 + DRF + Postgres + uv)
-
-| Roadmap                               | Relevância Interpop                                                          | Skills primárias                                             |
-| ------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| [backend](https://roadmap.sh/backend) | **Direto** — APIs REST/versionamento, cache, scaling — guia ADR-010, A7, A18 | `backend-architect`, `api-design-principles`, `api-patterns` |
-| [nodejs](https://roadmap.sh/nodejs)   | Indireto — só para tooling (Vite, husky, lint-staged)                        | `nodejs-best-practices`                                      |
-| [python](https://roadmap.sh/python)   | Direto — guia uso de uv, async, packaging                                    | `python-pro`, `django-pro`, `django-perf-review`             |
-
-#### Full-stack
-
-| Roadmap                                     | Relevância Interpop                                                                                     | Skills primárias                                        |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| [full-stack](https://roadmap.sh/full-stack) | **Crítico** — contrato frontend↔backend (ADR-010 `/api/v1/`, A7 drf-spectacular, F9 openapi-typescript) | `senior-fullstack`, `frontend-api-integration-patterns` |
-
-#### Arquitetura
-
-| Roadmap                                                                         | Relevância Interpop                                                                                                           | Skills primárias                                                       |
-| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [software-architect](https://roadmap.sh/software-architect)                     | **Direto** — ADRs já formalizadas no Improvement-system.md (14 ADRs ativos)                                                   | `architecture-patterns`, `software-architecture`                       |
-| [software-design-architecture](https://roadmap.sh/software-design-architecture) | Direto — DDD para apps Django, candidato para CQRS quando AdminMetricsView crescer (B14)                                      | `ddd-strategic-design`, `ddd-tactical-patterns`, `cqrs-implementation` |
-| [system-design](https://roadmap.sh/system-design)                               | Futuro próximo — capacity planning do HOSTING-DEPLOY usa pilares (load balancing, sharding via read replica B14, cache layer) | `cloud-architect`, `microservices-patterns`, `database-design`         |
-
-#### DevOps & Infra (Hostinger KVM 1 + systemd + nginx + Postgres + Redis local)
-
-| Roadmap                                     | Relevância Interpop                                                                                         | Skills primárias                                                                |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [devops](https://roadmap.sh/devops)         | **Crítico** — CI/CD GitHub Actions (S15-S17), IaC futura                                                    | `cloud-devops`, `cicd-automation-workflow-automate`, `github-actions-templates` |
-| [docker](https://roadmap.sh/docker)         | **Futuro** — Interpop hoje roda nativo no VPS; Docker entra quando migrar para multi-host ou simplificar DR | `docker-expert`                                                                 |
-| [kubernetes](https://roadmap.sh/kubernetes) | **Não relevante hoje** — KVM 1 não justifica K8s. Re-avaliar a partir de 100k MAU                           | `kubernetes-architect`                                                          |
-| [linux](https://roadmap.sh/linux)           | **Direto** — todo hardening do HOSTING-DEPLOY (SSH, ufw, fail2ban, systemd) é Linux fundamentals            | `linux-troubleshooting`, `bash-pro`, `bash-defensive-patterns`                  |
-
-#### Rede
-
-| Roadmap                                                 | Relevância Interpop                                                 | Skills primárias                  |
-| ------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------- |
-| [network-engineer](https://roadmap.sh/network-engineer) | Médio — Cloudflare config (ADR-003), DNS, TLS 1.3, security headers | `network-engineer`, `network-101` |
-
-#### Segurança (DevSecOps embedded — ADR-006)
-
-| Roadmap                                             | Relevância Interpop                                | Skills primárias                                                                                                                                        |
-| --------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [cyber-security](https://roadmap.sh/cyber-security) | **Crítico** — todo §5.5 + §11.6 derivam desse mapa | `security-auditor`, `cc-skill-security-review`, `pentest-checklist`, `ethical-hacking-methodology`, `threat-modeling-expert`, `top-web-vulnerabilities` |
-
-#### IA & Dados
-
-| Roadmap                                                   | Relevância Interpop                                                                                                                                      | Skills primárias                                      |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| [ai-data-scientist](https://roadmap.sh/ai-data-scientist) | **Médio prazo** — sem feature de IA hoje; potencial: classificação automática de tag, sugestão de relacionados (embeddings), sumarização para newsletter | `ai-engineer`, `rag-engineer`, `embedding-strategies` |
-
-### Integração com o protocolo de skills
-
-O protocolo da §2 ganha **passo 3.5**:
-
-> **3.5** Se a tarefa toca domínio coberto por algum dos 19 roadmaps, mencionar mentalmente como sanity-check + oferecer link ao usuário quando ele indicar ser área nova pra ele.
-
-Skills continuam sendo o _como_; roadmaps ancoram o _território_.
-
----
-
-_Atualizado em 2026-05-20 — adicionada §5 com 19 roadmaps canônicos de roadmap.sh, mapeamento por relevância para o stack Interpop + skills correspondentes. Versão project-agnostic em `~/.claude/CLAUDE.md` (global)._
-
----
+## 5. Roadmaps canônicos → [`docs/references/agents-roadmaps-canonicos.md`](./docs/references/agents-roadmaps-canonicos.md)
 
 ## 6. Política de testes (REGRA INEGOCIÁVEL)
 
@@ -297,44 +86,15 @@ _Atualizado em 2026-05-20 — adicionada §5 com 19 roadmaps canônicos de roadm
 >
 > O catálogo completo, rationale, stack, gates, templates de report e exemplos vivem em [`docs/tests/testing-standards.md`](./docs/tests/testing-standards.md) — leitura obrigatória antes de tocar em código testável.
 
-### 6.1 Os 10 tipos de teste praticados (core)
+- **§6.1 Tipos core (10)**: unitário, retroativo (backfill), TDD, integração, E2E (futuro, Sprint 3+), regressão, smoke, acessibilidade, performance, segurança. Tabela com definição, quando aplicar e estado: [`docs/references/agents-politica-de-testes-detalhe.md`](./docs/references/agents-politica-de-testes-detalhe.md).
+- **Report por execução** em `docs/tests/reports/AAAA-MM-DD_HH-MM-SS.md` (UTC-3) + cópia PDF em `docs/tests/reports-pdf/` via `scripts/md-to-pdf.sh`, com (a) resumo simples e (b) análise técnica.
+- **Política dura de merge**: PR não merge se cobertura **DESCE**. Gate atual: 40%, sobe 10pp/sprint até 80%. Mudança em gate ou stack de teste vira ADR antes de aplicar.
+- **Stack**: backend pytest + pytest-django (`backend/pytest.ini`, `backend/conftest.py`); frontend vitest + Testing Library. CI (`.github/workflows/ci.yml`) roda `uv run pytest --cov-fail-under=40` em todo PR; falha bloqueia merge.
 
-| #   | Tipo                              | Definição curta                                                      | Quando aplicar                                                                       | Estado                                                |
-| --- | --------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| 1   | **Unitário**                      | Testa 1 função/método isolado, sem DB nem HTTP. Mais rápido (~ms).   | Lógica pura, helpers, utils, validators, computed properties.                        | ✅ ativo                                              |
-| 2   | **Retroativo (backfill)**         | Testa código pré-existente sem cobertura, escrito DEPOIS do código.  | Refactor de área crítica; bug descoberto em código velho.                            | ✅ ativo                                              |
-| 3   | **TDD (test-driven-development)** | Teste PRIMEIRO (vermelho → verde → refactor).                        | Lógica de segurança, cálculos de domínio, migrations one-shot, hotfix de produção.   | ✅ ativo                                              |
-| 4   | **Integração**                    | Múltiplos componentes juntos com DB real, testa fronteiras.          | API endpoints E2E backend, signals + service interagindo.                            | ✅ ativo (parcial)                                    |
-| 5   | **E2E (end-to-end)**              | Fluxo completo browser → API → DB via Playwright.                    | Fluxos críticos: login, publicar artigo, comentar, banir.                            | ⏳ implementação futura (Sprint 3+)                   |
-| 6   | **Regressão**                     | Teste escrito APÓS um bug, reproduzindo o cenário exato que falhou.  | Toda vez que um bug crítico é corrigido. Garante que NÃO volta.                      | ✅ ativo                                              |
-| 7   | **Smoke (fumaça)**                | Sanity check rápido — sistema subiu e responde no básico.            | Pós-deploy (rollback automático se falha), pós-restart, monitor externo UptimeRobot. | ✅ ativo (via `/healthz/`)                            |
-| 8   | **Acessibilidade (a11y)**         | Conformidade WCAG 2.2 AA: contraste, teclado, ARIA, screen reader.   | Antes de QUALQUER mudança visual de frontend (§4 — WCAG obrigatório).                | ✅ ativo (WAVE/axe manual) · 🟡 axe-core em CI futuro |
-| 9   | **Performance**                   | Core Web Vitals (LCP/INP/CLS), p50/p95/p99 backend, query count.     | Antes de mudança em hot path; antes de adicionar lib pesada; pós-pico de uso.        | 🟡 base via Sentry · gates Lighthouse CI em roadmap   |
-| 10  | **Segurança**                     | SAST (bandit, semgrep), DAST, secret scan (gitleaks), depend. audit. | Todo PR (CI automático); antes de release; pós-CVE em dependência.                   | 🟡 base manual · S15-S17 em roadmap (Sprint 1-2)      |
+## Onde está o resto
 
-**Extensão futura**: o documento mestre lista **13 tipos adicionais** (property-based, snapshot, mutation, migration, contract, visual regression, load/stress, fuzz, concurrency, doctest, compatibility, l10n, BDD) com critério "quando virar dor", e **protocolo formal para criar tipo novo** se nenhum dos 23 cobrir o caso. Ver [`docs/tests/testing-standards.md §2.11 + §2.12`](./docs/tests/testing-standards.md).
-
-### 6.2 Convenções operacionais
-
-- **Cada execução de teste gera report** em `docs/tests/reports/AAAA-MM-DD_HH-MM-SS.md` (timestamp ISO 8601 com underscore, hora em formato 24h, fuso UTC-3 Brasília).
-- **Cópia em PDF** (gerada via `scripts/md-to-pdf.sh`) vai em `docs/tests/reports-pdf/` — formato com 2 seções obrigatórias: **(a) Resumo simples + direto** (1 parágrafo para qualquer leitor) e **(b) Análise técnica + detalhada** (stack traces, file:line, métricas).
-- **Documento mestre** `docs/tests/testing-standards.md` define regras, stack, gates de cobertura, naming, templates. Atualiza junto com decisões arquiteturais de teste (cada mudança vira ADR no `Improvement-system.md`).
-- **Política dura de merge**: PR não merge se cobertura **DESCE**. Aceitável: cobertura sobe ou estável.
-- **Gate atual de cobertura**: 40% (Sprint 1 — atingido com 82% efetivo, 88 testes). Sobe 10pp/sprint até 80%.
-
-### 6.3 Quando consultar testing-standards.md
-
-- Antes de escrever **qualquer** novo teste — consultar template, naming, locality.
-- Antes de criar **report** de teste — consultar template de PDF (simples + técnico).
-- Antes de propor **mudança em gate** de cobertura ou stack — virar ADR antes de aplicar.
-- Antes de aceitar PR de outro contribuidor — confirmar conformidade com §6.
-
-### 6.4 Stack ativa
-
-- **Backend**: pytest 9 + pytest-django 4.12 + pytest-cov 7 + factory-boy + freezegun + pytest-mock. Configurado em `backend/pytest.ini` + `backend/conftest.py`.
-- **Frontend**: vitest + Testing Library + Playwright (E2E futuro). Configurado em `package.json` (a entrar — F4/F11).
-- **CI gate**: `.github/workflows/ci.yml` roda `uv run pytest --cov-fail-under=40` em todo PR; falha bloqueia merge.
-
----
-
-_Atualizado em 2026-05-21 — adicionada §6 Política de testes (INEGOCIÁVEL): 10 tipos de teste core praticados + 13 tipos de extensão + protocolo formal para criar tipo novo, convenções operacionais (reports `docs/tests/` com timestamp ISO 8601), cross-ref para `testing-standards.md` como documento-mestre. Item-pointer adicionado em §4 Convenções._
+- [`docs/references/agents-comportamento-gabarito.md`](./docs/references/agents-comportamento-gabarito.md) — §0 por extenso; consultar em dúvida sobre como aplicar uma das 5 diretrizes.
+- [`docs/references/agents-sumarios-de-skills.md`](./docs/references/agents-sumarios-de-skills.md) — antiga §3, sumário de cada skill/plugin da §2; consultar ao usar uma delas.
+- [`docs/references/agents-roadmaps-canonicos.md`](./docs/references/agents-roadmaps-canonicos.md) — antiga §5, 19 roadmaps do roadmap.sh mapeados para o stack; consultar antes de decisão de stack, arquitetura, Sprint ou ADR.
+- [`docs/references/agents-politica-de-testes-detalhe.md`](./docs/references/agents-politica-de-testes-detalhe.md) — §6 por extenso (tabela §6.1, convenções, stack); consultar antes de escrever teste, report ou mudar gate.
+- [`docs/references/agents-historico-de-atualizacoes.md`](./docs/references/agents-historico-de-atualizacoes.md) — notas "_Atualizado em_" deste arquivo; consultar para saber quando e por que uma seção mudou.
