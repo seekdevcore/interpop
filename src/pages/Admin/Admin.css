@@ -108,7 +108,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  /* Os botões abaixo já têm 12px de padding vertical. */
+  gap: var(--sp-2);
 }
 
 .admin__current-user {
@@ -127,18 +128,40 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
+.admin__footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+/* Mesma altura, recuo e alvo de clique dos itens de navegação (.admin__nav-item).
+   A margem negativa alinha os ícones com os da navegação, que tem 4px a menos
+   de padding lateral que o rodapé. */
 .admin__back-link {
-  font-size: var(--text-xs);
-  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-inline: calc(-1 * var(--sp-1));
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
-  padding: 0;
-  transition: color var(--t-fast);
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+
+.admin__back-link svg {
+  flex-shrink: 0;
 }
 
 .admin__back-link:hover {
+  background: rgba(255, 255, 255, 0.08);
   color: var(--clr-white);
 }
 
@@ -199,9 +222,21 @@
   background: #fff5f5;
 }
 
+/* Ícone de 20px num quadrado de 40px com fundo na cor do card. */
 .admin__stat-icon {
-  font-size: 1.6rem;
-  line-height: 1;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: var(--clr-primary-100);
+  color: var(--clr-primary);
+}
+
+.admin__stat-card--danger .admin__stat-icon {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 /* dl semântico (dt=rótulo, dd=valor). column-reverse mantém o valor no topo
@@ -1365,6 +1400,7 @@
   color: rgba(252, 165, 165, 0.8);
 }
 .admin__back-link--danger:hover {
+  background: rgba(252, 165, 165, 0.12);
   color: #fca5a5;
 }
 
@@ -1436,6 +1472,9 @@
 }
 
 .admin__ban-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
   font-size: var(--text-xs);
   color: #92400e;
   background: #fffbeb;
@@ -1443,6 +1482,12 @@
   border-radius: var(--radius-md);
   padding: var(--sp-3) var(--sp-4);
   line-height: 1.6;
+}
+
+/* Centraliza o ícone de 16px na primeira linha (1.6 × 12px ≈ 19px). */
+.admin__ban-warning svg {
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .admin__unban-info {

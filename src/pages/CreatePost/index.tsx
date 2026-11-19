@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Eye, ImagePlus, Pencil, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -233,7 +234,8 @@ export function CreatePost({ editingSlug }: CreatePostProps = {}) {
             className="create-post__back"
             onClick={() => navigate('/admin')}
           >
-            ← Painel Admin
+            <ArrowLeft size={16} />
+            Painel Admin
           </button>
           <div>
             <h1>{isEditing ? 'Editar publicação' : 'Nova publicação'}</h1>
@@ -250,7 +252,17 @@ export function CreatePost({ editingSlug }: CreatePostProps = {}) {
             type="button"
             onClick={() => setPreview((v) => !v)}
           >
-            {preview ? '✏️ Editar' : '👁 Prévia'}
+            {preview ? (
+              <>
+                <Pencil size={16} />
+                Editar
+              </>
+            ) : (
+              <>
+                <Eye size={16} />
+                Prévia
+              </>
+            )}
           </Button>
           <Button
             variant="primary"
@@ -397,7 +409,7 @@ export function CreatePost({ editingSlug }: CreatePostProps = {}) {
                       onClick={removeCover}
                       aria-label="Remover imagem de capa"
                     >
-                      ✕
+                      <X size={16} strokeWidth={2.5} />
                     </button>
                   </div>
                   <span className="create-post__img-filename">
@@ -422,12 +434,11 @@ export function CreatePost({ editingSlug }: CreatePostProps = {}) {
                       fileInputRef.current?.click();
                   }}
                 >
-                  <div
+                  <ImagePlus
                     className="create-post__dropzone-icon"
-                    aria-hidden="true"
-                  >
-                    🖼️
-                  </div>
+                    size={40}
+                    strokeWidth={1.5}
+                  />
                   <p className="create-post__dropzone-text">
                     Clique para selecionar ou arraste uma imagem aqui
                   </p>

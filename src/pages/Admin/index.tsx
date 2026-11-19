@@ -1,9 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Ban,
+  ChartNoAxesColumn,
+  FileText,
+  LogOut,
+  Plus,
+  Shield,
+  TriangleAlert,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { RoleLabel } from '@/components/ui/RoleLabel';
+import { ROLE_META } from '@/components/ui/roleMeta';
 import moderationService, {
   type ApiBan,
   type ApiBanRequest,
@@ -205,15 +219,15 @@ export function Admin() {
   );
 
   const stats = [
-    { label: 'Total de usuários', value: users.length, icon: '👥' },
-    { label: 'Usuários ativos', value: activeUsers.length, icon: '✅' },
-    { label: 'Banidos', value: bans.length, icon: '🚫', highlight: true },
-    // Dev + Admin contam juntos no card "Staff" (hierarquia interna), mas o badge
-    // visual na coluna CARGO diferencia (🛠️ Dev vs 🛡️ Admin).
+    { label: 'Total de usuários', value: users.length, Icon: Users },
+    { label: 'Usuários ativos', value: activeUsers.length, Icon: UserCheck },
+    { label: 'Banidos', value: bans.length, Icon: Ban, highlight: true },
+    // Dev + Admin contam juntos no card "Staff" (hierarquia interna), mas o selo
+    // na coluna CARGO diferencia (Dev vs Admin).
     {
       label: 'Staff (Dev + Admin)',
       value: users.filter((u) => u.role === 'admin' || u.role === 'dev').length,
-      icon: '🛡️',
+      Icon: Shield,
     },
   ];
 
@@ -313,18 +327,7 @@ export function Admin() {
             className={`admin__nav-item ${tab === 'usuarios' ? 'admin__nav-item--active' : ''}`}
             onClick={() => setTab('usuarios')}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+            <Users size={18} />
             Usuários
             <span className="admin__nav-badge">{activeUsers.length}</span>
           </button>
@@ -333,21 +336,7 @@ export function Admin() {
             className={`admin__nav-item ${tab === 'publicacoes' ? 'admin__nav-item--active' : ''}`}
             onClick={() => setTab('publicacoes')}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path
-                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                strokeLinejoin="round"
-              />
-              <polyline points="14 2 14 8 20 8" strokeLinejoin="round" />
-              <line x1="8" y1="13" x2="16" y2="13" strokeLinecap="round" />
-              <line x1="8" y1="17" x2="13" y2="17" strokeLinecap="round" />
-            </svg>
+            <FileText size={18} />
             Publicações
           </button>
 
@@ -355,16 +344,7 @@ export function Admin() {
             className={`admin__nav-item ${tab === 'banimentos' ? 'admin__nav-item--active' : ''}`}
             onClick={() => setTab('banimentos')}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
-            </svg>
+            <Ban size={18} />
             Banimentos
             {bans.length > 0 && (
               <span className="admin__nav-badge admin__nav-badge--danger">
@@ -383,17 +363,7 @@ export function Admin() {
                 loadMetrics(metricsPeriod);
               }}
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
-              >
-                <line x1="18" y1="20" x2="18" y2="10" strokeLinecap="round" />
-                <line x1="12" y1="20" x2="12" y2="4" strokeLinecap="round" />
-                <line x1="6" y1="20" x2="6" y2="14" strokeLinecap="round" />
-              </svg>
+              <ChartNoAxesColumn size={18} />
               Métricas
             </button>
           )}
@@ -408,18 +378,27 @@ export function Admin() {
             />
             <div>
               <p className="admin__user-name">{currentUser?.full_name}</p>
-              <p className="admin__user-role">Administrador</p>
+              {/* Cargo real: dev e editor também entram no painel. */}
+              {currentUser && (
+                <p className="admin__user-role">
+                  {ROLE_META[currentUser.role].label}
+                </p>
+              )}
             </div>
           </div>
-          <button className="admin__back-link" onClick={() => navigate('/')}>
-            ← Voltar ao site
-          </button>
-          <button
-            className="admin__back-link admin__back-link--danger"
-            onClick={handleLogout}
-          >
-            Sair
-          </button>
+          <div className="admin__footer-actions">
+            <button className="admin__back-link" onClick={() => navigate('/')}>
+              <ArrowLeft size={18} />
+              Voltar ao site
+            </button>
+            <button
+              className="admin__back-link admin__back-link--danger"
+              onClick={handleLogout}
+            >
+              <LogOut size={18} />
+              Sair
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -436,17 +415,7 @@ export function Admin() {
             size="lg"
             onClick={() => navigate('/criar-publicacao')}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              width="18"
-              height="18"
-              aria-hidden="true"
-            >
-              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-            </svg>
+            <Plus size={18} strokeWidth={2.5} />
             Nova publicação
           </Button>
         </div>
@@ -466,8 +435,8 @@ export function Admin() {
                 key={s.label}
                 className={`admin__stat-card ${s.highlight ? 'admin__stat-card--danger' : ''}`}
               >
-                <span className="admin__stat-icon" aria-hidden="true">
-                  {s.icon}
+                <span className="admin__stat-icon">
+                  <s.Icon size={20} />
                 </span>
                 {/* dl/dt/dd: par rótulo→valor é semanticamente uma definição,
                     e o WAVE não marca dt/dd como "possible heading" (que era o
@@ -564,13 +533,7 @@ export function Admin() {
                           <span
                             className={`admin__role-badge admin__role-badge--${user.role}`}
                           >
-                            {user.role === 'dev'
-                              ? '🛠️ Dev'
-                              : user.role === 'admin'
-                                ? '🛡️ Admin'
-                                : user.role === 'editor'
-                                  ? '✍️ Editor'
-                                  : '📖 Leitor'}
+                            <RoleLabel role={user.role} />
                           </span>
                         </td>
                         <td className="admin__cell-muted">
@@ -1140,8 +1103,8 @@ export function Admin() {
           </div>
 
           <p className="admin__ban-warning">
-            ⚠️ O usuário perderá acesso imediato à plataforma. Esta ação pode
-            ser revertida a qualquer momento.
+            <TriangleAlert size={16} />O usuário perderá acesso imediato à
+            plataforma. Esta ação pode ser revertida a qualquer momento.
           </p>
         </div>
       </Modal>

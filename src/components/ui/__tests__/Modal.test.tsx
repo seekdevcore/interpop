@@ -37,3 +37,19 @@ describe('Modal — id único de título', () => {
     expect(document.getElementById(ids[1]!)).toHaveTextContent('Privacidade');
   });
 });
+
+describe('Modal — botão Fechar', () => {
+  it('usa ícone SVG decorativo em vez do glifo ✕', () => {
+    render(
+      <Modal open onClose={() => {}} title="Termos">
+        conteúdo
+      </Modal>,
+    );
+
+    const close = screen.getByRole('button', { name: 'Fechar' });
+    expect(close.textContent).not.toContain('✕');
+    const svg = close.querySelector('svg');
+    expect(svg).not.toBeNull();
+    expect(svg).toHaveAttribute('aria-hidden', 'true');
+  });
+});

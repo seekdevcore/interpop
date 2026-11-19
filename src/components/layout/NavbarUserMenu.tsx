@@ -12,8 +12,10 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, LogOut, UserRound } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar } from '../ui/Avatar';
+import { RoleLabel } from '../ui/RoleLabel';
 
 interface NavbarUserMenuProps {
   onAfterAction?: () => void;
@@ -21,7 +23,7 @@ interface NavbarUserMenuProps {
 
 export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
   const navigate = useNavigate();
-  const { currentUser, canPublish, isDev, isAdmin, logout } = useAuth();
+  const { currentUser, canPublish, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -65,15 +67,9 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
     navigate('/login');
   }
 
-  // Badge de role pequeno no dropdown header. Dev e Admin têm visual distinto;
-  // editor/user ficam sem badge (visual mais limpo para leitor comum).
-  const roleBadge = isDev
-    ? { label: '🛠️ Dev', cls: 'navbar-menu__role-badge--dev' }
-    : isAdmin
-      ? { label: '🛡️ Admin', cls: 'navbar-menu__role-badge--admin' }
-      : currentUser.role === 'editor'
-        ? { label: '✍️ Editor', cls: 'navbar-menu__role-badge--editor' }
-        : null;
+  // Selo de cargo no header do dropdown: dev, admin e editor. O leitor comum
+  // fica sem selo (visual mais limpo).
+  const showRoleBadge = currentUser.role !== 'user';
 
   return (
     <div
@@ -125,9 +121,11 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
           {currentUser.email && (
             <p className="navbar-menu__header-email">{currentUser.email}</p>
           )}
-          {roleBadge && (
-            <span className={`navbar-menu__role-badge ${roleBadge.cls}`}>
-              {roleBadge.label}
+          {showRoleBadge && (
+            <span
+              className={`navbar-menu__role-badge navbar-menu__role-badge--${currentUser.role}`}
+            >
+              <RoleLabel role={currentUser.role} />
             </span>
           )}
         </div>
@@ -140,7 +138,7 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
           role="menuitem"
           onClick={() => setOpen(false)}
         >
-          <span aria-hidden="true">👤</span>
+          <UserRound size={16} />
           Meu perfil
         </Link>
 
@@ -151,7 +149,7 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
             role="menuitem"
             onClick={() => setOpen(false)}
           >
-            <span aria-hidden="true">🛡️</span>
+            <LayoutDashboard size={16} />
             Painel administrativo
           </Link>
         )}
@@ -164,7 +162,7 @@ export function NavbarUserMenu({ onAfterAction }: NavbarUserMenuProps = {}) {
           role="menuitem"
           onClick={handleLogout}
         >
-          <span aria-hidden="true">↪</span>
+          <LogOut size={16} />
           Sair
         </button>
       </div>
