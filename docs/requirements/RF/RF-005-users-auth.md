@@ -102,7 +102,7 @@ Riscos do sistema sem auth (motivação direta para Sprint 1):
 | Item                                         | Onde está                                             | Por quê fora                                                                                                                              |
 | -------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | **2FA / TOTP para staff (dev/admin/editor)** | Backlog — `S-04` em CONCERNS                          | **Crítico** mas exige UX dedicada + janela de migração. Mitigação imediata: fechar `/admin/` por firewall até 2FA chegar.                 |
-| **SSO Google (OAuth)**                       | Backlog (sem ADR ainda)                               | Reduz fricção de cadastro mas exige decidir se identidade primária continua sendo email/senha. Bloqueado por essa decisão de produto.     |
+| **SSO Google (OAuth)**                       | **Decidido:** ADR-048 (2026-11-15), a implementar     | E-mail continua sendo a identidade; Google é outra forma de entrar na mesma conta. Conta com senha no mesmo e-mail liga só após a senha.  |
 | **Magic link (login sem senha)**             | **Excluído permanentemente**                          | Conflita com modelo "sessão longa + recuperação por email": criaria dois caminhos de email-as-auth, multiplicando superfície de phishing. |
 | **Email verification (confirmar email)**     | Backlog                                               | Cadastro hoje emite tokens imediatos sem confirmar email. Risco: cadastro com email alheio. Não bloqueador do MVP.                        |
 | **DELETE account (LGPD)**                    | Backlog                                               | Hoje só admin remove via Django admin. Endpoint próprio exige decisão: anonimização vs hard-delete (comentários/artigos órfãos).          |
@@ -118,6 +118,7 @@ Detalhe completo em [`docs/planning/adrs/`](../../planning/adrs/). Decisões que
 - **ADR-008 — DPO/LGPD baseline** — define que dados pessoais (email, nome) seguem princípios de minimização e que mensagens de erro em login/recovery não revelam existência de conta.
 - **ADR-010 — Versionamento `/api/v1/`** — endpoints de auth montados em `/api/v1/auth/*`.
 - **ADR-012 — Atomicidade em mutações multi-tabela** — `PasswordResetConfirmSerializer.save()` é `@transaction.atomic` (fix C3 do Improvement-system §11.1). Sem isso, crash entre `set_password` e `token.is_used=True` deixava conta inacessível.
+- **ADR-048 — Login com Google como outra forma de entrar na mesma conta** — o e-mail continua sendo a identidade; `POST /auth/google/` verifica o token do Google no backend; se já existe conta com senha no mesmo e-mail, a ligação só acontece depois da senha (o cadastro não confirma e-mail, então ligar direto permitiria roubar a conta antes de o dono aparecer).
 - **ADR-035 — HMAC env-driven com hard-fail em prod** — padrão arquitetural a **replicar** para `JWT_SIGNING_KEY` (débito S-02). Hoje há fallback silencioso para `SECRET_KEY`.
 
 ---
